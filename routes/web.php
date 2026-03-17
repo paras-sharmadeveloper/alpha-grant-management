@@ -467,6 +467,8 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::match(['get', 'post'], 'loans/apply_loan', [App\Http\Controllers\Customer\LoanController::class, 'apply_loan'])->name('loans.apply_loan');
                 Route::get('loans/loan_details/{id}', [App\Http\Controllers\Customer\LoanController::class, 'loan_details'])->name('loans.loan_details');
                 Route::match(['get', 'post'], 'loans/payment/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'loan_payment'])->name('loans.loan_payment');
+                Route::get('loans/stripe_payment/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'stripe_payment'])->name('loans.stripe_payment');
+                Route::post('loans/stripe_callback/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'stripe_callback'])->name('loans.stripe_callback');
                 Route::get('loans/my_loans', [App\Http\Controllers\Customer\LoanController::class, 'index'])->name('loans.my_loans');
 
                 //Deposit Money

@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Stripe\Stripe as StripeClient;
+use Stripe\Charge;
 
 class LoanController extends Controller {
 
@@ -474,6 +476,138 @@ class LoanController extends Controller {
                 return response()->json(['result' => 'success', 'action' => 'store', 'message' => _lang('Payment Made Sucessfully'), 'data' => $loanpayment, 'table' => '#loan_payments_table']);
             }
         }
+    }
+
+    public function stripe_payment(Request $request, $tenant, $loan_id) {
+        $loan = Loan::where('id', $loan_id)->where('borrower_id', auth()->user()->member->id)->firstOrFail();
+
+        $today          = \Carbon\Carbon::today();
+        $repayment_date = \Carbon\Carbon::parse($loan->next_payment->getRawOriginal('repayment_date'));
+        $overdue_days   = $today->gt($repayment_date) ? $repayment_date->diffInDays($today) : 0;
+        $late_penalties = max($overdue_days * $loan->next_payment->penalty, 0);
+        $totalAmount    = $loan->next_payment->principal_amount + $loan->next_payment->interest + $late_penalties;
+
+        $publishable_key = config('services.stripe.key');
+
+        return view('backend.customer.loan.stripe_payment', compact('loan', 'totalAmount', 'late_penalties', 'publishable_key'));
+    }
+
+    public function stripe_callback(Request $request, $tenant, $loan_id) {
+        $loan = Loan::where('id', $loan_id)->where('borrower_id', auth()->user()->member->id)->firstOrFail();
+
+        $today          = \Carbon\Carbon::today();
+        $repayment_date = \Carbon\Carbon::parse($loan->next_payment->getRawOriginal('repayment_date'));
+        $overdue_days   = $today->gt($repayment_date) ? $repayment_date->diffInDays($today) : 0;
+        $penalty        = max($overdue_days * $loan->next_payment->penalty, 0);
+        $repayment      = $loan->next_payment;
+        $amount         = $repayment->principal_amount + $repayment->interest + $penalty;
+
+        $secret_key = config('services.stripe.secret');
+        StripeClient::setApiKey($secret_key);
+
+        try {
+            $charge = Charge::create([
+                'amount'      => round($amount * 100),
+                'currency'    => strtolower($loan->currency->name),
+                'source'      => $request->stripeToken,
+                'description' => _lang('Loan Repayment') . ' - ' . $loan->loan_id,
+            ]);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        if ($charge->paid && $charge->captured && $charge->failure_code == null) {
+            DB::beginTransaction();
+
+            $existing_amount = $repayment->principal_amount;
+
+            // Record transaction
+            $debit                     = new Transaction();
+            $debit->trans_date         = now();
+            $debit->member_id          = $loan->borrower_id;
+            $debit->savings_account_id = null;
+            $debit->amount             = $amount;
+            $debit->dr_cr              = 'dr';
+            $debit->type               = 'Loan_Repayment';
+            $debit->method             = 'Stripe';
+            $debit->status             = 2;
+            $debit->note               = _lang('Loan Repayment via Stripe');
+            $debit->description        = _lang('Loan Repayment via Stripe');
+            $debit->created_user_id    = auth()->id();
+            $debit->branch_id          = $loan->borrower->branch_id;
+            $debit->loan_id            = $loan->id;
+            $debit->save();
+
+            $loanpayment                   = new LoanPayment();
+            $loanpayment->loan_id          = $loan->id;
+            $loanpayment->paid_at          = date('Y-m-d');
+            $loanpayment->late_penalties   = $penalty;
+            $loanpayment->interest         = $repayment->interest;
+            $loanpayment->repayment_amount = $repayment->principal_amount + $repayment->interest;
+            $loanpayment->total_amount     = $loanpayment->repayment_amount + $penalty;
+            $loanpayment->remarks          = 'Stripe Payment - ' . $charge->id;
+            $loanpayment->transaction_id   = $debit->id;
+            $loanpayment->repayment_id     = $repayment->id;
+            $loanpayment->member_id        = $loan->borrower_id;
+            $loanpayment->save();
+
+            // Update loan balance
+            $loan->total_paid = $loan->total_paid + $repayment->principal_amount;
+            if ($loan->total_paid >= $loan->applied_amount) {
+                $loan->status = 2;
+            }
+            $loan->save();
+
+            // Update repayment status
+            $repayment->amount_to_pay = $repayment->principal_amount + $repayment->interest;
+            $repayment->balance       = $loan->applied_amount - $loan->total_paid;
+            $repayment->status        = 1;
+            $repayment->save();
+
+            if ($loan->total_paid >= $loan->applied_amount) {
+                LoanRepayment::where('loan_id', $loan_id)->where('status', 0)->delete();
+            } else {
+                if ($repayment->principal_amount != $existing_amount) {
+                    $upCommingRepayments = LoanRepayment::where('loan_id', $loan_id)->where('status', 0)->get();
+                    if (! $upCommingRepayments->isEmpty()) {
+                        $interest_type = $loan->loan_product->interest_type;
+                        $calculator    = new Calculator(
+                            $loan->applied_amount - $loan->total_paid,
+                            $upCommingRepayments[0]->repayment_date,
+                            $loan->loan_product->interest_rate,
+                            $upCommingRepayments->count(),
+                            $loan->loan_product->term_period,
+                            $loan->late_payment_penalties,
+                            $loan->applied_amount
+                        );
+                        $repayments = $interest_type == 'flat_rate' ? $calculator->get_flat_rate()
+                            : ($interest_type == 'fixed_rate' ? $calculator->get_fixed_rate()
+                                : ($interest_type == 'mortgage' ? $calculator->get_mortgage()
+                                    : ($interest_type == 'one_time' ? $calculator->get_one_time()
+                                        : $calculator->get_reducing_amount())));
+                        foreach ($repayments as $i => $newRepayment) {
+                            $upCommingRepayments[$i]->fill([
+                                'amount_to_pay'    => $newRepayment['amount_to_pay'],
+                                'penalty'          => $newRepayment['penalty'],
+                                'principal_amount' => $newRepayment['principal_amount'],
+                                'interest'         => $newRepayment['interest'],
+                                'balance'          => $newRepayment['balance'],
+                            ])->save();
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+
+            try {
+                $loanpayment->member->notify(new LoanPaymentReceived($loanpayment));
+            } catch (Exception $e) {}
+
+            return redirect()->route('loans.my_loans')->with('success', _lang('Payment Made Successfully via Stripe'));
+        }
+
+        return back()->with('error', _lang('Payment failed. Please try again.'));
     }
 
     // Function to calculate the release date
