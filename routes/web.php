@@ -542,6 +542,7 @@ Route::get('admin/dashboard/json_package_wise_subscription', [SuperAdminDashboar
 Route::get('admin/dashboard/json_yearly_revenue', [SuperAdminDashboardController::class, 'json_yearly_revenue'])->middleware('auth');
 Route::get('admin/dashboard/json_yearly_signup', [SuperAdminDashboardController::class, 'json_yearly_signup'])->middleware('auth');
 
+
 //Subscription Payment
 Route::prefix('subscription_callback')->group(function () {
     Route::get('paypal', [PayPalProcessController::class, 'callback'])->name('subscription_callback.PayPal');

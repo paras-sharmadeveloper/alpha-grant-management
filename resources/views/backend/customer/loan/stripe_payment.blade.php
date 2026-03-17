@@ -2,6 +2,8 @@
 
 @section('content')
 
+
+
 <script src="https://js.stripe.com/v3/"></script>
 
 <div class="row">

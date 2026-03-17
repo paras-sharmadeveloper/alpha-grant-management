@@ -3,6 +3,7 @@
 @section('content')
 <script src="https://js.stripe.com/v3/"></script>
 
+
 <div class="row">
 	<div class="col-lg-6 offset-lg-3">
 		<div class="card">

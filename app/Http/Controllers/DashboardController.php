@@ -31,11 +31,30 @@ class DashboardController extends Controller {
         $data['assets'] = ['datatable'];
 
         if ($user_type == 'customer') {
-            $data['recent_transactions'] = Transaction::where('member_id', $user->member->id)
-                ->limit('10')
-                ->orderBy('trans_date', 'desc')
-                ->get();
-            $data['loans'] = Loan::where('status', 1)->where('borrower_id', $user->member->id)->get();
+            $from_date = request('from_date');
+            $to_date   = request('to_date');
+
+            $transQuery = Transaction::where('member_id', $user->member->id);
+            if ($from_date) {
+                $transQuery->whereDate('trans_date', '>=', $from_date);
+            }
+            if ($to_date) {
+                $transQuery->whereDate('trans_date', '<=', $to_date);
+            }
+            $data['recent_transactions'] = $transQuery->orderBy('trans_date', 'desc')->limit('10')->get();
+
+            $loanQuery = Loan::where('status', 1)->where('borrower_id', $user->member->id);
+            if ($from_date) {
+                $loanQuery->whereHas('next_payment', function ($q) use ($from_date) {
+                    $q->whereDate('repayment_date', '>=', $from_date);
+                });
+            }
+            if ($to_date) {
+                $loanQuery->whereHas('next_payment', function ($q) use ($to_date) {
+                    $q->whereDate('repayment_date', '<=', $to_date);
+                });
+            }
+            $data['loans'] = $loanQuery->get();
 
             return view("backend.customer.dashboard-$user_type", $data);
         } else {

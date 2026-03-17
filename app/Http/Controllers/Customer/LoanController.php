@@ -22,6 +22,8 @@ use Stripe\Charge;
 
 class LoanController extends Controller {
 
+
+    
     /**
      * Create a new controller instance.
      *
