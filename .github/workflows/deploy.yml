@@ -10,10 +10,10 @@ deploy:
 runs-on: ubuntu-latest
 
 steps:
-  - name: Checkout code
+  - name: Checkout Repository
     uses: actions/checkout@v4
 
-  - name: Deploy to FTP
+  - name: Deploy to FTP Server
     uses: SamKirkland/FTP-Deploy-Action@v4.3.4
     with:
       server: ${{ secrets.FTP_SERVER }}
