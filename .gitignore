@@ -9,4 +9,3 @@
 .env.production
 /storage/
 /storage/logs/
-/bootstrap/cache/
