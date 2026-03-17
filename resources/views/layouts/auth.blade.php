@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,14 +23,16 @@
     <link rel="stylesheet" href="{{ asset('public/backend/plugins/bootstrap/css/bootstrap.min.css') }}">
     <link href="{{ asset('public/auth/css/app.css?v=1.2') }}" rel="stylesheet">
 </head>
+
 <body>
-    <div id="app">
+    <div id="app" class="jp-oop ">
         <main class="py-4">
             @yield('content')
         </main>
     </div>
 
-	<script src="{{ asset('public/backend/assets/js/vendor/jquery-3.7.1.min.js') }}"></script>
-	@yield('js-script')
+    <script src="{{ asset('public/backend/assets/js/vendor/jquery-3.7.1.min.js') }}"></script>
+    @yield('js-script')
 </body>
+
 </html>
