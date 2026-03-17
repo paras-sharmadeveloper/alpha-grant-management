@@ -527,7 +527,7 @@ class LoanController extends Controller {
             $debit                     = new Transaction();
             $debit->trans_date         = now();
             $debit->member_id          = $loan->borrower_id;
-            $debit->savings_account_id = null;
+            $debit->savings_account_id = $loan->debit_account_id;
             $debit->amount             = $amount;
             $debit->dr_cr              = 'dr';
             $debit->type               = 'Loan_Repayment';
