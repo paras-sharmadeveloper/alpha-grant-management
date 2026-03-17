@@ -314,7 +314,7 @@ class LoanController extends Controller {
                 ->where('member_id', $loan->borrower_id)
                 ->get();
 
-            // Calculate overdue days
+            // Calculate overdue days Testing
             $today          = \Carbon\Carbon::today();
             $repayment_date = \Carbon\Carbon::parse($loan->next_payment->getRawOriginal('repayment_date'));
             $overdue_days   = $today->gt($repayment_date) ? $repayment_date->diffInDays($today) : 0;
@@ -611,6 +611,7 @@ class LoanController extends Controller {
 
         return back()->with('error', _lang('Payment failed. Please try again.'));
     }
+
 
     // Function to calculate the release date
     private function calculateReleaseDate($loanData, $currentDate = null) {
