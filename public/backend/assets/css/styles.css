@@ -193,7 +193,7 @@ h5,
 }
 
 .text-primary {
-    color: #5f27cd !important;
+    color: #214942 !important;
 }
 .sticky {
     position: -webkit-sticky;
@@ -363,13 +363,13 @@ h5,
 
 .metismenu > li.active-nav > a {
     color: #fff;
-    /* background: #4f39f6; */
+    /* background: #214942; */
     background: #44a74a;
 }
 
 .metismenu > li.active-nav:hover > a {
     color: #fff;
-    background: #4f39f6;
+    background: #214942;
 }
 
 .metismenu > li:hover > a {
@@ -2077,8 +2077,8 @@ table.dbkit-table tr td {
     
     background-color: #214942;
     border-color: #214942;
-    /* background-color: #5f27cd;
-    border-color: #5f27cd; */
+    /* background-color: #214942;
+    border-color: #214942; */
 }
 .btn-primary:hover {
     color: #fff;
@@ -2113,20 +2113,20 @@ table.dbkit-table tr td {
 }
 
 .btn-outline-primary {
-    color: #5f27cd;
-    border-color: #5f27cd;
+    color: #214942;
+    border-color: #214942;
 }
 
 .btn-outline-primary:hover {
-    background: #5f27cd;
+    background: #214942;
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled).active,
 .btn-outline-primary:not(:disabled):not(.disabled):active,
 .show > .btn-outline-primary.dropdown-toggle {
     color: #fff;
-    background-color: #5f27cd;
-    border-color: #5f27cd;
+    background-color: #214942;
+    border-color: #214942;
 }
 
 /*-------------------- END Button ------------------- */
@@ -2159,7 +2159,7 @@ p.card-text {
 .dropdown-item:active {
     color: #fff;
     text-decoration: none;
-    background-color: #5f27cd;
+    background-color: #214942;
 }
 
 .dropdown-item {
@@ -4045,7 +4045,7 @@ Payment Gateway
     width: 100%;
     display: block;
     padding: 10px 15px;
-    background: #5f27cd;
+    background: #214942;
     border: none;
     color: #fff;
 }
@@ -4837,7 +4837,7 @@ Payment Gateway
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    border: 2px solid #5f27cd;
+    border: 2px solid #214942;
 }
 
 #hallView .square {
@@ -4880,8 +4880,8 @@ Payment Gateway
 }
 
 #hallView .restaurant-table.checked-in {
-    background: #5f27cd;
-    box-shadow: 1px 3px 20px #5f27cd;
+    background: #214942;
+    box-shadow: 1px 3px 20px #214942;
 }
 
 .badge-free {
@@ -4889,7 +4889,7 @@ Payment Gateway
     border: 1px solid #ccc;
 }
 .badge-checked-in {
-    background: #5f27cd;
+    background: #214942;
     color: #fff;
 }
 
@@ -4966,7 +4966,7 @@ Payment Gateway
 
   /* When the checkbox is checked, change the background color and move the circle */
   input:checked + .slider {
-    background-color: #4f39f6;
+    background-color: #214942;
   }
 
   input:checked + .slider:before {
@@ -5002,7 +5002,7 @@ Payment Gateway
 #productDetailsModal .product-qnt {
     width: 110px;
     padding: 10px;
-    border: 1px solid #5f27cd;
+    border: 1px solid #214942;
     border-radius: 4px;
     position: relative;
     display: inline-block;
