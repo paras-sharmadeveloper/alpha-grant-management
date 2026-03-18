@@ -1392,8 +1392,8 @@ table.dbkit-table tr td {
 .page-item.active .page-link {
     z-index: 3;
     color: #fff;
-    background-color: #5f27cd;
-    border-color: #5f27cd;
+    background-color: #214942;
+    border-color: #214942;
 }
 
 .pagination-bordered .page-link {
@@ -2073,8 +2073,12 @@ table.dbkit-table tr td {
 
 .btn-primary {
     color: #fff;
-    background-color: #5f27cd;
-    border-color: #5f27cd;
+    
+    
+    background-color: #214942;
+    border-color: #214942;
+    /* background-color: #5f27cd;
+    border-color: #5f27cd; */
 }
 .btn-primary:hover {
     color: #fff;
