@@ -180,19 +180,19 @@ select.form-control {
 
 .btn-primary {
     color: #fff;
-    background-color: #4f39f6;
-    border-color: #4f39f6;
+    background-color: #214942;
+    border-color: #214942;
 }
 
 .btn-primary:hover {
-    background-color: #432dd7;
-    border-color: #432dd7;
+    background-color: #214942;
+    border-color: #214942;
 }
 
 .btn-primary:active,
 .btn-primary:focus {
-    background-color: #432dd7;
-    border-color: #432dd7;
+    background-color: #214942;
+    border-color: #214942;
 }
 
 .tenant-link {

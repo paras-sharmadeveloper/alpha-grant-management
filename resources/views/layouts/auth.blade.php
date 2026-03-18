@@ -21,7 +21,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('public/backend/assets/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ asset('public/backend/plugins/bootstrap/css/bootstrap.min.css') }}">
-    <link href="{{ asset('public/auth/css/app.css?v=1.2') }}" rel="stylesheet">
+    <link href="{{ asset('public/auth/css/app.css?v=1.3') }}" rel="stylesheet">
 </head>
 
 <body>
