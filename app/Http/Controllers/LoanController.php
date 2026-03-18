@@ -173,13 +173,13 @@ class LoanController extends Controller {
         }
 
         //Check Debit account is valid account
-        $account = SavingsAccount::where('id', $request->debit_account_id)
-            ->where('member_id', $request->borrower_id)
-            ->first();
+        // $account = SavingsAccount::where('id', $request->debit_account_id)
+        //     ->where('member_id', $request->borrower_id)
+        //     ->first();
 
-        if (! $account) {
-            return back()->with('error', _lang('Invalid account'));
-        }
+        // if (! $account) {
+        //     return back()->with('error', _lang('Invalid account'));
+        // }
 
         $attachment = "";
         if ($request->hasfile('attachment')) {
@@ -244,20 +244,20 @@ class LoanController extends Controller {
 
     
         
-        $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
+        // $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
 
-        $charge = 0;
-        $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
-        $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
+        // $charge = 0;
+        // $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
+        // $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
     
-        if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
-            return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
-        }
+        // if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
+        //     return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
+        // }
   
 
   
         //Deduct Loan Processing Fee
-        process_loan_fee('loan_application_fee', $loan->borrower_id, $request->debit_account_id, $convertedAmount, $loanProduct->loan_application_fee, $loanProduct->loan_application_fee_type, $loan->id);
+        // process_loan_fee('loan_application_fee', $loan->borrower_id, $request->debit_account_id, $convertedAmount, $loanProduct->loan_application_fee, $loanProduct->loan_application_fee_type, $loan->id);
 
         
         //Increment Loan ID
@@ -340,44 +340,44 @@ class LoanController extends Controller {
         }
 
         //Deduct Loan Processing Fee
-        $account = SavingsAccount::where('id', $loan->debit_account_id)
-            ->where('member_id', $loan->borrower_id)
-            ->first();
+        // $account = SavingsAccount::where('id', $loan->debit_account_id)
+        //     ->where('member_id', $loan->borrower_id)
+        //     ->first();
 
-        if (! $account) {
-            $account = SavingsAccount::where('member_id', $loan->borrower_id)->first();
+        // if (! $account) {
+        //     $account = SavingsAccount::where('member_id', $loan->borrower_id)->first();
 
-            if (! $account) {
-                return back()->with('error', _lang('No account found for deducting loan processing fee'));
-            }
-        }
+        //     if (! $account) {
+        //         return back()->with('error', _lang('No account found for deducting loan processing fee'));
+        //     }
+        // }
 
         //Check if account is valid
-        if ($request->account_id != 'cash') {
-            $account = SavingsAccount::where('id', $request->account_id)
-                ->where('member_id', $loan->borrower_id)
-                ->first();
+        // if ($request->account_id != 'cash') {
+        //     $account = SavingsAccount::where('id', $request->account_id)
+        //         ->where('member_id', $loan->borrower_id)
+        //         ->first();
 
-            if (! $account) {
-                return back()->with('error', _lang('Invalid account !'));
-            }
-        }
+        //     if (! $account) {
+        //         return back()->with('error', _lang('Invalid account !'));
+        //     }
+        // }
 
         $loanProduct = $loan->loan_product;
 
         //Check Account has enough balance for deducting fee
-        $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
+        // $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
 
-        $charge = 0;
-        $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
-        $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
+        // $charge = 0;
+        // $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
+        // $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
 
-        if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
-            return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
-        }
+        // if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
+        //     return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
+        // }
 
         //Deduct Loan Processing Fee
-        process_loan_fee('loan_processing_fee', $loan->borrower_id, $account->id, $convertedAmount, $loanProduct->loan_processing_fee, $loanProduct->loan_processing_fee_type, $loan->id);
+        // process_loan_fee('loan_processing_fee', $loan->borrower_id, $account->id, $convertedAmount, $loanProduct->loan_processing_fee, $loanProduct->loan_processing_fee_type, $loan->id);
 
         $loan->status           = 1;
         $loan->approved_date    = date('Y-m-d');

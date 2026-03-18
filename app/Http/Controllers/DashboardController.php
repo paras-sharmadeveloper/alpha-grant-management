@@ -76,6 +76,9 @@ class DashboardController extends Controller {
                 ->get();
 
             $data['total_customer'] = Member::count();
+            $data['active_loans']   = Loan::where('status', 1)->count();
+            $data['pending_loans']  = Loan::where('status', 0)->count();
+            $data['total_loan_amount'] = Loan::whereIn('status', [1, 2])->sum('applied_amount');
 
             return view("backend.admin.dashboard-$user_type", $data);
         }

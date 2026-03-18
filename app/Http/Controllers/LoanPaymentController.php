@@ -37,10 +37,13 @@ class LoanPaymentController extends Controller {
 
     public function get_table_data() {
         $loanpayments = LoanPayment::select('loan_payments.*')
-            ->with('loan')
+            ->with(['loan', 'loan.borrower'])
             ->orderBy("loan_payments.id", "desc");
 
         return Datatables::eloquent($loanpayments)
+            ->addColumn('member_name', function ($loanpayment) {
+                return $loanpayment->loan->borrower->first_name . ' ' . $loanpayment->loan->borrower->last_name;
+            })
             ->editColumn('repayment_amount', function ($loanpayment) {
                 return decimalPlace($loanpayment->repayment_amount - $loanpayment->interest, currency($loanpayment->loan->currency->name));
             })

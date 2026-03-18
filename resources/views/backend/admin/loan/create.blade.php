@@ -45,12 +45,16 @@
 						<div class="col-lg-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Currency') }}</label>
-								<select class="form-control auto-select" data-selected="{{ old('currency_id') }}" name="currency_id" required>
+								{{-- Old currency select (commented out) --}}
+								{{-- <select class="form-control auto-select" data-selected="{{ old('currency_id') }}" name="currency_id" required>
 									<option value="">{{ _lang('Select One') }}</option>
 									@foreach(\App\Models\Currency::where('status', 1)->get() as $currency)
 									<option value="{{ $currency->id }}">{{ $currency->full_name }} ({{ $currency->full_name }} ({{ $currency->name }}))</option>
 									@endforeach
-								</select>
+								</select> --}}
+								@php $audCurrency = \App\Models\Currency::where('name', 'AUD')->where('status', 1)->first(); @endphp
+								<input type="text" class="form-control" value="Australian Dollar (AUD)" disabled>
+								<input type="hidden" name="currency_id" value="{{ $audCurrency->id ?? '' }}">
 							</div>
 						</div>
 
@@ -102,7 +106,8 @@
                         @endif
 
 					
-						<div class="col-lg-12">
+						{{-- Fee Deduct Account field hidden --}}
+					{{-- <div class="col-lg-12">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Fee Deduct Account ') }}</label>
 								<select class="form-control auto-select select2" data-selected="{{ old('debit_account_id') }}" name="debit_account_id" id="debit_account" required>
@@ -114,7 +119,7 @@
 									@endif
 								</select>
 							</div>
-						</div>
+						</div> --}}
                    
 						<div class="col-lg-12">
 							<div class="form-group">

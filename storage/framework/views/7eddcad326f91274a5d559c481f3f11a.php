@@ -89,7 +89,6 @@
 						<thead>
 							<tr>
 								<th class="pl-4"><?php echo e(_lang('Date')); ?></th>
-								<th><?php echo e(_lang('AC Number')); ?></th>
 								<th class="text-right"><?php echo e(_lang('Amount')); ?></th>
 								<th><?php echo e(_lang('Type')); ?></th>
 								<th><?php echo e(_lang('Status')); ?></th>
@@ -109,7 +108,6 @@
 							?>
 							<tr>
 								<td class="pl-4"><?php echo e($transaction->trans_date); ?></td>
-								<td><?php echo e($transaction->account->account_number); ?> - <?php echo e($transaction->account->savings_type->name); ?> (<?php echo e($transaction->account->savings_type->currency->name); ?>)</td>
 								<td class="text-right"><span class="<?php echo e($class); ?>"><?php echo e($symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name))); ?></span></td>
 								<td><?php echo e(ucwords(str_replace('_',' ',$transaction->type))); ?></td>
 								<td><?php echo xss_clean(transaction_status($transaction->status)); ?></td>

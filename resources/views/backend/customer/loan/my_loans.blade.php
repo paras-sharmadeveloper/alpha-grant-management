@@ -10,17 +10,21 @@
 			</div>
 
 			<div class="card-body">
-				<table id="loans_table" class="table table-bordered data-table">
+				<table id="loans_table" class="table table-bordered data-table text-center">
 					<thead>
-						<tr>
-                            <th>{{ _lang('Loan ID') }}</th>
-                            <th>{{ _lang('Loan Product') }}</th>
-                            <th>{{ _lang('Currency') }}</th>
-                            <th class="text-right">{{ _lang('Applied Amount') }}</th>
-                            <th class="text-right">{{ _lang('Amount Paid') }}</th>
-                            <th class="text-right">{{ _lang('Due Amount') }}</th>
-                            <th>{{ _lang('Release Date') }}</th>
-                            <th>{{ _lang('Status') }}</th>
+						<tr class="text-center">
+                            <th class="text-center">{{ _lang('Loan ID') }}</th>
+                            <th class="text-center">{{ _lang('Loan Name') }}</th>
+                            {{-- <th>{{ _lang('Loan Product') }}</th> --}}
+                            {{-- <th>{{ _lang('Currency') }}</th> --}}
+                            {{-- <th class="text-right">{{ _lang('Applied Amount') }}</th> --}}
+                            {{-- <th class="text-right">{{ _lang('Amount Paid') }}</th> --}}
+                            {{-- <th class="text-right">{{ _lang('Due Amount') }}</th> --}}
+                            {{-- <th>{{ _lang('Release Date') }}</th> --}}
+                            <th class="text-center">{{ _lang('Term') }}</th>
+                            <th class="text-center">{{ _lang('Interest Rate') }}</th>
+                            <th class="text-center">{{ _lang('Pending Amount') }}</th>
+                            <th class="text-center">{{ _lang('Status') }}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -28,11 +32,15 @@
                         <tr>
                             <td><a href="{{ route('loans.loan_details',$loan->id) }}">{{ $loan->loan_id }}</a></td>
                             <td>{{ $loan->loan_product->name }}</td>
-                            <td>{{ $loan->currency->name }}</td>
-                            <td class="text-right">{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}</td>
-                            <td class="text-right">{{ decimalPlace($loan->total_paid, currency($loan->currency->name)) }}</td>
-                            <td class="text-right">{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</td>
-                            <td>{{ $loan->release_date }}</td>
+                            {{-- <td>{{ $loan->loan_product->name }}</td> --}}
+                            {{-- <td>{{ $loan->currency->name }}</td> --}}
+                            {{-- <td class="text-right">{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}</td> --}}
+                            {{-- <td class="text-right">{{ decimalPlace($loan->total_paid, currency($loan->currency->name)) }}</td> --}}
+                            {{-- <td class="text-right">{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</td> --}}
+                            {{-- <td>{{ $loan->release_date }}</td> --}}
+                            <td>{{ $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}</td>
+                            <td>{{ $loan->loan_product->interest_rate }}%</td>
+                            <td>{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</td>
                             <td>
                                 @if($loan->status == 0)
                                     {!! xss_clean(show_status(_lang('Pending'), 'warning')) !!}

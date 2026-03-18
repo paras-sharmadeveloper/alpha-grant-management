@@ -18,7 +18,7 @@
 	<ul class="nav-second-level" aria-expanded="false">
 		<?php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; ?>
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('profile.membership_details')); ?>"><?php echo e(_lang('Membership Details')); ?></a></li>
-		<li class="nav-item"><a class="nav-link" href="<?php echo e(route($isAadminRoute.'profile.edit')); ?>"><?php echo e(_lang('Profile Settings')); ?></a></li>
+		
         <li class="nav-item"><a class="nav-link" href="<?php echo e(route($isAadminRoute.'profile.change_password')); ?>"><?php echo e(_lang('Change Password')); ?></a></li>
     </ul>
 </li>

@@ -13,6 +13,7 @@
 					<thead>
 						<tr>
 							<th>{{ _lang('Loan ID') }}</th>
+							<th>{{ _lang('Member Name') }}</th>
 							<th>{{ _lang('Payment Date') }}</th>
 							<th>{{ _lang('Principal Amount') }}</th>
 							<th>{{ _lang('Interest') }}</th>
@@ -41,6 +42,7 @@ $(function() {
 		ajax: _tenant_url + '/loan_payments/get_table_data',
 		"columns" : [
 			{ data : 'loan.loan_id', name : 'loan.loan_id' },
+			{ data : 'member_name', name : 'member_name' },
 			{ data : 'paid_at', name : 'paid_at' },
 			{ data : 'repayment_amount', name : 'repayment_amount' },
 			{ data : 'interest', name : 'interest' },

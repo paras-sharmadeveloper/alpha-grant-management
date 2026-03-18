@@ -21,34 +21,16 @@
 	</div>
 
 	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('deposit_requests.index') }}">
+		<a href="{{ route('loans.filter', 'active') }}">
 			<div class="card mb-4 dashboard-card">
 				<div class="card-body">
 					<div class="d-flex">
 						<div class="flex-grow-1">
-							<h5>{{ _lang('Deposit Requests') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ request_count('deposit_requests') }}</b></h4>
+							<h5>{{ _lang('Active Loans') }}</h5>
+							<h4 class="pt-1 mb-0"><b>{{ $active_loans }}</b></h4>
 						</div>
 						<div class="ml-2 text-center">
-							<i class="fas fa-calendar-alt bg-info text-white"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-
-	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('withdraw_requests.index') }}">
-			<div class="card mb-4 dashboard-card">
-				<div class="card-body">
-					<div class="d-flex">
-						<div class="flex-grow-1">
-							<h5>{{ _lang('Withdraw Requests') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ request_count('withdraw_requests') }}</b></h4>
-						</div>
-						<div class="ml-2 text-center">
-							<i class="fas fa-coins bg-primary text-white"></i>
+							<i class="fas fa-file-invoice-dollar bg-info text-white"></i>
 						</div>
 					</div>
 				</div>
@@ -63,10 +45,28 @@
 					<div class="d-flex">
 						<div class="flex-grow-1">
 							<h5>{{ _lang('Pending Loans') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ request_count('pending_loans') }}</b></h4>
+							<h4 class="pt-1 mb-0"><b>{{ $pending_loans }}</b></h4>
 						</div>
 						<div class="ml-2 text-center">
-							<i class="fas fa-dollar-sign bg-danger text-white"></i>
+							<i class="fas fa-hourglass-half bg-warning text-white"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-xl-3 col-md-6">
+		<a href="{{ route('loans.index') }}">
+			<div class="card mb-4 dashboard-card">
+				<div class="card-body">
+					<div class="d-flex">
+						<div class="flex-grow-1">
+							<h5>{{ _lang('Total Loan Amount') }}</h5>
+							<h4 class="pt-1 mb-0"><b>{{ decimalPlace($total_loan_amount) }}</b></h4>
+						</div>
+						<div class="ml-2 text-center">
+							<i class="fas fa-hand-holding-usd bg-danger text-white"></i>
 						</div>
 					</div>
 				</div>

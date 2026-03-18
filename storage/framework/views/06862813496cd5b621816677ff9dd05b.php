@@ -1,39 +1,40 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="row">
 	<div class="col-lg-8 offset-lg-2">
 		<div class="card">
 			<div class="card-header text-center panel-title">
-				{{ _lang('Add Loan Repayment') }}
+				<?php echo e(_lang('Add Loan Repayment')); ?>
+
 			</div>
 			<div class="card-body">
-				<form method="post" class="validate" autocomplete="off" action="{{ route('loan_payments.store') }}" enctype="multipart/form-data">
-					@csrf
+				<form method="post" class="validate" autocomplete="off" action="<?php echo e(route('loan_payments.store')); ?>" enctype="multipart/form-data">
+					<?php echo csrf_field(); ?>
 					<div class="row">
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Payment Date') }}</label>						
-								<input type="text" class="form-control datepicker" name="paid_at" id="paid_at" value="{{ old('paid_at') }}" required>
+								<label class="control-label"><?php echo e(_lang('Payment Date')); ?></label>						
+								<input type="text" class="form-control datepicker" name="paid_at" id="paid_at" value="<?php echo e(old('paid_at')); ?>" required>
 							</div>
 						</div>
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Loan ID') }}</label>						
-								<select class="form-control auto-select select2" data-selected="{{ old('loan_id') }}" id="loan_id" name="loan_id" required>
-									<option value="">{{ _lang('Select One') }}</option>
-									@foreach(\App\Models\Loan::with(['currency', 'borrower'])->where('status',1)->get() as $loan)
-										<option value="{{ $loan->id }}" data-user-id="{{ $loan->borrower_id }}" data-currency="{{ $loan->currency->name }}" data-total-due="{{ ($loan->total_payable - $loan->total_paid) }}">{{ $loan->loan_id }} ({{ $loan->borrower->name }}) ({{ _lang('Total Due').' '.decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }})</option>
-									@endforeach
+								<label class="control-label"><?php echo e(_lang('Loan ID')); ?></label>						
+								<select class="form-control auto-select select2" data-selected="<?php echo e(old('loan_id')); ?>" id="loan_id" name="loan_id" required>
+									<option value=""><?php echo e(_lang('Select One')); ?></option>
+									<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = \App\Models\Loan::with(['currency', 'borrower'])->where('status',1)->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+										<option value="<?php echo e($loan->id); ?>" data-user-id="<?php echo e($loan->borrower_id); ?>" data-currency="<?php echo e($loan->currency->name); ?>" data-total-due="<?php echo e(($loan->total_payable - $loan->total_paid)); ?>"><?php echo e($loan->loan_id); ?> (<?php echo e($loan->borrower->name); ?>) (<?php echo e(_lang('Total Due').' '.decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?>)</option>
+									<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 								</select>
 							</div>
 						</div>
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Due Repayment Date') }}</label>						
+								<label class="control-label"><?php echo e(_lang('Due Repayment Date')); ?></label>						
 								<select class="form-control" name="due_amount_of" id="due_amount_of" required>
 								</select>
 							</div>
@@ -41,9 +42,9 @@
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Late Penalties') }}</label>						
+								<label class="control-label"><?php echo e(_lang('Late Penalties')); ?></label>						
 								<div class="input-group">
-									<input type="text" class="form-control float-field" name="late_penalties" id="late_penalties" value="{{ old('late_penalties',0) }}">
+									<input type="text" class="form-control float-field" name="late_penalties" id="late_penalties" value="<?php echo e(old('late_penalties',0)); ?>">
 									<div class="input-group-append">
 										<span class="input-group-text currency"></span>
 									</div>
@@ -53,9 +54,9 @@
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Principal Amount') }}</label>						
+								<label class="control-label"><?php echo e(_lang('Principal Amount')); ?></label>						
 								<div class="input-group">
-									<input type="text" class="form-control float-field" name="principal_amount" id="principal_amount" value="{{ old('principal_amount') }}" required>
+									<input type="text" class="form-control float-field" name="principal_amount" id="principal_amount" value="<?php echo e(old('principal_amount')); ?>" required>
 									<div class="input-group-append">
 										<span class="input-group-text currency"></span>
 									</div>
@@ -65,9 +66,9 @@
 
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Interest') }}</label>						
+								<label class="control-label"><?php echo e(_lang('Interest')); ?></label>						
 								<div class="input-group">
-									<input type="text" class="form-control float-field" name="interest" id="interest" value="{{ old('interest') }}" readonly="true" required>
+									<input type="text" class="form-control float-field" name="interest" id="interest" value="<?php echo e(old('interest')); ?>" readonly="true" required>
 									<div class="input-group-append">
 										<span class="input-group-text currency"></span>
 									</div>
@@ -77,17 +78,17 @@
 
 						<div class="col-lg-12">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Debit Account') }}</label>
-								<input type="text" class="form-control" value="{{ _lang('Cash Amount') }}" disabled>
+								<label class="control-label"><?php echo e(_lang('Debit Account')); ?></label>
+								<input type="text" class="form-control" value="<?php echo e(_lang('Cash Amount')); ?>" disabled>
 								<input type="hidden" name="account_id" value="cash">
 							</div>
 						</div>
 
 						<div class="col-lg-12">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Total Amount') }}</label>						
+								<label class="control-label"><?php echo e(_lang('Total Amount')); ?></label>						
 								<div class="input-group">
-									<input type="text" class="form-control float-field" name="total_amount" id="total_amount" value="{{ old('total_amount') }}" readonly="true" required>
+									<input type="text" class="form-control float-field" name="total_amount" id="total_amount" value="<?php echo e(old('total_amount')); ?>" readonly="true" required>
 									<div class="input-group-append">
 										<span class="input-group-text currency"></span>
 									</div>
@@ -97,14 +98,14 @@
 
 						<div class="col-lg-12">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Remarks') }}</label>						
-								<textarea class="form-control" name="remarks">{{ old('remarks') }}</textarea>
+								<label class="control-label"><?php echo e(_lang('Remarks')); ?></label>						
+								<textarea class="form-control" name="remarks"><?php echo e(old('remarks')); ?></textarea>
 							</div>
 						</div>
 				
 						<div class="col-lg-12">
 							<div class="form-group">
-								<button type="submit" class="btn btn-primary btn-block">{{ _lang('Submit') }}</button>
+								<button type="submit" class="btn btn-primary btn-block"><?php echo e(_lang('Submit')); ?></button>
 							</div>
 						</div>
 					</div>			
@@ -113,9 +114,9 @@
 		</div>
 	</div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('js-script')
+<?php $__env->startSection('js-script'); ?>
 <script>
 	$(function() {
 	"use strict";
@@ -135,7 +136,7 @@
 					$("#preloader").css("display","none");
 					var json = JSON.parse(data);
 					$("#due_amount_of").find('option').remove();
-					$("#due_amount_of").append("<option value=''>{{ _lang('Select One') }}</option>");
+					$("#due_amount_of").append("<option value=''><?php echo e(_lang('Select One')); ?></option>");
 
 					jQuery.each(json['repayments'], function( i, val ) {
 						$("#due_amount_of").append("<option value='" + val.id + "' data-penalty='" + val.penalty + "' data-principle-amount='" + val.principal_amount + "' data-repayment-date='"+ val.raw_repayment_date +"' data-interest='" + val.interest + "'>" + val.repayment_date + "</option>");
@@ -143,7 +144,7 @@
 
 					// Debit account locked to Cash - commented out
 					// $("#account_id").find('option').remove();
-					// $("#account_id").append("<option value='cash'>{{ _lang('Cash Amount') }}</option>");
+					// $("#account_id").append("<option value='cash'><?php echo e(_lang('Cash Amount')); ?></option>");
 					// jQuery.each(json['accounts'], function( i, account ) {
 					// 	$("#account_id").append(`<option value="${account.id}">${account.account_number} (${account.savings_type.name} - ${account.savings_type.currency.name})</option>`);
 					// });
@@ -200,6 +201,8 @@
 	});
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
 
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\alpha-grant-management\resources\views/backend/admin/loan_payment/create.blade.php ENDPATH**/ ?>

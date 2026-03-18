@@ -125,7 +125,6 @@
 						<thead>
 							<tr>
 								<th class="pl-4">{{ _lang('Date') }}</th>
-								<th>{{ _lang('AC Number') }}</th>
 								<th class="text-right">{{ _lang('Amount') }}</th>
 								<th>{{ _lang('Type') }}</th>
 								<th>{{ _lang('Status') }}</th>
@@ -145,7 +144,6 @@
 							@endphp
 							<tr>
 								<td class="pl-4">{{ $transaction->trans_date }}</td>
-								<td>{{ $transaction->account->account_number }} - {{ $transaction->account->savings_type->name }} ({{ $transaction->account->savings_type->currency->name }})</td>
 								<td class="text-right"><span class="{{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
 								<td>{{ ucwords(str_replace('_',' ',$transaction->type)) }}</td>
 								<td>{!! xss_clean(transaction_status($transaction->status)) !!}</td>

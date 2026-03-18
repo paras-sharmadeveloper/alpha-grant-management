@@ -59,7 +59,7 @@
 	<ul class="nav-second-level" aria-expanded="false">
 		@php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; @endphp
 		<li class="nav-item"><a class="nav-link" href="{{ route('profile.membership_details') }}">{{ _lang('Membership Details') }}</a></li>
-		<li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.edit') }}">{{ _lang('Profile Settings')  }}</a></li>
+		{{--<li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.edit') }}">{{ _lang('Profile Settings')  }}</a></li>--}}
         <li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.change_password') }}">{{ _lang('Change Password') }}</a></li>
     </ul>
 </li>

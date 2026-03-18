@@ -10,17 +10,21 @@
 			</div>
 
 			<div class="card-body">
-				<table id="loans_table" class="table table-bordered data-table">
+				<table id="loans_table" class="table table-bordered data-table text-center">
 					<thead>
-						<tr>
-                            <th><?php echo e(_lang('Loan ID')); ?></th>
-                            <th><?php echo e(_lang('Loan Product')); ?></th>
-                            <th><?php echo e(_lang('Currency')); ?></th>
-                            <th class="text-right"><?php echo e(_lang('Applied Amount')); ?></th>
-                            <th class="text-right"><?php echo e(_lang('Amount Paid')); ?></th>
-                            <th class="text-right"><?php echo e(_lang('Due Amount')); ?></th>
-                            <th><?php echo e(_lang('Release Date')); ?></th>
-                            <th><?php echo e(_lang('Status')); ?></th>
+						<tr class="text-center">
+                            <th class="text-center"><?php echo e(_lang('Loan ID')); ?></th>
+                            <th class="text-center"><?php echo e(_lang('Loan Name')); ?></th>
+                            
+                            
+                            
+                            
+                            
+                            
+                            <th class="text-center"><?php echo e(_lang('Term')); ?></th>
+                            <th class="text-center"><?php echo e(_lang('Interest Rate')); ?></th>
+                            <th class="text-center"><?php echo e(_lang('Pending Amount')); ?></th>
+                            <th class="text-center"><?php echo e(_lang('Status')); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -28,11 +32,15 @@
                         <tr>
                             <td><a href="<?php echo e(route('loans.loan_details',$loan->id)); ?>"><?php echo e($loan->loan_id); ?></a></td>
                             <td><?php echo e($loan->loan_product->name); ?></td>
-                            <td><?php echo e($loan->currency->name); ?></td>
-                            <td class="text-right"><?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?></td>
-                            <td class="text-right"><?php echo e(decimalPlace($loan->total_paid, currency($loan->currency->name))); ?></td>
-                            <td class="text-right"><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></td>
-                            <td><?php echo e($loan->release_date); ?></td>
+                            
+                            
+                            
+                            
+                            
+                            
+                            <td><?php echo e($loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?></td>
+                            <td><?php echo e($loan->loan_product->interest_rate); ?>%</td>
+                            <td><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></td>
                             <td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status == 0): ?>
                                     <?php echo xss_clean(show_status(_lang('Pending'), 'warning')); ?>

@@ -66,6 +66,7 @@
 							</table>
 						</div>
 
+						{{-- Credit Account - commented out
 						<div class="col-lg-12">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Credit Account') }}</label>
@@ -77,6 +78,8 @@
 								</select>
 							</div>
 						</div>
+						--}}
+						<input type="hidden" name="account_id" value="cash">
 
 						<div class="col-lg-12 mt-2">
 							<div class="form-group">

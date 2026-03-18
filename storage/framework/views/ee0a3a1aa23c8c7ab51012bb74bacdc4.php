@@ -36,7 +36,6 @@
     .ld-tab-content { display: none; width: 85%; margin: 20px auto; }
     .ld-tab-content.active { display: block; }
 
-    /* Summary card */
     .ld-summary-card {
         background: #D6F2FF;
         border-radius: 10px;
@@ -51,7 +50,6 @@
     .ld-label { font-size: 14px; color: #1f2d3d; }
     .ld-value { font-size: 20px; font-weight: 700; color: #000; }
 
-    /* Detail rows */
     .ld-details-section { background: #fff; padding: 10px 0; }
     .ld-detail-row {
         display: flex;
@@ -63,7 +61,6 @@
     .ld-detail-row .ld-label { color: #2c3e50; font-size: 17px; }
     .ld-detail-row .ld-value { font-weight: 700; font-size: 17px; color: #0b1f3a; }
 
-    /* Transactions */
     .ld-transaction {
         padding: 15px 0;
         border-bottom: 1px solid #ccc;
@@ -76,41 +73,12 @@
     .ld-tx-title { font-size: 17px; margin-top: 6px; }
     .ld-tx-amount { font-weight: 800; font-size: 16px; }
 
-    /* Statements */
-    .ld-info-box {
-        background: #DEF6E6;
-        color: #203422;
-        padding: 14px 25px;
-        border-radius: 30px;
-        margin-bottom: 20px;
-        font-size: 15px;
-        font-weight: 500;
-    }
-    .ld-gen-card {
-        background: #E5F6FE;
-        padding: 25px;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .ld-gen-btn {
-        background: #0060ED;
-        color: #fff;
-        border: none;
-        padding: 16px;
-        width: 100%;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-top: 10px;
-        font-weight: 600;
-        font-size: 17px;
-    }
-    .ld-statement-row {
+    .ld-action-bar {
         display: flex;
-        justify-content: space-between;
-        padding: 14px 3px;
-        border-bottom: 1px solid #ccc;
-        font-size: 16px;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
     }
 
     @media (max-width: 768px) {
@@ -124,6 +92,22 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body p-0">
+
+            
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status == 0): ?>
+            <div class="ld-action-bar">
+                <a href="<?php echo e(route('loans.approve', $loan->id)); ?>" class="btn btn-success">
+                    <i class="fas fa-check-circle mr-1"></i><?php echo e(_lang('Approve')); ?>
+
+                </a>
+                <a href="<?php echo e(route('loans.reject', $loan->id)); ?>"
+                   class="btn btn-danger confirm-alert"
+                   data-message="<?php echo e(_lang('Are you sure you want to reject this loan application?')); ?>">
+                    <i class="fas fa-times-circle mr-1"></i><?php echo e(_lang('Reject')); ?>
+
+                </a>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             
             <div class="ld-top-link">
@@ -175,15 +159,25 @@
                 <div class="ld-details-section">
 
                     <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Loan ID')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->loan_id); ?></span>
+                    </div>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Borrower')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->borrower->first_name.' '.$loan->borrower->last_name); ?></span>
+                    </div>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Member No')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->borrower->member_no); ?></span>
+                    </div>
+                    <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Loan Amount')); ?></span>
                         <span class="ld-value"><?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?></span>
                     </div>
-
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Interest Rate')); ?></span>
                         <span class="ld-value"><?php echo e($loan->loan_product->interest_rate); ?>%</span>
                     </div>
-
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Loan Term')); ?></span>
                         <span class="ld-value">
@@ -191,17 +185,22 @@
 
                         </span>
                     </div>
-
-                    <div class="ld-detail-row">
-                        <span class="ld-label"><?php echo e(_lang('Release Date')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->release_date); ?></span>
-                    </div>
-
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('First Payment Date')); ?></span>
                         <span class="ld-value"><?php echo e($loan->first_payment_date); ?></span>
                     </div>
-
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Release Date')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->release_date); ?></span>
+                    </div>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Total Principal Paid')); ?></span>
+                        <span class="ld-value" style="color:#27ae60;"><?php echo e(decimalPlace($loan->total_paid, currency($loan->currency->name))); ?></span>
+                    </div>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Due Amount')); ?></span>
+                        <span class="ld-value" style="color:#e74c3c;"><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></span>
+                    </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Late Payment Penalties')); ?></span>
                         <span class="ld-value"><?php echo e($loan->late_payment_penalties); ?>%</span>
@@ -213,15 +212,12 @@
                         <span class="ld-value"><?php echo e($loan->approved_date); ?></span>
                     </div>
                     <div class="ld-detail-row">
-                        <span class="ld-label"><?php echo e(_lang('Loan Officer')); ?></span>
+                        <span class="ld-label"><?php echo e(_lang('Approved By')); ?></span>
                         <span class="ld-value"><?php echo e($loan->approved_by->name); ?></span>
                     </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->description): ?>
                     <div class="ld-detail-row">
-                        <span class="ld-label"><?php echo e(_lang('Description')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->description); ?></span>
+                        <span class="ld-label"><?php echo e(_lang('Disburse Method')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->disburse_method == 'cash' ? ucwords($loan->disburse_method) : _lang('Transfer to Account')); ?></span>
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -245,26 +241,28 @@
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->description): ?>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Description')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->description); ?></span>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->remarks): ?>
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Remarks')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->remarks); ?></span>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 </div>
 
                 
-                <div style="background:#D6F2FF;border-radius:12px;padding:25px 30px;margin-top:25px;text-align:center;">
-                    <h5 style="font-weight:700;font-size:17px;margin-bottom:18px;"><?php echo e(_lang('How do I make extra repayments')); ?></h5>
-                    <div style="background:#fff;border-radius:8px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:15px;">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <span style="background:#1a73e8;color:#fff;border-radius:6px;padding:6px 10px;font-weight:700;font-size:14px;">B</span>
-                            <span><?php echo e(_lang('Biller Code')); ?></span>
-                        </div>
-                        <span style="font-weight:600;"><?php echo e($loan->loan_id); ?></span>
-                        <span style="border-left:1px solid #ccc;padding-left:20px;"><?php echo e(_lang('Ref #')); ?></span>
-                        <span style="font-weight:600;"><?php echo e($loan->borrower->member_no ?? $loan->borrower_id); ?></span>
-                    </div>
-                    <p style="font-size:14px;color:#555;margin-bottom:15px;"><?php echo e(_lang('Telephone & Internet Banking - BPAY®')); ?></p>
-                    <hr style="border-color:#aaa;">
-                    <p style="font-weight:700;font-size:15px;margin-bottom:6px;"><?php echo e(_lang('Need to change your direct debit details?')); ?></p>
-                    <p style="font-size:14px;color:#444;"><?php echo e(_lang('Contact us Monday to Friday, 8:30am to 6pm.')); ?></p>
-                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <a href="<?php echo e(route('loans.edit', $loan->id)); ?>" class="btn btn-warning">
+                        <i class="ti-pencil-alt mr-1"></i><?php echo e(_lang('Edit Loan')); ?>
 
+                    </a>
+                </div>
             </div>
 
             
@@ -282,7 +280,7 @@
                     </span>
                 </div>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $loan->payments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $payments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                 <div class="ld-transaction">
                     <div class="ld-tx-left">
                         <span class="ld-tx-date"><?php echo e(\Carbon\Carbon::parse($payment->getRawOriginal('paid_at'))->format('D, d M Y')); ?></span>
@@ -316,19 +314,12 @@
                 </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status != 1): ?>
                 <p class="text-center mt-4 text-muted"><?php echo e(_lang('No transactions found.')); ?></p>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             
             <div id="ld_statements" class="ld-tab-content">
-                <div class="ld-gen-card">
-                    <h3 style="font-weight:700;font-size:18px;"><?php echo e(_lang('Repayment Schedule')); ?></h3>
-                    <p style="font-size:16px;"><?php echo e(_lang('Full repayment schedule for your loan.')); ?></p>
-                </div>
-
                 <table class="table table-bordered">
                     <thead>
                         <tr class="text-center">
@@ -336,17 +327,19 @@
                             <th><?php echo e(_lang('Amount to Pay')); ?></th>
                             <th><?php echo e(_lang('Principal')); ?></th>
                             <th><?php echo e(_lang('Interest')); ?></th>
+                            <th><?php echo e(_lang('Late Penalty')); ?></th>
                             <th><?php echo e(_lang('Balance')); ?></th>
                             <th><?php echo e(_lang('Status')); ?></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $loan->repayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $repayment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $repayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $repayment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <tr class="text-center">
                             <td><?php echo e($repayment->repayment_date); ?></td>
                             <td><?php echo e(decimalPlace($repayment->amount_to_pay, currency($loan->currency->name))); ?></td>
                             <td><?php echo e(decimalPlace($repayment->principal_amount, currency($loan->currency->name))); ?></td>
                             <td><?php echo e(decimalPlace($repayment->interest, currency($loan->currency->name))); ?></td>
+                            <td><?php echo e(decimalPlace($repayment->penalty, currency($loan->currency->name))); ?></td>
                             <td><?php echo e(decimalPlace($repayment->balance, currency($loan->currency->name))); ?></td>
                             <td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($repayment->status == 0 && date('Y-m-d') > $repayment->getRawOriginal('repayment_date')): ?>
@@ -385,4 +378,4 @@ function ldOpenTab(tabId, el) {
 </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\alpha-grant-management\resources\views/backend/customer/loan/loan_details.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\alpha-grant-management\resources\views/backend/admin/loan/view.blade.php ENDPATH**/ ?>

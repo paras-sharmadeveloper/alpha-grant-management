@@ -182,10 +182,10 @@ class LoanController extends Controller {
             $validationRules = [
                 'loan_product_id'    => 'required',
                 'currency_id'        => 'required',
-                'first_payment_date' => 'required',
+                // 'first_payment_date' => 'required',
                 'applied_amount'     => "required|numeric|min:$min_amount|max:$max_amount",
                 'attachment'         => 'nullable|mimes:jpeg,png,jpg,doc,pdf,docx,zip|max:8192', //8MB = 8192KB
-                'debit_account_id'   => 'required',
+                // 'debit_account_id'   => 'required',
             ];
 
             $validationMessages = [];
@@ -212,13 +212,13 @@ class LoanController extends Controller {
             }
 
             //Check Debit account is valid account
-            $account = SavingsAccount::where('id', $request->debit_account_id)
-                ->where('member_id', auth()->user()->member->id)
-                ->first();
+            // $account = SavingsAccount::where('id', $request->debit_account_id)
+            //     ->where('member_id', auth()->user()->member->id)
+            //     ->first();
 
-            if (! $account) {
-                return back()->with('error', _lang('Invalid account'));
-            }
+            // if (! $account) {
+            //     return back()->with('error', _lang('Invalid account'));
+            // }
 
             $attachment = "";
             if ($request->hasfile('attachment')) {
@@ -239,8 +239,8 @@ class LoanController extends Controller {
             $loan->loan_product_id        = $request->input('loan_product_id');
             $loan->borrower_id            = auth()->user()->member->id;
             $loan->currency_id            = $request->input('currency_id');
-            $loan->first_payment_date     = $request->input('first_payment_date');
-            $loan->release_date           = $this->calculateReleaseDate($loanProduct, $request->first_payment_date)['release_date'] ?? null;
+            $loan->first_payment_date     = $request->input('first_payment_date') ?? now()->addMonth()->format('Y-m-d');
+            $loan->release_date           = $this->calculateReleaseDate($loanProduct, $loan->first_payment_date)['release_date'] ?? null;
             $loan->applied_amount         = $request->input('applied_amount');
             $loan->late_payment_penalties = 0;
             $loan->attachment             = $attachment;
@@ -253,7 +253,7 @@ class LoanController extends Controller {
             // Create Loan Repayments
             $calculator = new Calculator(
                 $loan->applied_amount,
-                $request->first_payment_date,
+                $loan->first_payment_date,
                 $loan->loan_product->interest_rate,
                 $loan->loan_product->term,
                 $loan->loan_product->term_period,
@@ -276,18 +276,18 @@ class LoanController extends Controller {
             $loan->save();
 
             //Check Account has enough balance for deducting fee
-            $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
+            // $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
 
-            $charge = 0;
-            $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
-            $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
+            // $charge = 0;
+            // $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
+            // $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
 
-            if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
-                return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
-            }
+            // if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
+            //     return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
+            // }
 
             //Deduct Loan Processing Fee
-            process_loan_fee('loan_application_fee', $loan->borrower_id, $request->debit_account_id, $convertedAmount, $loanProduct->loan_application_fee, $loanProduct->loan_application_fee_type, $loan->id);
+            // process_loan_fee('loan_application_fee', $loan->borrower_id, $request->debit_account_id, $convertedAmount, $loanProduct->loan_application_fee, $loanProduct->loan_application_fee_type, $loan->id);
 
             //Increment Loan ID
             if ($loanProduct->starting_loan_id != null) {
@@ -616,9 +616,14 @@ class LoanController extends Controller {
     // Function to calculate the release date
     private function calculateReleaseDate($loanData, $currentDate = null) {
         if (! $currentDate) {
-            $currentDate = new DateTime(); // Default to today's date
+            $currentDate = new DateTime();
         } else {
-            $currentDate = new DateTime($currentDate); // Convert string date to DateTime object
+            // Handle d/m/Y format from model accessor
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $currentDate)) {
+                $currentDate = DateTime::createFromFormat('d/m/Y', $currentDate);
+            } else {
+                $currentDate = new DateTime($currentDate);
+            }
         }
 
         $releaseDate = clone $currentDate; // Clone to avoid modifying original

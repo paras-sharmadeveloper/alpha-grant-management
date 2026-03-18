@@ -52,7 +52,7 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 
 {{-- <li><a href="{{ route('loans.upcoming_loan_repayments') }}"><i class="fas fa-calendar-alt"></i><span>{{ _lang('Upcomming Payments') }} {!! xss_clean($upcomming_repayments) !!}</span></a></li> 
 
---}}
+
 <li>
 	<a href="javascript: void(0);"><i class="fas fa-landmark"></i><span>{{ _lang('Accounts') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
 	<ul class="nav-second-level" aria-expanded="false">
@@ -61,7 +61,7 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 		<li class="nav-item"><a class="nav-link" href="{{ route('savings_products.index') }}">{{ _lang('Account Types') }}</a></li>
 	</ul>
 </li>
-
+--}}
 {{-- <li>
 	<a href="javascript: void(0);"><i class="fas fa-coins"></i><span>{{ _lang('Deposit') }} {!! xss_clean($deposit_requests) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
 	<ul class="nav-second-level" aria-expanded="false">
