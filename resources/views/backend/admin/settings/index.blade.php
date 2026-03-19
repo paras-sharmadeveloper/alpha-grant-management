@@ -6,9 +6,11 @@
 		<ul class="nav nav-tabs business-settings-tabs" role="tablist">
 			 <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#general_settings"><i class="fas fa-cog mr-2"></i><span>{{ _lang('General Settings') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#system_settings"><i class="fas fa-tools mr-2"></i><span>{{ _lang('System Settings') }}</span></a></li>
+{{--
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#currency_settings"><i class="fas fa-pound-sign mr-2"></i><span>{{ _lang('Currency Settings') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#transaction_fee"><i class="fas fa-dollar-sign mr-2"></i><span>{{ _lang('Transaction Fee') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#email"><i class="fas fa-at mr-2"></i><span>{{ _lang('Email Settings') }}</span></a></li>
+--}}
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#sms_gateway"><i class="fas fa-sms mr-2"></i><span>{{ _lang('SMS Settings') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#logo"><i class="fas fa-camera mr-2"></i><span>{{ _lang('Logo') }}</span></a></li>
 		</ul>

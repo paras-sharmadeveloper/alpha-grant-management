@@ -24,7 +24,7 @@
 							<div class="form-group row">
 								<label class="col-xl-3 col-form-label">{{ _lang('Email') }}</label>
 								<div class="col-xl-9">
-									<input type="email" class="form-control" name="email" value="{{ $profile->email }}" required>
+									<input type="email" class="form-control" name="email" value="{{ $profile->email }}" disabled>
 								</div>
 							</div>
 

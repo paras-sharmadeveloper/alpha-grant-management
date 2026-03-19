@@ -7,9 +7,10 @@
 			 <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#general"><i class="fas fa-cog"></i><span>{{ _lang('General Settings') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#profile_settings"><i class="ti-pencil"></i>{{ _lang('Profile Settings') }}</a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#change_password"><i class="ti-exchange-vertical"></i>{{ _lang('Change Password') }}</a></li>
-
+        {{--
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#currency_settings"><i class="fas fa-coins"></i><span>{{ _lang('Currency Settings') }}</span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#email"><i class="far fa-envelope"></i><span>{{ _lang('Email Settings') }}</span></a></li>
+		--}}
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#sms_gateway"><i class="ti-comment"></i>{{ _lang('SMS Gateways') }}</a></li>
 			
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#logo"><i class="fas fa-tint"></i><span>{{ _lang('Logo and Favicon') }}</span></a></li>

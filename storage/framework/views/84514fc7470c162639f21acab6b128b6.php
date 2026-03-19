@@ -7,9 +7,7 @@
 			 <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#general"><i class="fas fa-cog"></i><span><?php echo e(_lang('General Settings')); ?></span></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#profile_settings"><i class="ti-pencil"></i><?php echo e(_lang('Profile Settings')); ?></a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#change_password"><i class="ti-exchange-vertical"></i><?php echo e(_lang('Change Password')); ?></a></li>
-
-			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#currency_settings"><i class="fas fa-coins"></i><span><?php echo e(_lang('Currency Settings')); ?></span></a></li>
-			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#email"><i class="far fa-envelope"></i><span><?php echo e(_lang('Email Settings')); ?></span></a></li>
+        
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#sms_gateway"><i class="ti-comment"></i><?php echo e(_lang('SMS Gateways')); ?></a></li>
 			
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#logo"><i class="fas fa-tint"></i><span><?php echo e(_lang('Logo and Favicon')); ?></span></a></li>
