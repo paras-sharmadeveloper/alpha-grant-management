@@ -198,6 +198,7 @@
                 <div class="ld-tab active" onclick="ldOpenTab('ld_details', this)">{{ _lang('Loan Details') }}</div>
                 <div class="ld-tab" onclick="ldOpenTab('ld_transactions', this)">{{ _lang('Transactions') }}</div>
                 <div class="ld-tab" onclick="ldOpenTab('ld_statements', this)">{{ _lang('Statements') }}</div>
+                <div class="ld-tab" onclick="ldOpenTab('ld_documents', this)">{{ _lang('Documents') }}</div>
             </div>
 
             {{-- TAB: Loan Details --}}
@@ -303,37 +304,40 @@
                         <span class="ld-tx-date">{{ \Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('D, d M Y') }}</span>
                         <span class="ld-tx-title">{{ _lang('Loan Disbursed') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#27ae60;">
+                    <span class="ld-tx-amount">
                         +{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}
                     </span>
                 </div>
 
                 @forelse($loan->payments as $payment)
+                {{-- EMI paid: + principal (you are paying the loan) --}}
                 <div class="ld-transaction">
                     <div class="ld-tx-left">
                         <span class="ld-tx-date">{{ \Carbon\Carbon::parse($payment->getRawOriginal('paid_at'))->format('D, d M Y') }}</span>
-                        <span class="ld-tx-title">{{ _lang('Loan Repayment') }}</span>
+                        <span class="ld-tx-title">{{ _lang('EMI Paid') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;">
-                        -{{ decimalPlace($payment->total_amount, currency($loan->currency->name)) }}
+                    <span class="ld-tx-amount">
+                        +{{ decimalPlace($payment->repayment_amount - $payment->interest, currency($loan->currency->name)) }}
                     </span>
                 </div>
+                {{-- Interest charged: - (bank is charging you) --}}
                 @if($payment->interest > 0)
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;">{{ _lang('Interest Charged') }}</span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;">{{ _lang('Interest Charged') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -{{ decimalPlace($payment->interest, currency($loan->currency->name)) }}
                     </span>
                 </div>
                 @endif
+                {{-- Late penalty: - --}}
                 @if($payment->late_penalties > 0)
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;">{{ _lang('Late Penalty') }}</span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;">{{ _lang('Late Penalty') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -{{ decimalPlace($payment->late_penalties, currency($loan->currency->name)) }}
                     </span>
                 </div>
@@ -345,45 +349,37 @@
                 @endforelse
             </div>
 
-            {{-- TAB: Statements --}}
+            {{-- TAB: Statements (Print button only) --}}
             <div id="ld_statements" class="ld-tab-content">
-                <div class="ld-gen-card">
-                    <h3 style="font-weight:700;font-size:18px;">{{ _lang('Repayment Schedule') }}</h3>
-                    <p style="font-size:16px;">{{ _lang('Full repayment schedule for your loan.') }}</p>
+                <div style="text-align:center;padding:40px 20px;">
+                    <p style="font-size:16px;color:#555;margin-bottom:20px;">
+                        {{ _lang('Download the full repayment schedule as PDF.') }}
+                    </p>
+                    <a href="{{ route('loans.customer_print_schedule', $loan->id) }}" target="_blank"
+                       style="background:#1a73e8;color:#fff;padding:14px 40px;border-radius:8px;font-size:16px;font-weight:600;text-decoration:none;display:inline-block;">
+                        🖨 {{ _lang('Print / Download Schedule') }}
+                    </a>
                 </div>
+            </div>
 
-                <table class="table table-bordered">
-                    <thead>
-                        <tr class="text-center">
-                            <th>{{ _lang('Date') }}</th>
-                            <th>{{ _lang('Amount to Pay') }}</th>
-                            <th>{{ _lang('Principal') }}</th>
-                            <th>{{ _lang('Interest') }}</th>
-                            <th>{{ _lang('Balance') }}</th>
-                            <th>{{ _lang('Status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($loan->repayments as $repayment)
-                        <tr class="text-center">
-                            <td>{{ $repayment->repayment_date }}</td>
-                            <td>{{ decimalPlace($repayment->amount_to_pay, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->principal_amount, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->interest, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->balance, currency($loan->currency->name)) }}</td>
-                            <td>
-                                @if($repayment->status == 0 && date('Y-m-d') > $repayment->getRawOriginal('repayment_date'))
-                                    {!! xss_clean(show_status(_lang('Due'), 'danger')) !!}
-                                @elseif($repayment->status == 0)
-                                    {!! xss_clean(show_status(_lang('Unpaid'), 'warning')) !!}
-                                @else
-                                    {!! xss_clean(show_status(_lang('Paid'), 'success')) !!}
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            {{-- TAB: Documents --}}
+            <div id="ld_documents" class="ld-tab-content">
+                @forelse($loancollaterals as $collateral)
+                <div class="ld-detail-row">
+                    <span class="ld-label">{{ $collateral->name }}</span>
+                    <span class="ld-value">
+                        @if($collateral->attachments)
+                            <a href="{{ asset('public/uploads/media/'.$collateral->attachments) }}" target="_blank">
+                                {{ _lang('View') }}
+                            </a>
+                        @else
+                            {{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}
+                        @endif
+                    </span>
+                </div>
+                @empty
+                <p class="text-center mt-4 text-muted">{{ _lang('No documents found.') }}</p>
+                @endforelse
             </div>
 
             <div style="background:#E5F6FE;height:40px;margin-top:20px;"></div>

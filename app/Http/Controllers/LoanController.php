@@ -639,6 +639,12 @@ class LoanController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function print_schedule($tenant, $id) {
+        $loan       = Loan::find($id);
+        $repayments = LoanRepayment::where('loan_id', $loan->id)->orderBy('id', 'asc')->get();
+        return view('backend.admin.loan.print_schedule', compact('loan', 'repayments'));
+    }
+
     public function destroy($tenant,$id) {
         DB::beginTransaction();
 

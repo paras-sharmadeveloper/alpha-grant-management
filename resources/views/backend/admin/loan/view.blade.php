@@ -173,6 +173,7 @@
                 <div class="ld-tab active" onclick="ldOpenTab('ld_details', this)">{{ _lang('Loan Details') }}</div>
                 <div class="ld-tab" onclick="ldOpenTab('ld_transactions', this)">{{ _lang('Transactions') }}</div>
                 <div class="ld-tab" onclick="ldOpenTab('ld_statements', this)">{{ _lang('Statements') }}</div>
+                <div class="ld-tab" onclick="ldOpenTab('ld_documents', this)">{{ _lang('Documents') }}</div>
             </div>
 
             {{-- TAB: Loan Details --}}
@@ -285,88 +286,88 @@
             {{-- TAB: Transactions --}}
             <div id="ld_transactions" class="ld-tab-content">
 
-                {{-- Loan disbursement as + --}}
+                {{-- Loan disbursement as + (money received by borrower) --}}
                 <div class="ld-transaction">
                     <div class="ld-tx-left">
                         <span class="ld-tx-date">{{ \Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('D, d M Y') }}</span>
                         <span class="ld-tx-title">{{ _lang('Loan Disbursed') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#27ae60;">
+                    <span class="ld-tx-amount">
                         +{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}
                     </span>
                 </div>
 
                 @forelse($payments as $payment)
+                {{-- EMI paid: + principal --}}
                 <div class="ld-transaction">
                     <div class="ld-tx-left">
                         <span class="ld-tx-date">{{ \Carbon\Carbon::parse($payment->getRawOriginal('paid_at'))->format('D, d M Y') }}</span>
-                        <span class="ld-tx-title">{{ _lang('Loan Repayment') }}</span>
+                        <span class="ld-tx-title">{{ _lang('EMI Paid') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;">
-                        -{{ decimalPlace($payment->total_amount, currency($loan->currency->name)) }}
+                    <span class="ld-tx-amount">
+                        +{{ decimalPlace($payment->repayment_amount - $payment->interest, currency($loan->currency->name)) }}
                     </span>
                 </div>
+                {{-- Interest charged: - --}}
                 @if($payment->interest > 0)
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;">{{ _lang('Interest Charged') }}</span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;">{{ _lang('Interest Charged') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -{{ decimalPlace($payment->interest, currency($loan->currency->name)) }}
                     </span>
                 </div>
                 @endif
+                {{-- Late penalty: - --}}
                 @if($payment->late_penalties > 0)
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;">{{ _lang('Late Penalty') }}</span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;">{{ _lang('Late Penalty') }}</span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -{{ decimalPlace($payment->late_penalties, currency($loan->currency->name)) }}
                     </span>
                 </div>
                 @endif
                 @empty
+                @if($loan->status != 1)
                 <p class="text-center mt-4 text-muted">{{ _lang('No transactions found.') }}</p>
+                @endif
                 @endforelse
             </div>
 
-            {{-- TAB: Statements (Repayment Schedule) --}}
+            {{-- TAB: Statements (Print only) --}}
             <div id="ld_statements" class="ld-tab-content">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr class="text-center">
-                            <th>{{ _lang('Date') }}</th>
-                            <th>{{ _lang('Amount to Pay') }}</th>
-                            <th>{{ _lang('Principal') }}</th>
-                            <th>{{ _lang('Interest') }}</th>
-                            <th>{{ _lang('Late Penalty') }}</th>
-                            <th>{{ _lang('Balance') }}</th>
-                            <th>{{ _lang('Status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($repayments as $repayment)
-                        <tr class="text-center">
-                            <td>{{ $repayment->repayment_date }}</td>
-                            <td>{{ decimalPlace($repayment->amount_to_pay, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->principal_amount, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->interest, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->penalty, currency($loan->currency->name)) }}</td>
-                            <td>{{ decimalPlace($repayment->balance, currency($loan->currency->name)) }}</td>
-                            <td>
-                                @if($repayment->status == 0 && date('Y-m-d') > $repayment->getRawOriginal('repayment_date'))
-                                    {!! xss_clean(show_status(_lang('Due'), 'danger')) !!}
-                                @elseif($repayment->status == 0)
-                                    {!! xss_clean(show_status(_lang('Unpaid'), 'warning')) !!}
-                                @else
-                                    {!! xss_clean(show_status(_lang('Paid'), 'success')) !!}
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div style="text-align:center;padding:40px 20px;">
+                    <p style="font-size:16px;color:#555;margin-bottom:20px;">
+                        {{ _lang('Download the full repayment schedule as PDF.') }}
+                    </p>
+                    <a href="{{ route('loans.print_schedule', $loan->id) }}" target="_blank"
+                       style="background:#1a73e8;color:#fff;padding:14px 40px;border-radius:8px;font-size:16px;font-weight:600;text-decoration:none;display:inline-block;">
+                        🖨 {{ _lang('Print / Download Schedule') }}
+                    </a>
+                </div>
+            </div>
+
+            {{-- TAB: Documents --}}
+            <div id="ld_documents" class="ld-tab-content">
+                @forelse($loancollaterals as $collateral)
+                <div class="ld-detail-row">
+                    <span class="ld-label">{{ $collateral->name }}</span>
+                    <span class="ld-value">
+                        @if($collateral->attachments)
+                            <a href="{{ asset('public/uploads/media/'.$collateral->attachments) }}" target="_blank">
+                                {{ _lang('View') }}
+                            </a>
+                        @else
+                            {{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}
+                        @endif
+                    </span>
+                </div>
+                @empty
+                <p class="text-center mt-4 text-muted">{{ _lang('No documents found.') }}</p>
+                @endforelse
             </div>
 
             <div style="background:#E5F6FE;height:40px;margin-top:20px;"></div>

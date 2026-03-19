@@ -413,6 +413,7 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::match(['get', 'post'], 'loans/approve/{id}', [LoanController::class, 'approve'])->name('loans.approve');
                 Route::get('loans/reject/{id}', [LoanController::class, 'reject'])->name('loans.reject');
                 Route::get('loans/filter/{status?}', [LoanController::class, 'index'])->name('loans.filter')->where('status', '[A-Za-z]+');
+                Route::get('loans/{id}/print_schedule', [LoanController::class, 'print_schedule'])->name('loans.print_schedule');
                 Route::resource('loans', LoanController::class);
 
                 //Loan Collateral Controller
@@ -466,6 +467,7 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::get('loans/loan_products', [App\Http\Controllers\Customer\LoanController::class, 'loan_products'])->name('loans.loan_products');
                 Route::match(['get', 'post'], 'loans/apply_loan', [App\Http\Controllers\Customer\LoanController::class, 'apply_loan'])->name('loans.apply_loan');
                 Route::get('loans/loan_details/{id}', [App\Http\Controllers\Customer\LoanController::class, 'loan_details'])->name('loans.loan_details');
+                Route::get('loans/{id}/print_schedule', [App\Http\Controllers\Customer\LoanController::class, 'print_schedule'])->name('loans.customer_print_schedule');
                 Route::match(['get', 'post'], 'loans/payment/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'loan_payment'])->name('loans.loan_payment');
                 Route::get('loans/stripe_payment/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'stripe_payment'])->name('loans.stripe_payment');
                 Route::post('loans/stripe_callback/{loan_id}', [App\Http\Controllers\Customer\LoanController::class, 'stripe_callback'])->name('loans.stripe_callback');

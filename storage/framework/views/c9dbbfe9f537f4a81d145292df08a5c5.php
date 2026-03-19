@@ -276,40 +276,43 @@
                         <span class="ld-tx-date"><?php echo e(\Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('D, d M Y')); ?></span>
                         <span class="ld-tx-title"><?php echo e(_lang('Loan Disbursed')); ?></span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#27ae60;">
+                    <span class="ld-tx-amount">
                         +<?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?>
 
                     </span>
                 </div>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $loan->payments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                
                 <div class="ld-transaction">
                     <div class="ld-tx-left">
                         <span class="ld-tx-date"><?php echo e(\Carbon\Carbon::parse($payment->getRawOriginal('paid_at'))->format('D, d M Y')); ?></span>
-                        <span class="ld-tx-title"><?php echo e(_lang('Loan Repayment')); ?></span>
+                        <span class="ld-tx-title"><?php echo e(_lang('EMI Paid')); ?></span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;">
-                        -<?php echo e(decimalPlace($payment->total_amount, currency($loan->currency->name))); ?>
+                    <span class="ld-tx-amount">
+                        +<?php echo e(decimalPlace($payment->repayment_amount - $payment->interest, currency($loan->currency->name))); ?>
 
                     </span>
                 </div>
+                
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment->interest > 0): ?>
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;"><?php echo e(_lang('Interest Charged')); ?></span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;"><?php echo e(_lang('Interest Charged')); ?></span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -<?php echo e(decimalPlace($payment->interest, currency($loan->currency->name))); ?>
 
                     </span>
                 </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment->late_penalties > 0): ?>
-                <div class="ld-transaction" style="padding-left:15px;background:#fafafa;">
+                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
                     <div class="ld-tx-left">
-                        <span class="ld-tx-date" style="font-size:12px;"><?php echo e(_lang('Late Penalty')); ?></span>
+                        <span class="ld-tx-date" style="font-size:12px;color:#888;"><?php echo e(_lang('Late Penalty')); ?></span>
                     </div>
-                    <span class="ld-tx-amount" style="color:#000;font-size:14px;">
+                    <span class="ld-tx-amount" style="font-size:14px;font-weight:700;">
                         -<?php echo e(decimalPlace($payment->late_penalties, currency($loan->currency->name))); ?>
 
                     </span>
@@ -324,46 +327,17 @@
 
             
             <div id="ld_statements" class="ld-tab-content">
-                <div class="ld-gen-card">
-                    <h3 style="font-weight:700;font-size:18px;"><?php echo e(_lang('Repayment Schedule')); ?></h3>
-                    <p style="font-size:16px;"><?php echo e(_lang('Full repayment schedule for your loan.')); ?></p>
+                <div style="text-align:center;padding:40px 20px;">
+                    <p style="font-size:16px;color:#555;margin-bottom:20px;">
+                        <?php echo e(_lang('Download the full repayment schedule as PDF.')); ?>
+
+                    </p>
+                    <a href="<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>" target="_blank"
+                       style="background:#1a73e8;color:#fff;padding:14px 40px;border-radius:8px;font-size:16px;font-weight:600;text-decoration:none;display:inline-block;">
+                        🖨 <?php echo e(_lang('Print / Download Schedule')); ?>
+
+                    </a>
                 </div>
-
-                <table class="table table-bordered">
-                    <thead>
-                        <tr class="text-center">
-                            <th><?php echo e(_lang('Date')); ?></th>
-                            <th><?php echo e(_lang('Amount to Pay')); ?></th>
-                            <th><?php echo e(_lang('Principal')); ?></th>
-                            <th><?php echo e(_lang('Interest')); ?></th>
-                            <th><?php echo e(_lang('Balance')); ?></th>
-                            <th><?php echo e(_lang('Status')); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $loan->repayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $repayment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <tr class="text-center">
-                            <td><?php echo e($repayment->repayment_date); ?></td>
-                            <td><?php echo e(decimalPlace($repayment->amount_to_pay, currency($loan->currency->name))); ?></td>
-                            <td><?php echo e(decimalPlace($repayment->principal_amount, currency($loan->currency->name))); ?></td>
-                            <td><?php echo e(decimalPlace($repayment->interest, currency($loan->currency->name))); ?></td>
-                            <td><?php echo e(decimalPlace($repayment->balance, currency($loan->currency->name))); ?></td>
-                            <td>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($repayment->status == 0 && date('Y-m-d') > $repayment->getRawOriginal('repayment_date')): ?>
-                                    <?php echo xss_clean(show_status(_lang('Due'), 'danger')); ?>
-
-                                <?php elseif($repayment->status == 0): ?>
-                                    <?php echo xss_clean(show_status(_lang('Unpaid'), 'warning')); ?>
-
-                                <?php else: ?>
-                                    <?php echo xss_clean(show_status(_lang('Paid'), 'success')); ?>
-
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                    </tbody>
-                </table>
             </div>
 
             <div style="background:#E5F6FE;height:40px;margin-top:20px;"></div>

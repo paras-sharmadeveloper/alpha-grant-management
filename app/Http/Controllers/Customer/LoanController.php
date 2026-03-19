@@ -55,9 +55,18 @@ class LoanController extends Controller {
             ->where('status', 1)
             ->orderBy("id", "asc")
             ->get();
+        $loancollaterals = \App\Models\LoanCollateral::where('loan_id', $loan_id)->orderBy('id', 'desc')->get();
         if ($loan) {
-            return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets'));
+            return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals'));
         }
+    }
+
+    public function print_schedule($tenant, $loan_id) {
+        $loan = Loan::where('id', $loan_id)
+            ->where('borrower_id', auth()->user()->member->id)
+            ->firstOrFail();
+        $repayments = \App\Models\LoanRepayment::where('loan_id', $loan->id)->orderBy('id', 'asc')->get();
+        return view('backend.admin.loan.print_schedule', compact('loan', 'repayments'));
     }
 
     public function calculator(Request $request) {
