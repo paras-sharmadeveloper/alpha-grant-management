@@ -77,14 +77,30 @@ class LoanController extends Controller {
             ->orderBy("id", "asc")
             ->get();
         $loancollaterals = \App\Models\LoanCollateral::where('loan_id', $loan_id)->orderBy('id', 'desc')->get();
-        return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals'));
+        $repayments = \App\Models\LoanRepayment::withoutGlobalScopes()
+            ->where('loan_id', $loan_id)
+            ->orderBy('repayment_date', 'asc')
+            ->get();
+        return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals', 'repayments'));
     }
 
     public function print_schedule($tenant, $loan_id) {
         $loan = Loan::where('id', $loan_id)
             ->where('borrower_id', auth()->user()->member->id)
             ->firstOrFail();
-        $repayments = \App\Models\LoanRepayment::where('loan_id', $loan->id)->orderBy('id', 'asc')->get();
+
+        $query = \App\Models\LoanRepayment::withoutGlobalScopes()
+            ->where('loan_id', $loan->id)
+            ->orderBy('repayment_date', 'asc');
+
+        if (request('from')) {
+            $query->where('repayment_date', '>=', request('from'));
+        }
+        if (request('to')) {
+            $query->where('repayment_date', '<=', request('to'));
+        }
+
+        $repayments = $query->get();
         return view('backend.admin.loan.print_schedule', compact('loan', 'repayments'));
     }
 

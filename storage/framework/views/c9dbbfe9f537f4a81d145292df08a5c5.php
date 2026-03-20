@@ -255,74 +255,195 @@
             
             <div id="ld_transactions" class="ld-tab-content">
 
-                
-                <div class="ld-transaction">
-                    <div class="ld-tx-left">
-                        <span class="ld-tx-date"><?php echo e(\Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('D, d M Y')); ?></span>
-                        <span class="ld-tx-title"><?php echo e(_lang('Loan Disbursed')); ?></span>
-                    </div>
-                    <span class="ld-tx-amount">
-                        +<?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?>
+                <?php
+                    // Build all transactions as flat list, each entry has its own date
+                    $allTx = [];
 
-                    </span>
-                </div>
+                    // Payment entries first (will be sorted desc by date)
+                    foreach ($loan->payments as $payment) {
+                        $pDate = $payment->getRawOriginal('paid_at');
+                        $allTx[] = [
+                            'date'   => $pDate,
+                            'title'  => _lang('EMI Paid'),
+                            'amount' => '+' . decimalPlace($payment->repayment_amount - $payment->interest, currency($loan->currency->name)),
+                            'indent' => false,
+                        ];
+                        if ($payment->interest > 0) {
+                            $allTx[] = [
+                                'date'   => $pDate,
+                                'title'  => _lang('Interest Charged'),
+                                'amount' => '-' . decimalPlace($payment->interest, currency($loan->currency->name)),
+                                'indent' => true,
+                            ];
+                        }
+                        if ($payment->late_penalties > 0) {
+                            $allTx[] = [
+                                'date'   => $pDate,
+                                'title'  => _lang('Late Penalty'),
+                                'amount' => '-' . decimalPlace($payment->late_penalties, currency($loan->currency->name)),
+                                'indent' => true,
+                            ];
+                        }
+                    }
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $loan->payments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                
-                <div class="ld-transaction">
-                    <div class="ld-tx-left">
-                        <span class="ld-tx-date"><?php echo e(\Carbon\Carbon::parse($payment->getRawOriginal('paid_at'))->format('D, d M Y')); ?></span>
-                        <span class="ld-tx-title"><?php echo e(_lang('EMI Paid')); ?></span>
-                    </div>
-                    <span class="ld-tx-amount">
-                        +<?php echo e(decimalPlace($payment->repayment_amount - $payment->interest, currency($loan->currency->name))); ?>
+                    // Sort payments desc by date (keep indent rows grouped with parent)
+                    // Group by payment then sort groups desc
+                    $groups = [];
+                    $current = [];
+                    foreach ($allTx as $tx) {
+                        if (!$tx['indent']) {
+                            if (!empty($current)) $groups[] = $current;
+                            $current = [$tx];
+                        } else {
+                            $current[] = $tx;
+                        }
+                    }
+                    if (!empty($current)) $groups[] = $current;
+                    usort($groups, fn($a, $b) => strtotime($b[0]['date']) - strtotime($a[0]['date']));
 
-                    </span>
-                </div>
-                
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment->interest > 0): ?>
-                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
-                    <div class="ld-tx-left">
-                        <span class="ld-tx-date"><?php echo e(_lang('Interest Charged')); ?></span>
-                    </div>
-                    <span class="ld-tx-amount">
-                        -<?php echo e(decimalPlace($payment->interest, currency($loan->currency->name))); ?>
+                    // Flatten groups back
+                    $sortedTx = [];
+                    foreach ($groups as $g) {
+                        foreach ($g as $row) $sortedTx[] = $row;
+                    }
 
-                    </span>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment->late_penalties > 0): ?>
-                <div class="ld-transaction" style="padding-left:20px;background:#fafafa;">
-                    <div class="ld-tx-left">
-                        <span class="ld-tx-date"><?php echo e(_lang('Late Penalty')); ?></span>
-                    </div>
-                    <span class="ld-tx-amount">
-                        -<?php echo e(decimalPlace($payment->late_penalties, currency($loan->currency->name))); ?>
+                    // Append disbursement at the bottom (oldest)
+                    if ($loan->getRawOriginal('release_date')) {
+                        $sortedTx[] = [
+                            'date'   => $loan->getRawOriginal('release_date'),
+                            'title'  => _lang('Loan Disbursed'),
+                            'amount' => '+' . decimalPlace($loan->applied_amount, currency($loan->currency->name)),
+                            'indent' => false,
+                        ];
+                    }
+                ?>
 
-                    </span>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status != 1): ?>
-                <p class="text-center mt-4 text-muted"><?php echo e(_lang('No transactions found.')); ?></p>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <div id="tx-list"></div>
+                <div id="tx-pagination" style="display:flex;justify-content:center;gap:8px;margin:20px 0;flex-wrap:wrap;"></div>
+
+                <script>
+                    const txData = <?php echo json_encode($sortedTx, 15, 512) ?>;
+                    const TX_PER_PAGE = 5;
+                    let txPage = 1;
+
+                    function parseDateStr(dateStr) {
+                        const parts = dateStr.split(/[-T ]/);
+                        const y = parseInt(parts[0]), m = parseInt(parts[1]) - 1, d = parseInt(parts[2]);
+                        const dt = new Date(y, m, d);
+                        const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        return days[dt.getDay()] + ', ' + String(d).padStart(2,'0') + ' ' + months[m] + ' ' + y;
+                    }
+
+                    function renderTx(page) {
+                        txPage = page;
+                        const start = (page - 1) * TX_PER_PAGE;
+                        const slice = txData.slice(start, start + TX_PER_PAGE);
+                        let html = '';
+                        if (txData.length === 0) {
+                            html = '<p class="text-center mt-4 text-muted" style="font-family:Poppins,sans-serif;font-size:14px;">No transactions found.</p>';
+                        }
+                        slice.forEach(tx => {
+                            const dateStr = tx.date ? parseDateStr(tx.date) : '—';
+                            const bg      = tx.indent ? 'background:#fafafa;padding-left:20px;' : '';
+                            html += `<div class="ld-transaction" style="${bg}">
+                                <div class="ld-tx-left">
+                                    <span class="ld-tx-date">${dateStr}</span>
+                                    <span class="ld-tx-title">${tx.title}</span>
+                                </div>
+                                <span class="ld-tx-amount">${tx.amount}</span>
+                            </div>`;
+                        });
+                        document.getElementById('tx-list').innerHTML = html;
+
+                        const totalPages = Math.ceil(txData.length / TX_PER_PAGE);
+                        let pHtml = '';
+                        for (let i = 1; i <= totalPages; i++) {
+                            const active = i === page ? 'background:#214942;color:#fff;' : 'background:#f0f0f0;color:#214942;';
+                            pHtml += `<span onclick="renderTx(${i})" style="${active}padding:6px 12px;border-radius:4px;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;">${i}</span>`;
+                        }
+                        document.getElementById('tx-pagination').innerHTML = pHtml;
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => renderTx(1));
+                </script>
             </div>
 
             
             <div id="ld_statements" class="ld-tab-content">
-                <div style="text-align:center;padding:40px 20px;">
-                    <p style="font-size:14px;font-weight:400;font-family:'Poppins',sans-serif;color:#555;margin-bottom:20px;text-transform:capitalize;">
-                        <?php echo e(_lang('Download the full repayment schedule as PDF.')); ?>
 
-                    </p>
-                    <a href="<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>" target="_blank"
-                       style="background:#214942;color:#fff;padding:14px 40px;border-radius:8px;font-size:14px;font-weight:400;text-decoration:none;display:inline-block;font-family:'Poppins',sans-serif;letter-spacing:0;text-transform:capitalize;">
-                        🖨 <?php echo e(_lang('Print / Download Schedule')); ?>
+                <?php
+                    // $repayments passed from controller (global scopes bypassed)
+                ?>
 
-                    </a>
+                
+                <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:24px;">
+                    <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;"><?php echo e(_lang('From')); ?></label>
+                            <input type="date" id="stmt-from" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;"><?php echo e(_lang('To')); ?></label>
+                            <input type="date" id="stmt-to" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
+                        </div>
+                        <button onclick="filterStatements()" style="background:#214942;color:#fff;border:none;padding:9px 20px;border-radius:4px;font-family:Poppins,sans-serif;font-size:14px;cursor:pointer;text-transform:capitalize;"><?php echo e(_lang('Filter')); ?></button>
+                        <button onclick="resetStatements()" style="background:#f0f0f0;color:#214942;border:none;padding:9px 20px;border-radius:4px;font-family:Poppins,sans-serif;font-size:14px;cursor:pointer;text-transform:capitalize;"><?php echo e(_lang('Reset')); ?></button>
+                    </div>
+                    
+                    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+                        <a href="<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>" target="_blank"
+                           style="background:#214942;color:#fff;padding:9px 20px;border-radius:4px;font-size:14px;font-weight:400;text-decoration:none;font-family:Poppins,sans-serif;text-transform:capitalize;">
+                            🖨 <?php echo e(_lang('Print Schedule')); ?>
+
+                        </a>
+                        <a href="<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>?download=1" target="_blank"
+                           style="background:#44a74a;color:#fff;padding:9px 20px;border-radius:4px;font-size:14px;font-weight:400;text-decoration:none;font-family:Poppins,sans-serif;text-transform:capitalize;">
+                            ⬇ <?php echo e(_lang('Download Schedule')); ?>
+
+                        </a>
+                        
+                        <a id="stmt-filtered-btn" href="#" target="_blank"
+                           style="display:none;background:#f39c12;color:#fff;padding:9px 20px;border-radius:4px;font-size:14px;font-weight:400;text-decoration:none;font-family:Poppins,sans-serif;text-transform:capitalize;">
+                            ⬇ <?php echo e(_lang('Download Filtered Records')); ?>
+
+                        </a>
+                    </div>
                 </div>
+
+                
+
+                <script>
+                    const printBase = "<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>";
+
+                    function filterStatements() {
+                        const from = document.getElementById('stmt-from').value;
+                        const to   = document.getElementById('stmt-to').value;
+                        const isFiltered = from || to;
+
+                        const filteredBtn = document.getElementById('stmt-filtered-btn');
+                        if (isFiltered) {
+                            let url = printBase;
+                            const params = [];
+                            if (from) params.push('from=' + from);
+                            if (to)   params.push('to=' + to);
+                            params.push('download=1');
+                            url += '?' + params.join('&');
+                            filteredBtn.href = url;
+                            filteredBtn.style.display = '';
+                        } else {
+                            filteredBtn.style.display = 'none';
+                        }
+                    }
+
+                    function resetStatements() {
+                        document.getElementById('stmt-from').value = '';
+                        document.getElementById('stmt-to').value   = '';
+                        document.getElementById('stmt-filtered-btn').style.display = 'none';
+                    }
+                </script>
+                    }
+                </script>
             </div>
 
             
@@ -362,6 +483,14 @@ function ldOpenTab(tabId, el) {
     document.querySelectorAll('.ld-tab').forEach(t => t.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     el.classList.add('active');
+
+    // Reset transaction pagination when leaving transactions tab
+    if (tabId === 'ld_transactions') {
+        renderTx(1);
+    } else {
+        const pg = document.getElementById('tx-pagination');
+        if (pg) pg.innerHTML = '';
+    }
 }
 </script>
 <?php $__env->stopSection(); ?>
