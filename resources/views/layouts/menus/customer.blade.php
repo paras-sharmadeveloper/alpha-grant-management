@@ -13,6 +13,10 @@
  <li>
 	<a href="{{ route('loans.my_loans') }}"><i class="fas fa-calculator"></i><span>{{ _lang('My Loan') }}</span></a>
 </li>
+
+<li>
+	<a href="{{ route('loans.pending_loans') }}"><i class="fas fa-hourglass-half"></i><span>{{ _lang('Pending Loans') }}</span></a>
+</li>
 {{--
 <li>
 	<a href="{{ route('loans.loan_products') }}"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Apply New Loan') }}</span></a>

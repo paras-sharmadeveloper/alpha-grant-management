@@ -47,6 +47,7 @@
 			<div class="card-header d-flex justify-content-between align-items-center">
 				{{ _lang('Upcoming Loan Payment') }}
 
+				{{--
 				<form method="GET" action="" class="form-inline">
 					<input type="date" name="from_date" class="form-control form-control-sm mr-2"
 						value="{{ request('from_date') }}">
@@ -62,31 +63,58 @@
 						<i class="ti-close"></i>
 					</a>
 				</form>
+                --}}
 			</div>
 			<div class="card-body px-0 pt-0">
 				<div class="table-responsive">
-					<table class="table table-bordered">
+					<table class="table table-bordered text-center">
 						<thead>
-							<th class="text-nowrap pl-4">{{ _lang('Loan ID') }}</th>
-							<th class="text-nowrap">{{ _lang('Next Payment Date') }}</th>
-							<th>{{ _lang('Status') }}</th>
-							<th class="text-nowrap text-right">{{ _lang('Amount to Pay') }}</th>
-							<th class="text-center">{{ _lang('Action') }}</th>
+							<tr>
+								<th class="text-nowrap">{{ _lang('Loan ID') }}</th>
+								<th class="text-nowrap">{{ _lang('Next Payment Date') }}</th>
+								<th>{{ _lang('Status') }}</th>
+								<th class="text-nowrap">{{ _lang('Amount to Pay') }}</th>
+						      {{--		
+								<th class="text-center">{{ _lang('Action') }}</th>
+						       --}}
+							</tr>
 						</thead>
 						<tbody>
 							@if(count($loans) == 0)
 								<tr>
-									<td colspan="5"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
+									<td colspan="5">
+										<p class="text-center">{{ _lang('No Data Available') }}</p>
+									</td>
 								</tr>
 							@endif
 
 							@foreach($loans as $loan)
 							<tr>
-								<td class="pl-4">{{ $loan->loan_id }}</td>
-								<td class="text-nowrap">{{ $loan->next_payment->repayment_date }}</td>
-								<td>{!! $loan->next_payment->getRawOriginal('repayment_date') >= date('Y-m-d') ? xss_clean(show_status(_lang('Upcoming'),'success')) : xss_clean(show_status(_lang('Due'),'danger')) !!}</td>
-								<td class="text-nowrap text-right">{{ decimalPlace($loan->next_payment->amount_to_pay, currency($loan->currency->name)) }}</td>
-								<td class="text-center"><a href="{{ route('loans.stripe_payment',$loan->id) }}" class="btn btn-primary btn-xs text-nowrap">{{ _lang('Pay Now') }}</a></td>
+								<td>{{ $loan->loan_id }}</td>
+								<td>{{ $loan->next_payment->repayment_date }}</td>
+
+								{{-- ✅ Status as comment --}}
+								<td>
+									@if($loan->next_payment->getRawOriginal('repayment_date') >= date('Y-m-d'))
+										<span class="text-success">(Upcoming)</span>
+									@else
+										<span class="text-danger">(Due)</span>
+									@endif
+								</td>
+
+								<td>
+									{{ decimalPlace($loan->next_payment->amount_to_pay, currency($loan->currency->name)) }}
+								</td>
+
+								{{-- ✅ Action Button --}}
+								{{--
+								<td class="text-center">
+									<a href="{{ route('loans.stripe_payment',$loan->id) }}" 
+									class="btn btn-primary btn-sm text-nowrap">
+										{{ _lang('Pay Now') }}
+									</a>
+								</td>
+								--}}
 							</tr>
 							@endforeach
 						</tbody>
@@ -102,7 +130,7 @@
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between align-items-center">
 				{{ _lang('Recent Transactions') }}
-				
+			
 				<form method="GET" action="" class="form-inline">
 					<input type="date" name="from_date" class="form-control form-control-sm mr-2"
 						value="{{ request('from_date') }}">
@@ -118,6 +146,7 @@
 						<i class="ti-close"></i>
 					</a>
 				</form>
+				
 			</div>
 			<div class="card-body px-0 pt-0">
 				<div class="table-responsive">

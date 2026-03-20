@@ -40,10 +40,21 @@ class LoanController extends Controller {
      */
     public function index() {
         $assets = ['datatable'];
+        // Exclude pending loans (status=0) — they are shown on the pending_loans page instead
         $loans  = Loan::where('borrower_id', auth()->user()->member->id)
+            ->whereIn('status', [1, 2, 3])
             ->orderBy("loans.id", "desc")
             ->get();
         return view('backend.customer.loan.my_loans', compact('loans', 'assets'));
+    }
+
+    public function pending_loans() {
+        $assets = ['datatable'];
+        $loans  = Loan::where('borrower_id', auth()->user()->member->id)
+            ->where('status', 0)
+            ->orderBy("loans.id", "desc")
+            ->get();
+        return view('backend.customer.loan.pending_loans', compact('loans', 'assets'));
     }
 
     public function loan_details($teant, $loan_id) {
@@ -51,14 +62,22 @@ class LoanController extends Controller {
         $loan   = Loan::where('id', $loan_id)
             ->where('borrower_id', auth()->user()->member->id)
             ->first();
+
+        if (! $loan) {
+            abort(403, _lang('Unauthorized Action'));
+        }
+
+        // If role is customer (member) and loan is pending, show unauthorized action
+        if (auth()->user()->user_type == 'customer' && $loan->status == 0) {
+            abort(403, _lang('Unauthorized Action'));
+        }
+
         $customFields = CustomField::where('table', 'loans')
             ->where('status', 1)
             ->orderBy("id", "asc")
             ->get();
         $loancollaterals = \App\Models\LoanCollateral::where('loan_id', $loan_id)->orderBy('id', 'desc')->get();
-        if ($loan) {
-            return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals'));
-        }
+        return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals'));
     }
 
     public function print_schedule($tenant, $loan_id) {

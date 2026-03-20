@@ -30,7 +30,8 @@
 					<tbody>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $loans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <tr>
-                            <td><a href="<?php echo e(route('loans.loan_details',$loan->id)); ?>"><?php echo e($loan->loan_id); ?></a></td>
+                            
+                            <td><a href="<?php echo e(route('loans.loan_details',$loan->id)); ?>"><?php echo e($loan->loan_id ?? '#' . $loan->id); ?></a></td>
                             <td><?php echo e($loan->loan_product->name); ?></td>
                             
                             

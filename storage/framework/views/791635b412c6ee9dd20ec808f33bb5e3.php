@@ -8,6 +8,10 @@
 	<a href="<?php echo e(route('loans.my_loans')); ?>"><i class="fas fa-calculator"></i><span><?php echo e(_lang('My Loan')); ?></span></a>
 </li>
 
+<li>
+	<a href="<?php echo e(route('loans.pending_loans')); ?>"><i class="fas fa-hourglass-half"></i><span><?php echo e(_lang('Pending Loans')); ?></span></a>
+</li>
+
 
 
 

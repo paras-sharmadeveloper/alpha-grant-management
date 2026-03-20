@@ -30,7 +30,8 @@
 					<tbody>
                         @foreach($loans as $loan)
                         <tr>
-                            <td><a href="{{ route('loans.loan_details',$loan->id) }}">{{ $loan->loan_id }}</a></td>
+                            {{-- Pending loans may have null loan_id before admin assigns one --}}
+                            <td><a href="{{ route('loans.loan_details',$loan->id) }}">{{ $loan->loan_id ?? '#' . $loan->id }}</a></td>
                             <td>{{ $loan->loan_product->name }}</td>
                             {{-- <td>{{ $loan->loan_product->name }}</td> --}}
                             {{-- <td>{{ $loan->currency->name }}</td> --}}
