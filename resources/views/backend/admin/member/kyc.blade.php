@@ -19,7 +19,7 @@
 
 <div class="kyc-wrap">
     <div class="kyc-head">
-        <a href="{{ route('members.show', $member->id) }}" class="btn btn-sm"
+        <a href="{{ auth()->user()->user_type === 'customer' ? route('loans.my_loans') : route('members.show', $member->id) }}" class="btn btn-sm"
            style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:12px;">
             <i class="fas fa-arrow-left mr-1"></i> Back
         </a>
@@ -69,6 +69,7 @@
                         </select>
                     </div>
                 </div>
+                @if(auth()->user()->user_type !== 'customer')
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="form-label">Link to Loan (optional)</label>
@@ -80,6 +81,7 @@
                         </select>
                     </div>
                 </div>
+                @endif
             </div>
 
             {{-- ID Verification --}}
@@ -245,7 +247,7 @@
         {{-- ── Verification History (latest 2) ── --}}
         <div class="section-title mt-4" style="display:flex;align-items:center;justify-content:space-between;">
             <span>Recent Verifications</span>
-            <a href="{{ route('kyc.history', $member->id) }}" style="font-size:12px;color:#44a74a;font-weight:400;text-transform:none;letter-spacing:0;">
+            <a href="{{ auth()->user()->user_type === 'customer' ? route('customer.kyc.history', $member->id) : route('kyc.history', $member->id) }}" style="font-size:12px;color:#44a74a;font-weight:400;text-transform:none;letter-spacing:0;">
                 View All <i class="fas fa-arrow-right ml-1"></i>
             </a>
         </div>

@@ -15,7 +15,7 @@
 <div class="col-lg-12">
     <div style="max-width:1000px;margin:20px auto;">
         <div class="vh-head">
-            <a href="<?php echo e(route('kyc.show', $member->id)); ?>" class="btn btn-sm"
+            <a href="<?php echo e(auth()->user()->user_type === 'customer' ? route('customer.kyc.show', $member->id) : route('kyc.show', $member->id)); ?>" class="btn btn-sm"
                style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:12px;">
                 <i class="fas fa-arrow-left mr-1"></i> Back
             </a>

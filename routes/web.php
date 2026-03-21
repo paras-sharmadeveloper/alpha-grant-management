@@ -461,6 +461,10 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 //Membership Details
                 Route::get('profile/membership_details', [ProfileController::class, 'membership_details'])->name('profile.membership_details');
 
+                // Customer KYC (read-only — view own status and history)
+                Route::get('kyc/{member_id}', [\App\Http\Controllers\KycController::class, 'show'])->name('customer.kyc.show');
+                Route::get('kyc/{member_id}/history', [\App\Http\Controllers\KycController::class, 'history'])->name('customer.kyc.history');
+
                 //Transfer Controller
                 Route::match(['get', 'post'], 'transfer/own_account_transfer', [App\Http\Controllers\Customer\TransferController::class, 'own_account_transfer'])->name('transfer.own_account_transfer');
                 Route::match(['get', 'post'], 'transfer/other_account_transfer', [App\Http\Controllers\Customer\TransferController::class, 'other_account_transfer'])->name('transfer.other_account_transfer');

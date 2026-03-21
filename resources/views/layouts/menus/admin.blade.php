@@ -5,6 +5,10 @@ $withdraw_requests = request_count('withdraw_requests', true);
 $member_requests = request_count('member_requests', true);
 $pending_loans = request_count('pending_loans', true);
 $upcomming_repayments = request_count('upcomming_repayments', true);
+
+$membersActive  = request()->routeIs('members.*') || request()->routeIs('kyc.*');
+$loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*');
+$settingsActive = request()->routeIs('settings.*') || request()->routeIs('profile.*') || request()->routeIs('users.*') || request()->routeIs('roles.*');
 @endphp
 
 <li>
@@ -15,9 +19,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 	<a href="{{ route('branches.index') }}"><i class="fas fa-building"></i><span>{{ _lang('Branches') }}</span></a>
 </li>
 
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-user-friends"></i><span>{{ _lang('Members') }} {!! xss_clean($member_requests) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="{{ $membersActive ? 'active menu-open' : '' }}">
+	<a href="javascript: void(0);" class="{{ $membersActive ? 'active' : '' }}"><i class="fas fa-user-friends"></i><span>{{ _lang('Members') }} {!! xss_clean($member_requests) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="{{ $membersActive ? 'true' : 'false' }}" style="{{ $membersActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('members.index') }}">{{ _lang('Member List') }}</a></li>
 		<li class="nav-item"><a class="nav-link" href="{{ route('members.create') }}">{{ _lang('Add Member') }}</a></li>
 		{{-- <li class="nav-item"><a class="nav-link" href="{{ route('members.import') }}">{{ _lang('Bulk Import') }}</a></li> --}}
@@ -31,9 +35,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 	</ul>
 </li>
 
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Loans') }} {!! xss_clean($pending_loans) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="{{ $loansActive ? 'active menu-open' : '' }}">
+	<a href="javascript: void(0);" class="{{ $loansActive ? 'active' : '' }}"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Loans') }} {!! xss_clean($pending_loans) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="{{ $loansActive ? 'true' : 'false' }}" style="{{ $loansActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('loans.index') }}">{{ _lang('All Loans') }}</a></li>
 		<li class="nav-item">
 			<a class="nav-link" href="{{ route('loans.filter', 'pending') }}">
@@ -154,9 +158,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 	</ul>
 </li> --}}
 
-<li>
-	<a href="javascript: void(0);"><i class="ti-settings"></i><span>{{ _lang('System Settings') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="{{ $settingsActive ? 'active menu-open' : '' }}">
+	<a href="javascript: void(0);" class="{{ $settingsActive ? 'active' : '' }}"><i class="ti-settings"></i><span>{{ _lang('System Settings') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="{{ $settingsActive ? 'true' : 'false' }}" style="{{ $settingsActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('settings.index') }}">{{ _lang('System Settings') }}</a></li>
 		@php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; @endphp
 		<li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.edit') }}">{{ _lang('Profile Settings') }}</a></li>

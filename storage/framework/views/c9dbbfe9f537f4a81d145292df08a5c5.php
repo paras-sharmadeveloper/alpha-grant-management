@@ -442,8 +442,6 @@
                         document.getElementById('stmt-filtered-btn').style.display = 'none';
                     }
                 </script>
-                    }
-                </script>
             </div>
 
             

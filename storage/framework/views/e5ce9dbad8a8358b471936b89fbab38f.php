@@ -5,6 +5,10 @@ $withdraw_requests = request_count('withdraw_requests', true);
 $member_requests = request_count('member_requests', true);
 $pending_loans = request_count('pending_loans', true);
 $upcomming_repayments = request_count('upcomming_repayments', true);
+
+$membersActive  = request()->routeIs('members.*') || request()->routeIs('kyc.*');
+$loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*');
+$settingsActive = request()->routeIs('settings.*') || request()->routeIs('profile.*') || request()->routeIs('users.*') || request()->routeIs('roles.*');
 ?>
 
 <li>
@@ -15,9 +19,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 	<a href="<?php echo e(route('branches.index')); ?>"><i class="fas fa-building"></i><span><?php echo e(_lang('Branches')); ?></span></a>
 </li>
 
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-user-friends"></i><span><?php echo e(_lang('Members')); ?> <?php echo xss_clean($member_requests); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="<?php echo e($membersActive ? 'active menu-open' : ''); ?>">
+	<a href="javascript: void(0);" class="<?php echo e($membersActive ? 'active' : ''); ?>"><i class="fas fa-user-friends"></i><span><?php echo e(_lang('Members')); ?> <?php echo xss_clean($member_requests); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="<?php echo e($membersActive ? 'true' : 'false'); ?>" style="<?php echo e($membersActive ? 'display:block;' : ''); ?>">
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('members.index')); ?>"><?php echo e(_lang('Member List')); ?></a></li>
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('members.create')); ?>"><?php echo e(_lang('Add Member')); ?></a></li>
 		
@@ -26,9 +30,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 	</ul>
 </li>
 
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-hand-holding-usd"></i><span><?php echo e(_lang('Loans')); ?> <?php echo xss_clean($pending_loans); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="<?php echo e($loansActive ? 'active menu-open' : ''); ?>">
+	<a href="javascript: void(0);" class="<?php echo e($loansActive ? 'active' : ''); ?>"><i class="fas fa-hand-holding-usd"></i><span><?php echo e(_lang('Loans')); ?> <?php echo xss_clean($pending_loans); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="<?php echo e($loansActive ? 'true' : 'false'); ?>" style="<?php echo e($loansActive ? 'display:block;' : ''); ?>">
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('loans.index')); ?>"><?php echo e(_lang('All Loans')); ?></a></li>
 		<li class="nav-item">
 			<a class="nav-link" href="<?php echo e(route('loans.filter', 'pending')); ?>">
@@ -65,9 +69,9 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 
 
 
-<li>
-	<a href="javascript: void(0);"><i class="ti-settings"></i><span><?php echo e(_lang('System Settings')); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="<?php echo e($settingsActive ? 'active menu-open' : ''); ?>">
+	<a href="javascript: void(0);" class="<?php echo e($settingsActive ? 'active' : ''); ?>"><i class="ti-settings"></i><span><?php echo e(_lang('System Settings')); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="<?php echo e($settingsActive ? 'true' : 'false'); ?>" style="<?php echo e($settingsActive ? 'display:block;' : ''); ?>">
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('settings.index')); ?>"><?php echo e(_lang('System Settings')); ?></a></li>
 		<?php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; ?>
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route($isAadminRoute.'profile.edit')); ?>"><?php echo e(_lang('Profile Settings')); ?></a></li>

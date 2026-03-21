@@ -1,10 +1,14 @@
+@php
+$superMembersActive = request()->routeIs('admin.tenants.*');
+@endphp
+
 <li>
 	<a href="{{ route('admin.dashboard.index') }}"><i class="fas fa-th-large"></i><span>{{ _lang('Dashboard') }}</span></a>
 </li>
 
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-user-friends"></i><span>{{ _lang('Members') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+<li class="{{ $superMembersActive ? 'active menu-open' : '' }}">
+	<a href="javascript: void(0);" class="{{ $superMembersActive ? 'active' : '' }}"><i class="fas fa-user-friends"></i><span>{{ _lang('Members') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="{{ $superMembersActive ? 'true' : 'false' }}" style="{{ $superMembersActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('admin.tenants.index') }}">{{ _lang('All Members') }}</a></li>
 		<li class="nav-item"><a class="nav-link" href="{{ route('admin.tenants.create') }}">{{ _lang('Add New') }}</a></li>
 	</ul>

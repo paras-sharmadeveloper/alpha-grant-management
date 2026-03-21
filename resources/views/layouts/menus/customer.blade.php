@@ -58,13 +58,26 @@
         <li class="nav-item"><a class="nav-link" href="{{ route('customer_reports.account_balances') }}">{{ _lang('Account Balance') }}</a></li> 
     </ul>
 </li> --}}
-<li>
-	<a href="javascript: void(0);"><i class="fas fa-cog"></i><span>{{ _lang('General Settings') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-	<ul class="nav-second-level" aria-expanded="false">
+@php
+    $myMemberId = auth()->user()->member->id ?? null;
+    $kycRoutes  = $myMemberId ? [
+        route('customer.kyc.show',    $myMemberId),
+        route('customer.kyc.history', $myMemberId),
+    ] : [];
+    $settingsActive = request()->routeIs('profile.membership_details')
+        || request()->routeIs('profile.change_password')
+        || in_array(url()->current(), $kycRoutes);
+@endphp
+<li class="{{ $settingsActive ? 'active menu-open' : '' }}">
+	<a href="javascript: void(0);" class="{{ $settingsActive ? 'active' : '' }}"><i class="fas fa-cog"></i><span>{{ _lang('General Settings') }}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+	<ul class="nav-second-level" aria-expanded="{{ $settingsActive ? 'true' : 'false' }}" style="{{ $settingsActive ? 'display:block;' : '' }}">
 		@php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; @endphp
 		<li class="nav-item"><a class="nav-link" href="{{ route('profile.membership_details') }}">{{ _lang('Membership Details') }}</a></li>
-		{{--<li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.edit') }}">{{ _lang('Profile Settings')  }}</a></li>--}}
         <li class="nav-item"><a class="nav-link" href="{{ route($isAadminRoute.'profile.change_password') }}">{{ _lang('Change Password') }}</a></li>
+        @if($myMemberId)
+        <li class="nav-item"><a class="nav-link" href="{{ route('customer.kyc.show', $myMemberId) }}"><i class="ti-id-badge mr-1"></i>{{ _lang('KYC Verification') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('customer.kyc.history', $myMemberId) }}"><i class="ti-time mr-1"></i>{{ _lang('KYC History') }}</a></li>
+        @endif
     </ul>
 </li>
 

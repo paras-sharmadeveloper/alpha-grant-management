@@ -24,7 +24,6 @@
 
             <div class="kyc-top-bar">
                 {{ _lang('KYC') }} &mdash; {{ $member->first_name.' '.$member->last_name }}
-                <span style="font-size:12px;opacity:.7;margin-left:10px;">Loan #{{ $loan->loan_id }}</span>
             </div>
 
             <div class="kyc-body">
@@ -101,7 +100,6 @@
                             <tr>
                                 <th>#</th>
                                 <th>Type</th>
-                                <th>Loan</th>
                                 <th>Request ID</th>
                                 <th>Status</th>
                                 <th>Result / Warnings</th>
@@ -128,7 +126,6 @@
                             <tr>
                                 <td>{{ $v->id }}</td>
                                 <td>{{ str_replace('_', ' ', ucfirst($v->type)) }}</td>
-                                <td>{{ $v->loan_id ? '#'.$v->loan_id : '—' }}</td>
                                 <td style="max-width:130px;word-break:break-all;color:#888;">{{ $v->verification_request_id ?? '—' }}</td>
                                 <td><span class="badge-{{ $displayStatus }}">{{ $displayStatus }}</span></td>
                                 <td style="max-width:200px;">
