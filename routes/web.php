@@ -359,6 +359,11 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::post('members/send_sms', [MemberController::class, 'send_sms'])->name('members.send_sms');
                 Route::resource('members', MemberController::class)->middleware("demo:PUT|PATCH|DELETE");
 
+                // KYC Routes
+                Route::get('members/kyc/{member_id}', [\App\Http\Controllers\KycController::class, 'show'])->name('kyc.show');
+                Route::post('members/kyc/{member_id}/submit', [\App\Http\Controllers\KycController::class, 'submit'])->name('kyc.submit');
+                Route::get('members/kyc/{member_id}/history', [\App\Http\Controllers\KycController::class, 'history'])->name('kyc.history');
+
                 //Custom Field Controller
                 Route::resource('custom_fields', CustomFieldController::class)->except(['index', 'show'])->middleware("demo");
                 Route::get('custom_fields/{table}', [CustomFieldController::class, 'index'])->name('custom_fields.index');
@@ -559,6 +564,9 @@ Route::prefix('subscription_callback')->group(function () {
     Route::match(['get', 'post'], 'instamojo', [InstamojoProcessController::class, 'callback'])->name('subscription_callback.Instamojo');
     Route::post('offline_payment/{slug}', [OfflineProcessController::class, 'callback'])->name('subscription_callback.offline');
 });
+
+// Didit KYC webhook — no auth, no CSRF (excluded in VerifyCsrfToken)
+Route::post('didit/webhook', [\App\Http\Controllers\KycController::class, 'webhook'])->name('kyc.webhook');
 
 Route::prefix('{tenant}')->middleware(['tenant'])->group(function () {
     Route::prefix('callback')->group(function () {

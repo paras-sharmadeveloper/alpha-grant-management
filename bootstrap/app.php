@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '*/callback/instamojo',
             'subscription_callback/instamojo',
+            'didit/webhook',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

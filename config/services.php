@@ -23,6 +23,12 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'didit' => [
+            'base_url' => env('DIDIT_BASE_URL'),
+            'auth_url' => env('DIDIT_AUTH_URL'),
+            'client_id' => env('DIDIT_CLIENT_ID'),
+            'client_secret' => env('DIDIT_CLIENT_SECRET'),
+     ],
 
     'resend' => [
         'key' => env('RESEND_KEY'),
@@ -38,6 +44,14 @@ return [
     'stripe' => [
         'key'    => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+    ],
+
+    'didit' => [
+        'client_id'     => env('DIDIT_CLIENT_ID'),
+        'client_secret' => env('DIDIT_CLIENT_SECRET'),
+        'base_url'      => env('DIDIT_BASE_URL', 'https://apx.didit.me'),
+        'auth_url'      => env('DIDIT_AUTH_URL', 'https://auth.didit.me'),
+        'webhook_secret'=> env('DIDIT_WEBHOOK_SECRET'),
     ],
 
 ];

@@ -6,7 +6,6 @@
 		<div class="card no-export">
 		    <div class="card-header d-flex align-items-center">
 				<span class="panel-title">{{ _lang('Member List') }}</span>
-
 				<div class="ml-auto">
 					<a class="btn btn-dark btn-xs" href="{{ route('members.import') }}"><i class="ti-import mr-1"></i>{{ _lang('Bulk Import') }}</a>
 					<a class="btn btn-primary btn-xs" href="{{ route('members.create') }}"><i class="ti-plus mr-1"></i>{{ _lang('Add New') }}</a>
@@ -25,8 +24,7 @@
 							<th class="text-center">{{ _lang('Action') }}</th>
 					    </tr>
 					</thead>
-					<tbody>
-					</tbody>
+					<tbody></tbody>
 				</table>
 			</div>
 		</div>
@@ -38,7 +36,6 @@
 <script>
 (function ($) {
 	"use strict";
-
 	$('#members_table').DataTable({
 		processing: true,
 		serverSide: true,
@@ -54,7 +51,7 @@
 		],
 		responsive: true,
 		"bStateSave": true,
-		"bAutoWidth":false,
+		"bAutoWidth": false,
 		"ordering": false,
 		"language": {
 		   "decimal":        "",
@@ -62,7 +59,6 @@
 		   "info":           "{{ _lang('Showing') }} _START_ {{ _lang('to') }} _END_ {{ _lang('of') }} _TOTAL_ {{ _lang('Entries') }}",
 		   "infoEmpty":      "{{ _lang('Showing 0 To 0 Of 0 Entries') }}",
 		   "infoFiltered":   "(filtered from _MAX_ total entries)",
-		   "infoPostFix":    "",
 		   "thousands":      ",",
 		   "lengthMenu":     "{{ _lang('Show') }} _MENU_ {{ _lang('Entries') }}",
 		   "loadingRecords": "{{ _lang('Loading...') }}",
@@ -70,17 +66,26 @@
 		   "search":         "{{ _lang('Search') }}",
 		   "zeroRecords":    "{{ _lang('No matching records found') }}",
 		   "paginate": {
-			  "first":      "{{ _lang('First') }}",
-			  "last":       "{{ _lang('Last') }}",
-			  "previous": 	"<i class='fas fa-angle-left'></i>",
-        	  "next" : 		"<i class='fas fa-angle-right'></i>",
+			  "first":    "{{ _lang('First') }}",
+			  "last":     "{{ _lang('Last') }}",
+			  "previous": "<i class='fas fa-angle-left'></i>",
+        	  "next":     "<i class='fas fa-angle-right'></i>",
 		  }
 		},
 		drawCallback: function () {
 			$(".dataTables_paginate > .pagination").addClass("pagination-bordered");
+			// Hide broken member photos
+			$('#members_table').find('img.member-photo').each(function () {
+				$(this).on('error', function () {
+					$(this).hide();
+				});
+				// trigger for already-broken images
+				if (this.complete && this.naturalWidth === 0) {
+					$(this).hide();
+				}
+			});
 		}
 	});
-
 })(jQuery);
 </script>
 @endsection

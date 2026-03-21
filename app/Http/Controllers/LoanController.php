@@ -332,7 +332,9 @@ class LoanController extends Controller {
         $loan   = Loan::find($id);
         $member = $loan->borrower;
         $memberDocuments = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan->id)->get();
-        return view('backend.admin.loan.kyc', compact('loan', 'member', 'memberDocuments'));
+        $verifications   = \App\Models\KycVerification::where('member_id', $member->id)
+                            ->latest()->paginate(10);
+        return view('backend.admin.loan.kyc', compact('loan', 'member', 'memberDocuments', 'verifications'));
     }
 
     /**

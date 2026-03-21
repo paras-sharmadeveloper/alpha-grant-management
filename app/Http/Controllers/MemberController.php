@@ -70,9 +70,11 @@ class MemberController extends Controller
                 return $member->branch->name;
             })
             ->editColumn('photo', function ($member) {
-                $photo = $member->photo != null ? profile_picture($member->photo) : asset('public/backend/images/avatar.png');
+                $photo = ($member->photo && $member->photo !== 'default.png')
+                    ? profile_picture($member->photo)
+                    : asset('public/backend/images/avatar.png');
                 return '<div class="profile_picture text-center">'
-                    . '<img src="' . $photo . '" class="thumb-sm img-thumbnail">'
+                    . '<img src="' . $photo . '" class="thumb-sm img-thumbnail member-photo">'
                     . '</div>';
             })
             ->addColumn('action', function ($member) {
@@ -83,6 +85,8 @@ class MemberController extends Controller
                 . '<a class="dropdown-item" href="' . route('members.edit', $member->id) . '"><i class="ti-pencil-alt"></i> ' . _lang('Edit') . '</a>'
                 . '<a class="dropdown-item" href="' . route('members.show', $member->id) . '"><i class="ti-eye"></i>  ' . _lang('View') . '</a>'
                 . '<a class="dropdown-item" href="' . route('member_documents.index', $member->id) . '"><i class="ti-files"></i>  ' . _lang('Documents') . '</a>'
+                . '<a class="dropdown-item" href="' . route('kyc.show', $member->id) . '"><i class="ti-id-badge"></i>  ' . _lang('KYC') . '</a>'
+                . '<a class="dropdown-item" href="' . route('kyc.history', $member->id) . '"><i class="ti-time"></i>  ' . _lang('KYC History') . '</a>'
                 . '<form action="' . route('members.destroy', $member->id) . '" method="post">'
                 . csrf_field()
                 . '<input name="_method" type="hidden" value="DELETE">'

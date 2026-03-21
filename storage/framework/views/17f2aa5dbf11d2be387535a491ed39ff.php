@@ -6,7 +6,6 @@
 		<div class="card no-export">
 		    <div class="card-header d-flex align-items-center">
 				<span class="panel-title"><?php echo e(_lang('Member List')); ?></span>
-
 				<div class="ml-auto">
 					<a class="btn btn-dark btn-xs" href="<?php echo e(route('members.import')); ?>"><i class="ti-import mr-1"></i><?php echo e(_lang('Bulk Import')); ?></a>
 					<a class="btn btn-primary btn-xs" href="<?php echo e(route('members.create')); ?>"><i class="ti-plus mr-1"></i><?php echo e(_lang('Add New')); ?></a>
@@ -25,8 +24,7 @@
 							<th class="text-center"><?php echo e(_lang('Action')); ?></th>
 					    </tr>
 					</thead>
-					<tbody>
-					</tbody>
+					<tbody></tbody>
 				</table>
 			</div>
 		</div>
@@ -38,7 +36,6 @@
 <script>
 (function ($) {
 	"use strict";
-
 	$('#members_table').DataTable({
 		processing: true,
 		serverSide: true,
@@ -54,7 +51,7 @@
 		],
 		responsive: true,
 		"bStateSave": true,
-		"bAutoWidth":false,
+		"bAutoWidth": false,
 		"ordering": false,
 		"language": {
 		   "decimal":        "",
@@ -62,7 +59,6 @@
 		   "info":           "<?php echo e(_lang('Showing')); ?> _START_ <?php echo e(_lang('to')); ?> _END_ <?php echo e(_lang('of')); ?> _TOTAL_ <?php echo e(_lang('Entries')); ?>",
 		   "infoEmpty":      "<?php echo e(_lang('Showing 0 To 0 Of 0 Entries')); ?>",
 		   "infoFiltered":   "(filtered from _MAX_ total entries)",
-		   "infoPostFix":    "",
 		   "thousands":      ",",
 		   "lengthMenu":     "<?php echo e(_lang('Show')); ?> _MENU_ <?php echo e(_lang('Entries')); ?>",
 		   "loadingRecords": "<?php echo e(_lang('Loading...')); ?>",
@@ -70,18 +66,28 @@
 		   "search":         "<?php echo e(_lang('Search')); ?>",
 		   "zeroRecords":    "<?php echo e(_lang('No matching records found')); ?>",
 		   "paginate": {
-			  "first":      "<?php echo e(_lang('First')); ?>",
-			  "last":       "<?php echo e(_lang('Last')); ?>",
-			  "previous": 	"<i class='fas fa-angle-left'></i>",
-        	  "next" : 		"<i class='fas fa-angle-right'></i>",
+			  "first":    "<?php echo e(_lang('First')); ?>",
+			  "last":     "<?php echo e(_lang('Last')); ?>",
+			  "previous": "<i class='fas fa-angle-left'></i>",
+        	  "next":     "<i class='fas fa-angle-right'></i>",
 		  }
 		},
 		drawCallback: function () {
 			$(".dataTables_paginate > .pagination").addClass("pagination-bordered");
+			// Hide broken member photos
+			$('#members_table').find('img.member-photo').each(function () {
+				$(this).on('error', function () {
+					$(this).hide();
+				});
+				// trigger for already-broken images
+				if (this.complete && this.naturalWidth === 0) {
+					$(this).hide();
+				}
+			});
 		}
 	});
-
 })(jQuery);
 </script>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\alpha-grant-management\resources\views/backend/admin/member/list.blade.php ENDPATH**/ ?>
