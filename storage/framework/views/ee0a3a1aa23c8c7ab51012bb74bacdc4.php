@@ -119,6 +119,10 @@
             
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status == 0): ?>
             <div class="ld-action-bar">
+                <a href="<?php echo e(route('loans.kyc', $loan->id)); ?>" class="btn btn-info btn-sm">
+                    <i class="fas fa-user-check mr-1"></i><?php echo e(_lang('KYC')); ?>
+
+                </a>
                 <a href="<?php echo e(route('loans.approve', $loan->id)); ?>" class="btn btn-success btn-sm">
                     <i class="fas fa-check-circle mr-1"></i><?php echo e(_lang('Approve')); ?>
 
@@ -194,11 +198,11 @@
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Interest Rate')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->loan_product->interest_rate); ?>%</span>
+                        <span class="ld-value"><?php echo e($loan->interest_rate ?? $loan->loan_product->interest_rate); ?>%</span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Loan Term')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?></span>
+                        <span class="ld-value"><?php echo e($loan->term ?? $loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?></span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Total Principal Paid')); ?></span>
@@ -380,21 +384,90 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPending): ?>
                 <div class="ld-pending-notice">⏳ <?php echo e(_lang('Loan is pending approval. Documents will be available once approved.')); ?></div>
                 <?php else: ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $loancollaterals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $collateral): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+
+                <?php $borrower = $loan->borrower; ?>
+                <?php $memberDocuments = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan->id)->get(); ?>
+
+                
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($memberDocuments->isNotEmpty()): ?>
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;"><?php echo e(_lang('Member Documents')); ?></div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $memberDocuments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $doc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                <div class="ld-detail-row">
+                    <span class="ld-label"><?php echo e($doc->name); ?></span>
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($doc->show_to_customer): ?>
+                            <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;" title="<?php echo e(_lang('Visible to customer')); ?>"><?php echo e(_lang('Customer: On')); ?></span>
+                        <?php else: ?>
+                            <span style="background:#e74c3c;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;" title="<?php echo e(_lang('Admin only')); ?>"><?php echo e(_lang('Customer: Off')); ?></span>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <a href="<?php echo e(asset('public/uploads/media/'.$doc->document)); ?>" target="_blank"><?php echo e(_lang('View')); ?></a>
+                    </span>
+                </div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loancollaterals->isNotEmpty()): ?>
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;"><?php echo e(_lang('Loan Collaterals')); ?></div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $loancollaterals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $collateral): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                 <div class="ld-detail-row">
                     <span class="ld-label"><?php echo e($collateral->name); ?></span>
-                    <span class="ld-value">
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($collateral->attachments): ?>
+                            <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;"><?php echo e(_lang('On')); ?></span>
                             <a href="<?php echo e(asset('public/uploads/media/'.$collateral->attachments)); ?>" target="_blank"><?php echo e(_lang('View')); ?></a>
                         <?php else: ?>
-                            <?php echo e($collateral->collateral_type); ?> &mdash; <?php echo e(decimalPlace($collateral->estimated_price)); ?>
-
+                            <span style="background:#e74c3c;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;"><?php echo e(_lang('Off')); ?></span>
+                            <span><?php echo e($collateral->collateral_type); ?> &mdash; <?php echo e(decimalPlace($collateral->estimated_price)); ?></span>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </span>
                 </div>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($memberDocuments->isEmpty() && $loancollaterals->isEmpty()): ?>
                 <p class="text-center mt-4 text-muted" style="font-family:Poppins,sans-serif;font-size:14px;"><?php echo e(_lang('No documents found.')); ?></p>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px;border-left:3px solid #44a74a;padding-left:10px;"><?php echo e(_lang('Upload Documents')); ?></div>
+                <p style="font-size:13px;color:#888;font-family:Poppins,sans-serif;margin-bottom:12px;"><?php echo e(_lang('Check "Show to Customer" to make a document visible in the customer portal.')); ?></p>
+
+                <form method="post" action="<?php echo e(route('loans.upload_document', $loan->id)); ?>" enctype="multipart/form-data" id="doc-upload-form">
+                    <?php echo csrf_field(); ?>
+                    <div id="admin-doc-list"></div>
+                    <button type="button" onclick="adminAddDoc()" style="background:#214942;color:#fff;border:none;padding:7px 16px;border-radius:4px;font-family:Poppins,sans-serif;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                        <i class="fas fa-plus"></i> <?php echo e(_lang('Add More')); ?>
+
+                    </button>
+                    <div style="margin-top:16px;">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-upload mr-1"></i><?php echo e(_lang('Upload')); ?>
+
+                        </button>
+                    </div>
+                </form>
+
+                <script>
+                var adminDocIdx = 0;
+                function adminAddDoc() {
+                    var i = adminDocIdx++;
+                    var div = document.createElement('div');
+                    div.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;';
+                    div.id = 'adoc-' + i;
+                    div.innerHTML =
+                        '<input type="text" name="document_names['+i+']" placeholder="Document Name" style="border:1px solid #ccc;border-radius:4px;padding:7px 12px;font-family:Poppins,sans-serif;font-size:14px;width:200px;">' +
+                        '<input type="file" name="documents['+i+']" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.zip">' +
+                        '<label style="display:flex;align-items:center;gap:5px;font-family:Poppins,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">' +
+                            '<input type="checkbox" name="show_to_customer['+i+']" value="1" style="width:15px;height:15px;"> Show to Customer' +
+                        '</label>' +
+                        '<button type="button" onclick="document.getElementById(\'adoc-'+i+'\').remove()" style="background:#e74c3c;color:#fff;border:none;padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer;">&#x2715;</button>';
+                    document.getElementById('admin-doc-list').appendChild(div);
+                }
+                // Auto-add one row on load
+                document.addEventListener('DOMContentLoaded', adminAddDoc);
+                </script>
+
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 

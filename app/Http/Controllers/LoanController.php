@@ -302,12 +302,49 @@ class LoanController extends Controller {
     }
 
     /**
+     * Upload documents for a loan's borrower from the admin loan view
+     */
+    public function upload_document(Request $request, $tenant, $id) {
+        $loan = Loan::find($id);
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $idx => $file) {
+                if (! $file->isValid()) continue;
+                $docName  = $request->input('document_names.'.$idx) ?: $file->getClientOriginalName();
+                $filename = time().$idx.$file->getClientOriginalName();
+                $file->move(public_path('/uploads/media/'), $filename);
+                $doc = new \App\Models\MemberDocument();
+                $doc->name             = $docName;
+                $doc->document         = $filename;
+                $doc->member_id        = $loan->borrower_id;
+                $doc->loan_id          = $loan->id;
+                $doc->show_to_customer = $request->input('show_to_customer.'.$idx) ? 1 : 0;
+                $doc->save();
+            }
+        }
+        return redirect()->route('loans.show', $loan->id)
+            ->with('success', _lang('Documents uploaded successfully'));
+    }
+
+    /**
+     * KYC — show customer details only
+     */
+    public function kyc(Request $request, $tenant, $id) {
+        $loan   = Loan::find($id);
+        $member = $loan->borrower;
+        $memberDocuments = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan->id)->get();
+        return view('backend.admin.loan.kyc', compact('loan', 'member', 'memberDocuments'));
+    }
+
+    /**
      * Approve Loan
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function approve(Request $request, $tenant, $id) {
+
+
+         
         if ($request->isMethod('get')) {
             $alert_col = 'col-lg-6 offset-lg-3';
             $loan      = Loan::find($id);
@@ -324,7 +361,12 @@ class LoanController extends Controller {
                 return back()->with('error', _lang('Loan ID and Release date must required !'));
             }
 
-            return view('backend.admin.loan.approve', compact('loan', 'accounts', 'alert_col'));
+            // Extra data for KYC tabs
+            $memberDocuments  = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan->id)->get();
+            $loancollaterals  = LoanCollateral::where('loan_id', $loan->id)->orderBy('id', 'desc')->get();
+            $customFields     = CustomField::where('table', 'loans')->where('status', 1)->orderBy('id', 'asc')->get();
+
+            return view('backend.admin.loan.approve', compact('loan', 'accounts', 'alert_col', 'memberDocuments', 'loancollaterals', 'customFields'));
         }
 
         DB::beginTransaction();
@@ -365,19 +407,41 @@ class LoanController extends Controller {
 
         $loanProduct = $loan->loan_product;
 
-        //Check Account has enough balance for deducting fee
-        // $convertedAmount = convert_currency($loan->currency->name, $account->savings_type->currency->name, $loan->applied_amount);
+        // Handle document uploads (from approve tab)
+        if ($request->hasFile('documents')) {
+               $files = $request->file('documents');
+            foreach ($request->file('documents') as $idx => $file) {
+                if (! $file->isValid()) continue;
+                $docName = $request->input('document_names.'.$idx, $file->getClientOriginalName());
+                $filename = time().$idx.$file->getClientOriginalName();
+                $file->move(public_path('/uploads/media/'), $filename);
+                $doc = new \App\Models\MemberDocument();
+                $doc->name             = $docName;
+                $doc->document         = $filename;
+                $doc->member_id        = $loan->borrower_id;
+                $doc->loan_id          = $loan->id;
+                $doc->show_to_customer = $request->input('show_to_customer.'.$idx) ? 1 : 0;
+                $doc->save();
+            }
+        }
 
-        // $charge = 0;
-        // $charge += $loanProduct->loan_application_fee_type == 1 ? ($loanProduct->loan_application_fee / 100) * $convertedAmount : $loanProduct->loan_application_fee;
-        // $charge += $loanProduct->loan_insurance_fee_type == 1 ? ($loanProduct->loan_insurance_fee / 100) * $convertedAmount : $loanProduct->loan_insurance_fee;
+        // Allow overriding amount, term, interest_rate for this loan only
+        if ($request->filled('override_amount')) {
+            $loan->applied_amount = $request->input('override_amount');
+        }
+        if ($request->filled('override_term')) {
+            $loan->term = $request->input('override_term');
+        }
 
-        // if (get_account_balance($account->id, $loan->borrower_id) < $charge) {
-        //     return back()->with('error', _lang('Insufficient balance for deducting loan application and insurance fee !'));
-        // }
+        // Save the effective interest rate on the loan record
+        $loan->interest_rate = $request->filled('override_interest_rate')
+            ? $request->input('override_interest_rate')
+            : $loanProduct->interest_rate;
 
-        //Deduct Loan Processing Fee
-        // process_loan_fee('loan_processing_fee', $loan->borrower_id, $account->id, $convertedAmount, $loanProduct->loan_processing_fee, $loanProduct->loan_processing_fee_type, $loan->id);
+        // Save the effective term on the loan record (fallback to product term)
+        if (! $loan->term) {
+            $loan->term = $loanProduct->term;
+        }
 
         $loan->status           = 1;
         $loan->approved_date    = date('Y-m-d');
@@ -385,14 +449,18 @@ class LoanController extends Controller {
         $loan->disburse_method  = $request->account_id == 'cash' ? 'cash' : 'account';
         $loan->save();
 
-        // Create Loan Repayments
-        $interest_type = $loan->loan_product->interest_type;
+        // Use overridden values for calculator
+        $interest_type    = $loanProduct->interest_type;
+        $calcAmount       = $loan->applied_amount;
+        $calcTerm         = $loan->term;
+        $calcInterestRate = $loan->interest_rate;
+
         $calculator = new Calculator(
-            $loan->applied_amount,
+            $calcAmount,
             $loan->getRawOriginal('first_payment_date'),
-            $loan->loan_product->interest_rate,
-            $loan->loan_product->term,
-            $loan->loan_product->term_period,
+            $calcInterestRate,
+            $calcTerm,
+            $loanProduct->term_period,
             $loan->late_payment_penalties
         );
 

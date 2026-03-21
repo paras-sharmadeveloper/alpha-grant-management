@@ -81,7 +81,8 @@ class LoanController extends Controller {
             ->where('loan_id', $loan_id)
             ->orderBy('repayment_date', 'asc')
             ->get();
-        return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals', 'repayments'));
+        $memberDocuments = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan_id)->get();
+        return view('backend.customer.loan.loan_details', compact('loan', 'customFields', 'assets', 'loancollaterals', 'repayments', 'memberDocuments'));
     }
 
     public function print_schedule($tenant, $loan_id) {

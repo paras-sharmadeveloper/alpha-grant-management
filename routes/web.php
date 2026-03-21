@@ -412,6 +412,8 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::post('loans/calculator/calculate', [LoanController::class, 'calculate'])->name('loans.calculate');
                 Route::match(['get', 'post'], 'loans/approve/{id}', [LoanController::class, 'approve'])->name('loans.approve');
                 Route::get('loans/reject/{id}', [LoanController::class, 'reject'])->name('loans.reject');
+                Route::get('loans/kyc/{id}', [LoanController::class, 'kyc'])->name('loans.kyc');
+                Route::post('loans/{id}/upload_document', [LoanController::class, 'upload_document'])->name('loans.upload_document');
                 Route::get('loans/filter/{status?}', [LoanController::class, 'index'])->name('loans.filter')->where('status', '[A-Za-z]+');
                 Route::get('loans/{id}/print_schedule', [LoanController::class, 'print_schedule'])->name('loans.print_schedule');
                 Route::resource('loans', LoanController::class);

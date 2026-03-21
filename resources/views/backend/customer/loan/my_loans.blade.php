@@ -15,12 +15,7 @@
 						<tr class="text-center">
                             <th class="text-center">{{ _lang('Loan ID') }}</th>
                             <th class="text-center">{{ _lang('Loan Name') }}</th>
-                            {{-- <th>{{ _lang('Loan Product') }}</th> --}}
-                            {{-- <th>{{ _lang('Currency') }}</th> --}}
-                            {{-- <th class="text-right">{{ _lang('Applied Amount') }}</th> --}}
-                            {{-- <th class="text-right">{{ _lang('Amount Paid') }}</th> --}}
-                            {{-- <th class="text-right">{{ _lang('Due Amount') }}</th> --}}
-                            {{-- <th>{{ _lang('Release Date') }}</th> --}}
+                            <th class="text-center">{{ _lang('Amount') }}</th>
                             <th class="text-center">{{ _lang('Term') }}</th>
                             <th class="text-center">{{ _lang('Interest Rate') }}</th>
                             <th class="text-center">{{ _lang('Pending Amount') }}</th>
@@ -29,18 +24,28 @@
 					</thead>
 					<tbody>
                         @foreach($loans as $loan)
+                        @php
+                            $loanTerm = $loan->term ?? $loan->loan_product->term;
+                            $loanRate = $loan->interest_rate ?? $loan->loan_product->interest_rate;
+                            // Parse term period — e.g. "+1 month" or "+12 months" → "month"
+                            $rawPeriod = preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period);
+                            $periodUnit = rtrim(strtolower(trim($rawPeriod)), 's'); // "month" or "year"
+                            // Singular vs plural, and month vs year
+                            if ($loanTerm == 1) {
+                                $termLabel = '1 ' . $periodUnit;
+                            } elseif ($periodUnit === 'month' && $loanTerm % 12 === 0) {
+                                $years = $loanTerm / 12;
+                                $termLabel = $years . ' ' . ($years == 1 ? 'year' : 'years');
+                            } else {
+                                $termLabel = $loanTerm . ' ' . $periodUnit . 's';
+                            }
+                        @endphp
                         <tr>
-                            {{-- Pending loans may have null loan_id before admin assigns one --}}
                             <td><a href="{{ route('loans.loan_details',$loan->id) }}">{{ $loan->loan_id ?? '#' . $loan->id }}</a></td>
                             <td>{{ $loan->loan_product->name }}</td>
-                            {{-- <td>{{ $loan->loan_product->name }}</td> --}}
-                            {{-- <td>{{ $loan->currency->name }}</td> --}}
-                            {{-- <td class="text-right">{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}</td> --}}
-                            {{-- <td class="text-right">{{ decimalPlace($loan->total_paid, currency($loan->currency->name)) }}</td> --}}
-                            {{-- <td class="text-right">{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</td> --}}
-                            {{-- <td>{{ $loan->release_date }}</td> --}}
-                            <td>{{ $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}</td>
-                            <td>{{ $loan->loan_product->interest_rate }}%</td>
+                            <td>{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}</td>
+                            <td>{{ $termLabel }}</td>
+                            <td>{{ $loanRate }}%</td>
                             <td>{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</td>
                             <td>
                                 @if($loan->status == 0)

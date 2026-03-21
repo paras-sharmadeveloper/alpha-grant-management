@@ -210,13 +210,13 @@
 
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Interest Rate') }}</span>
-                        <span class="ld-value">{{ $loan->loan_product->interest_rate }}%</span>
+                        <span class="ld-value">{{ $loan->interest_rate ?? $loan->loan_product->interest_rate }}%</span>
                     </div>
 
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Loan Term') }}</span>
                         <span class="ld-value">
-                            {{ $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}
+                            {{ $loan->term ?? $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}
                         </span>
                     </div>
 
@@ -472,22 +472,45 @@
 
             {{-- TAB: Documents --}}
             <div id="ld_documents" class="ld-tab-content">
-                @forelse($loancollaterals as $collateral)
+                @php
+                    $visibleDocs = $memberDocuments->where('show_to_customer', 1);
+                    $hasDocs = $visibleDocs->isNotEmpty() || $loancollaterals->isNotEmpty();
+                @endphp
+
+                @if(!$hasDocs)
+                <p class="text-center mt-4 text-muted">{{ _lang('No documents found.') }}</p>
+                @endif
+
+                @if($visibleDocs->isNotEmpty())
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;">{{ _lang('My Documents') }}</div>
+                @foreach($visibleDocs as $doc)
+                <div class="ld-detail-row">
+                    <span class="ld-label">{{ $doc->name }}</span>
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
+                        <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('On') }}</span>
+                        <a href="{{ asset('public/uploads/media/'.$doc->document) }}" target="_blank">{{ _lang('View') }}</a>
+                    </span>
+                </div>
+                @endforeach
+                @endif
+
+                @if($loancollaterals->isNotEmpty())
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;">{{ _lang('Loan Collaterals') }}</div>
+                @foreach($loancollaterals as $collateral)
                 <div class="ld-detail-row">
                     <span class="ld-label">{{ $collateral->name }}</span>
-                    <span class="ld-value">
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
                         @if($collateral->attachments)
-                            <a href="{{ asset('public/uploads/media/'.$collateral->attachments) }}" target="_blank">
-                                {{ _lang('View') }}
-                            </a>
+                            <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('On') }}</span>
+                            <a href="{{ asset('public/uploads/media/'.$collateral->attachments) }}" target="_blank">{{ _lang('View') }}</a>
                         @else
-                            {{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}
+                            <span style="background:#e74c3c;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('Off') }}</span>
+                            <span>{{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}</span>
                         @endif
                     </span>
                 </div>
-                @empty
-                <p class="text-center mt-4 text-muted">{{ _lang('No documents found.') }}</p>
-                @endforelse
+                @endforeach
+                @endif
             </div>
 
             <div class="ld-bottom-bar"></div>

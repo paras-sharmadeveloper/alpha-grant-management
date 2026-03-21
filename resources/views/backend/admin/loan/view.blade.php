@@ -127,6 +127,9 @@
             {{-- Approve / Reject buttons (only when pending) --}}
             @if($loan->status == 0)
             <div class="ld-action-bar">
+                <a href="{{ route('loans.kyc', $loan->id) }}" class="btn btn-info btn-sm">
+                    <i class="fas fa-user-check mr-1"></i>{{ _lang('KYC') }}
+                </a>
                 <a href="{{ route('loans.approve', $loan->id) }}" class="btn btn-success btn-sm">
                     <i class="fas fa-check-circle mr-1"></i>{{ _lang('Approve') }}
                 </a>
@@ -199,11 +202,11 @@
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Interest Rate') }}</span>
-                        <span class="ld-value">{{ $loan->loan_product->interest_rate }}%</span>
+                        <span class="ld-value">{{ $loan->interest_rate ?? $loan->loan_product->interest_rate }}%</span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Loan Term') }}</span>
-                        <span class="ld-value">{{ $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}</span>
+                        <span class="ld-value">{{ $loan->term ?? $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}</span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Total Principal Paid') }}</span>
@@ -379,20 +382,88 @@
                 @if($isPending)
                 <div class="ld-pending-notice">⏳ {{ _lang('Loan is pending approval. Documents will be available once approved.') }}</div>
                 @else
-                @forelse($loancollaterals as $collateral)
+
+                @php $borrower = $loan->borrower; @endphp
+                @php $memberDocuments = \App\Models\MemberDocument::withoutGlobalScopes()->where('loan_id', $loan->id)->get(); @endphp
+
+                {{-- Member Documents --}}
+                @if($memberDocuments->isNotEmpty())
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;">{{ _lang('Member Documents') }}</div>
+                @foreach($memberDocuments as $doc)
+                <div class="ld-detail-row">
+                    <span class="ld-label">{{ $doc->name }}</span>
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
+                        @if($doc->show_to_customer)
+                            <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;" title="{{ _lang('Visible to customer') }}">{{ _lang('Customer: On') }}</span>
+                        @else
+                            <span style="background:#e74c3c;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;" title="{{ _lang('Admin only') }}">{{ _lang('Customer: Off') }}</span>
+                        @endif
+                        <a href="{{ asset('public/uploads/media/'.$doc->document) }}" target="_blank">{{ _lang('View') }}</a>
+                    </span>
+                </div>
+                @endforeach
+                @endif
+
+                {{-- Loan Collaterals --}}
+                @if($loancollaterals->isNotEmpty())
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;border-left:3px solid #44a74a;padding-left:10px;">{{ _lang('Loan Collaterals') }}</div>
+                @foreach($loancollaterals as $collateral)
                 <div class="ld-detail-row">
                     <span class="ld-label">{{ $collateral->name }}</span>
-                    <span class="ld-value">
+                    <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
                         @if($collateral->attachments)
+                            <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('On') }}</span>
                             <a href="{{ asset('public/uploads/media/'.$collateral->attachments) }}" target="_blank">{{ _lang('View') }}</a>
                         @else
-                            {{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}
+                            <span style="background:#e74c3c;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('Off') }}</span>
+                            <span>{{ $collateral->collateral_type }} &mdash; {{ decimalPlace($collateral->estimated_price) }}</span>
                         @endif
                     </span>
                 </div>
-                @empty
+                @endforeach
+                @endif
+
+                @if($memberDocuments->isEmpty() && $loancollaterals->isEmpty())
                 <p class="text-center mt-4 text-muted" style="font-family:Poppins,sans-serif;font-size:14px;">{{ _lang('No documents found.') }}</p>
-                @endforelse
+                @endif
+
+                {{-- Upload new documents --}}
+                <div style="font-size:13px;font-weight:600;color:#214942;text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px;border-left:3px solid #44a74a;padding-left:10px;">{{ _lang('Upload Documents') }}</div>
+                <p style="font-size:13px;color:#888;font-family:Poppins,sans-serif;margin-bottom:12px;">{{ _lang('Check "Show to Customer" to make a document visible in the customer portal.') }}</p>
+
+                <form method="post" action="{{ route('loans.upload_document', $loan->id) }}" enctype="multipart/form-data" id="doc-upload-form">
+                    @csrf
+                    <div id="admin-doc-list"></div>
+                    <button type="button" onclick="adminAddDoc()" style="background:#214942;color:#fff;border:none;padding:7px 16px;border-radius:4px;font-family:Poppins,sans-serif;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                        <i class="fas fa-plus"></i> {{ _lang('Add More') }}
+                    </button>
+                    <div style="margin-top:16px;">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-upload mr-1"></i>{{ _lang('Upload') }}
+                        </button>
+                    </div>
+                </form>
+
+                <script>
+                var adminDocIdx = 0;
+                function adminAddDoc() {
+                    var i = adminDocIdx++;
+                    var div = document.createElement('div');
+                    div.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;';
+                    div.id = 'adoc-' + i;
+                    div.innerHTML =
+                        '<input type="text" name="document_names['+i+']" placeholder="Document Name" style="border:1px solid #ccc;border-radius:4px;padding:7px 12px;font-family:Poppins,sans-serif;font-size:14px;width:200px;">' +
+                        '<input type="file" name="documents['+i+']" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.zip">' +
+                        '<label style="display:flex;align-items:center;gap:5px;font-family:Poppins,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">' +
+                            '<input type="checkbox" name="show_to_customer['+i+']" value="1" style="width:15px;height:15px;"> Show to Customer' +
+                        '</label>' +
+                        '<button type="button" onclick="document.getElementById(\'adoc-'+i+'\').remove()" style="background:#e74c3c;color:#fff;border:none;padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer;">&#x2715;</button>';
+                    document.getElementById('admin-doc-list').appendChild(div);
+                }
+                // Auto-add one row on load
+                document.addEventListener('DOMContentLoaded', adminAddDoc);
+                </script>
+
                 @endif
             </div>
 
