@@ -68,6 +68,13 @@
 
 						<div class="col-md-6">
 							<div class="form-group">
+								<label class="control-label">{{ _lang('Min Term') }}</label>
+								<input type="number" class="form-control" name="min_term" value="{{ old('min_term', 1) }}" required>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
 								<label class="control-label">{{ _lang('Max Term') }}</label>
 								<input type="number" class="form-control" name="term" value="{{ old('term') }}" required>
 							</div>

@@ -68,6 +68,13 @@
 
 						<div class="col-md-6">
 							<div class="form-group">
+								<label class="control-label"><?php echo e(_lang('Min Term')); ?></label>
+								<input type="number" class="form-control" name="min_term" value="<?php echo e(old('min_term', 1)); ?>" required>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
 								<label class="control-label"><?php echo e(_lang('Max Term')); ?></label>
 								<input type="number" class="form-control" name="term" value="<?php echo e(old('term')); ?>" required>
 							</div>

@@ -228,6 +228,7 @@ class LoanController extends Controller {
                 'currency_id'        => 'required',
                 // 'first_payment_date' => 'required',
                 'applied_amount'     => "required|numeric|min:$min_amount|max:$max_amount",
+                'term'               => 'required|integer|min:' . ($loanProduct->min_term ?? 1) . '|max:' . $loanProduct->term,
                 'attachment'         => 'nullable|mimes:jpeg,png,jpg,doc,pdf,docx,zip|max:8192', //8MB = 8192KB
                 // 'debit_account_id'   => 'required',
             ];
@@ -293,13 +294,17 @@ class LoanController extends Controller {
             $loan->created_user_id        = auth()->id();
             $loan->custom_fields          = json_encode($customFieldsData);
             $loan->debit_account_id       = $request->debit_account_id;
+            $loan->term                   = $request->input('term');
+
+            // Use selected term (or fall back to product's max term)
+            $selectedTerm = $request->input('term') ?? $loan->loan_product->term;
 
             // Create Loan Repayments
             $calculator = new Calculator(
                 $loan->applied_amount,
                 $loan->first_payment_date,
                 $loan->loan_product->interest_rate,
-                $loan->loan_product->term,
+                $selectedTerm,
                 $loan->loan_product->term_period,
                 $loan->late_payment_penalties
             );
