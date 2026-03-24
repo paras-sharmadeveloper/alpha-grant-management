@@ -207,7 +207,11 @@ class LoanController extends Controller {
             $accounts = SavingsAccount::with('savings_type')
                 ->where('member_id', auth()->user()->member->id)
                 ->get();
-            return view('backend.customer.loan.apply_loan', compact('alert_col', 'customFields', 'accounts'));
+            $myLoans = Loan::where('borrower_id', auth()->user()->member->id)
+                ->with('loan_product')
+                ->orderBy('id', 'desc')
+                ->get();
+            return view('backend.customer.loan.apply_loan', compact('alert_col', 'customFields', 'accounts', 'myLoans'));
         } else if ($request->isMethod('post')) {
             @ini_set('max_execution_time', 0);
             @set_time_limit(0);
@@ -225,13 +229,24 @@ class LoanController extends Controller {
             $max_amount = $loanProduct->maximum_amount;
 
             $validationRules = [
-                'loan_product_id'    => 'required',
-                'currency_id'        => 'required',
-                // 'first_payment_date' => 'required',
-                'applied_amount'     => "required|numeric|min:$min_amount|max:$max_amount",
-                'term'               => 'required|integer|min:' . ($loanProduct->min_term ?? 1) . '|max:' . $loanProduct->term,
-                'attachment'         => 'nullable|mimes:jpeg,png,jpg,doc,pdf,docx,zip|max:8192', //8MB = 8192KB
-                // 'debit_account_id'   => 'required',
+                'loan_product_id'      => 'required',
+                'currency_id'          => 'required',
+                'applied_amount'       => "required|numeric|min:$min_amount|max:$max_amount",
+                'term'                 => 'required|integer|min:' . ($loanProduct->min_term ?? 1) . '|max:' . $loanProduct->term,
+                'attachment'           => 'nullable|mimes:jpeg,png,jpg,doc,pdf,docx,zip|max:8192',
+                // Enquiry fields
+                'enq_full_name'        => 'required|string|max:191',
+                'enq_mobile'           => 'required|string|max:50',
+                'enq_email'            => 'required|email|max:191',
+                'enq_gst_registered'   => 'required|boolean',
+                'enq_loan_purpose'     => 'required|string|max:191',
+                'enq_monthly_revenue'  => 'required|string',
+                'enq_ato_debt'         => 'required|boolean',
+                'enq_defaults'         => 'required|boolean',
+                'enq_existing_loans'   => 'required|boolean',
+                'enq_security_type'    => 'required|string',
+                'enq_funds_needed_by'  => 'required|date',
+                'enq_consent'          => 'required|accepted',
             ];
 
             $validationMessages = [];
@@ -323,6 +338,24 @@ class LoanController extends Controller {
             }
 
             $loan->total_payable = $calculator->payable_amount;
+            $loan->enq_full_name        = $request->input('enq_full_name');
+            $loan->enq_mobile           = $request->input('enq_mobile');
+            $loan->enq_email            = $request->input('enq_email');
+            $loan->enq_business_name    = $request->input('enq_business_name');
+            $loan->enq_gst_registered   = $request->input('enq_gst_registered');
+            $loan->enq_years_operating  = $request->input('enq_years_operating');
+            $loan->enq_abn_acn          = $request->input('enq_abn_acn');
+            $loan->enq_loan_purpose     = $request->input('enq_loan_purpose');
+            $loan->enq_time_in_business = $request->input('enq_time_in_business');
+            $loan->enq_monthly_revenue  = $request->input('enq_monthly_revenue');
+            $loan->enq_ato_debt         = $request->input('enq_ato_debt');
+            $loan->enq_defaults         = $request->input('enq_defaults');
+            $loan->enq_existing_loans   = $request->input('enq_existing_loans');
+            $loan->enq_security_type    = $request->input('enq_security_type');
+            $loan->enq_asset_type       = $request->input('enq_asset_type');
+            $loan->enq_funds_needed_by  = $request->input('enq_funds_needed_by');
+            $loan->enq_best_contact_time = $request->input('enq_best_contact_time');
+            $loan->enq_consent          = $request->has('enq_consent') ? 1 : 0;
             $loan->save();
 
             //Check Account has enough balance for deducting fee
