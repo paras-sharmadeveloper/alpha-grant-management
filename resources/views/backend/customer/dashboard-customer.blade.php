@@ -150,11 +150,11 @@
 			</div>
 			<div class="card-body px-0 pt-0">
 				<div class="table-responsive">
-					<table class="table table-bordered">
+					<table class="table table-bordered text-center">
 						<thead>
 							<tr>
 								<th class="pl-4">{{ _lang('Date') }}</th>
-								<th class="text-right">{{ _lang('Amount') }}</th>
+								<th >{{ _lang('Amount') }}</th>
 								<th>{{ _lang('Type') }}</th>
 								<th>{{ _lang('Status') }}</th>
 								<th class="text-center">{{ _lang('Details') }}</th>
@@ -173,7 +173,7 @@
 							@endphp
 							<tr>
 								<td class="pl-4">{{ $transaction->trans_date }}</td>
-								<td class="text-right"><span class="{{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
+								<td ><span class="{{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
 								<td>{{ ucwords(str_replace('_',' ',$transaction->type)) }}</td>
 								<td>{!! xss_clean(transaction_status($transaction->status)) !!}</td>
 								<td class="text-center"><a href="{{ route('trasnactions.details', $transaction->id) }}" target="_blank" class="btn btn-outline-primary btn-xs">{{ _lang('View') }}</a></td>

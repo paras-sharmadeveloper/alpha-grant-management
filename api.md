@@ -215,6 +215,43 @@ curl --request POST \
   --form save_api_request=true \
   --form 'vendor_data=<string>'
 
+Passive Liveness
+Verify a user is physically present by analyzing a single image. No movement or interaction required. Fully passive anti-spoofing.
+
+Authorization
+x-api-key
+string
+required
+CZh3nyDdD2TQByxqSQViYl0dvd3TZSKQFz6wM_bL8lo
+Body
+user_image
+file
+required
+User's face image to perform the passive liveness. Allowed formats: JPEG, PNG, WebP, TIFF. Maximum file size: 5MB.
+
+Drop a file here or click to upload
+face_liveness_score_decline_threshold
+integer
+Results with liveness score below this will be declined. Must be between 0-100.
+
+enter face_liveness_score_decline_threshold
+rotate_image
+boolean
+If true, attempts to rotate the input images in 90-degree increments (0, 90, 180, 270) to ensure the detected face is upright before performing the face match. Note: This is only recommended if you are unsure about the orientation of the face.
+
+
+select rotate_image
+save_api_request
+boolean
+Whether to save this API request. If true, then it will appear on the Manual Checks section in the Business Console.
+
+
+true
+
+vendor_data
+string
+A unique identifier for the vendor or user, such as a UUID or email. This field enables proper session tracking and user data aggregation across multiple verification sessions.
+
 
 
 
@@ -233,6 +270,49 @@ curl --request POST \
   --form 'vendor_data=<string>'
 
 
+Face Search
+Search for matching faces across all previously verified sessions. Use for identity verification, access control, and deduplication.
+
+Authorization
+x-api-key
+string
+required
+CZh3nyDdD2TQByxqSQViYl0dvd3TZSKQFz6wM_bL8lo
+Body
+user_image
+file
+required
+User's face image to be searched for similarities in previous approved sessions. Allowed formats: JPEG, PNG, WebP, TIFF. Maximum file size: 5MB.
+
+Drop a file here or click to upload
+search_type
+enum<string>
+Search type for face search. Must be between most_similar or blocklisted_or_approved.
+
+
+most_similar
+
+rotate_image
+boolean
+If true, attempts to rotate the input images in 90-degree increments (0, 90, 180, 270) to ensure the detected face is upright before performing the face match. Note: This is only recommended if you are unsure about the orientation of the face.
+
+
+false
+
+save_api_request
+boolean
+Whether to save this API request. If true, then it will appear on the Manual Checks section in the Business Console.
+
+
+true
+
+vendor_data
+string
+A unique identifier for the vendor or user, such as a UUID or email. This field enables proper session tracking and user data aggregation across multiple verification sessions.
+
+
+
+
  5. Age Estimation
 
   curl --request POST \
@@ -245,3 +325,71 @@ curl --request POST \
   --form rotate_image=false \
   --form save_api_request=true \
   --form 'vendor_data=<string>'
+
+
+  Age Estimation
+Estimate a person's age from a facial image with built-in passive liveness detection. Ideal for age verification and compliance.
+
+Authorization
+x-api-key
+string
+required
+CZh3nyDdD2TQByxqSQViYl0dvd3TZSKQFz6wM_bL8lo
+Body
+user_image
+file
+required
+User's face image to be age estimated. Allowed formats: JPEG, PNG, WebP, TIFF. Maximum file size: 5MB.
+
+Drop a file here or click to upload
+face_liveness_score_decline_threshold
+integer
+Results with face liveness score below this will be declined. Must be between 0-100.
+
+30
+age_estimation_decline_threshold
+integer
+Results with age estimation below this will be declined. Must be between 0-100.
+
+18
+rotate_image
+boolean
+If true, attempts to rotate the input images in 90-degree increments (0, 90, 180, 270) to ensure the detected face is upright before performing the face match. Note: This is only recommended if you are unsure about the orientation of the face.
+
+
+false
+
+save_api_request
+boolean
+Whether to save this API request. If true, then it will appear on the Manual Checks section in the Business Console.
+
+
+true
+
+vendor_data
+string
+A unique identifier for the vendor or user, such as a UUID or email. This field enables proper session tracking and user data aggregation across multiple verification sessions.
+
+
+get the session 
+
+
+curl --request GET \
+  --url https://verification.didit.me/v3/session/c80f0fdf-68a3-4c59-ae5f-f01a493aa969/generate-pdf \
+  --header 'x-api-key: CZh3nyDdD2TQByxqSQViYl0dvd3TZSKQFz6wM_bL8lo'
+
+
+
+  Generate PDF
+Generate compliance-ready PDF reports for any verification session, including identity decisions, extracted document data, and audit details.
+
+Authorization
+x-api-key
+string
+required
+CZh3nyDdD2TQByxqSQViYl0dvd3TZSKQFz6wM_bL8lo
+Path
+sessionId
+string
+required
+c80f0fdf-68a3-4c59-ae5f-f01a493aa969

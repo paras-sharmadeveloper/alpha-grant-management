@@ -46,11 +46,11 @@
 
 		@if(isset(request()->tenant->id))
 			@if(get_tenant_option('backend_direction') == "rtl")
-			<link rel="stylesheet" href="{{ asset('public/backend/assets/css/rtl/style.css?v=1.0') }}">
+			<link rel="stylesheet" href="{{ asset('public/backend/assets/css/rtl/style.css?v=1.1') }}">
 			@endif
 		@else
 			@if(get_option('backend_direction') == "rtl")
-			<link rel="stylesheet" href="{{ asset('public/backend/assets/css/rtl/style.css?v=1.0') }}">
+			<link rel="stylesheet" href="{{ asset('public/backend/assets/css/rtl/style.css?v=1.1') }}">
 			@endif
 		@endif
 
@@ -250,11 +250,18 @@
 
 								<li>
 									<div class="user-profile">
+
+									<h4 class="user-name ">
+											<img class="avatar" src="{{ profile_picture() }}" alt="avatar">
+											{{ Auth::user()->name }}
+										</h4>
+
+		                               {{--		
 										<h4 class="user-name dropdown-toggle" data-toggle="dropdown">
 											<img class="avatar user-thumb" id="my-profile-img" src="{{ profile_picture() }}" alt="avatar">
 											{{ Auth::user()->name }}
 										</h4>
-
+						
 										<div class="dropdown-menu">
 											@if(auth()->user()->user_type == 'customer')
 											@endif
@@ -264,6 +271,7 @@
 											@if(auth()->user()->user_type == 'admin' && auth()->user()->tenant_owner == 1)
 											@endif
 										</div>
+                                       --}}
 									</div>
 	                            </li>
 	                        </ul>

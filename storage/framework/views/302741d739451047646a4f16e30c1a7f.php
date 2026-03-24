@@ -42,11 +42,11 @@
 
 		<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset(request()->tenant->id)): ?>
 			<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(get_tenant_option('backend_direction') == "rtl"): ?>
-			<link rel="stylesheet" href="<?php echo e(asset('public/backend/assets/css/rtl/style.css?v=1.0')); ?>">
+			<link rel="stylesheet" href="<?php echo e(asset('public/backend/assets/css/rtl/style.css?v=1.1')); ?>">
 			<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 		<?php else: ?>
 			<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(get_option('backend_direction') == "rtl"): ?>
-			<link rel="stylesheet" href="<?php echo e(asset('public/backend/assets/css/rtl/style.css?v=1.0')); ?>">
+			<link rel="stylesheet" href="<?php echo e(asset('public/backend/assets/css/rtl/style.css?v=1.1')); ?>">
 			<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 		<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -247,21 +247,14 @@
 
 								<li>
 									<div class="user-profile">
-										<h4 class="user-name dropdown-toggle" data-toggle="dropdown">
-											<img class="avatar user-thumb" id="my-profile-img" src="<?php echo e(profile_picture()); ?>" alt="avatar">
+
+									<h4 class="user-name ">
+											<img class="avatar" src="<?php echo e(profile_picture()); ?>" alt="avatar">
 											<?php echo e(Auth::user()->name); ?>
 
 										</h4>
 
-										<div class="dropdown-menu">
-											<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->user_type == 'customer'): ?>
-											<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-											<?php $isAadminRoute = auth()->user()->user_type == 'superadmin' ? 'admin.' : ''; ?>
-
-											<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->user_type == 'admin' && auth()->user()->tenant_owner == 1): ?>
-											<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-										</div>
+		                               
 									</div>
 	                            </li>
 	                        </ul>

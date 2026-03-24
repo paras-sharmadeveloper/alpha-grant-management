@@ -894,7 +894,7 @@ ul.breadcrumbs {
     font-weight: 500;
     color: #fff;
     letter-spacing: 0;
-    cursor: pointer;
+    /* cursor: pointer; */
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;

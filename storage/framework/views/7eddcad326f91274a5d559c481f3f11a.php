@@ -90,11 +90,11 @@
 			</div>
 			<div class="card-body px-0 pt-0">
 				<div class="table-responsive">
-					<table class="table table-bordered">
+					<table class="table table-bordered text-center">
 						<thead>
 							<tr>
 								<th class="pl-4"><?php echo e(_lang('Date')); ?></th>
-								<th class="text-right"><?php echo e(_lang('Amount')); ?></th>
+								<th ><?php echo e(_lang('Amount')); ?></th>
 								<th><?php echo e(_lang('Type')); ?></th>
 								<th><?php echo e(_lang('Status')); ?></th>
 								<th class="text-center"><?php echo e(_lang('Details')); ?></th>
@@ -113,7 +113,7 @@
 							?>
 							<tr>
 								<td class="pl-4"><?php echo e($transaction->trans_date); ?></td>
-								<td class="text-right"><span class="<?php echo e($class); ?>"><?php echo e($symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name))); ?></span></td>
+								<td ><span class="<?php echo e($class); ?>"><?php echo e($symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name))); ?></span></td>
 								<td><?php echo e(ucwords(str_replace('_',' ',$transaction->type))); ?></td>
 								<td><?php echo xss_clean(transaction_status($transaction->status)); ?></td>
 								<td class="text-center"><a href="<?php echo e(route('trasnactions.details', $transaction->id)); ?>" target="_blank" class="btn btn-outline-primary btn-xs"><?php echo e(_lang('View')); ?></a></td>
