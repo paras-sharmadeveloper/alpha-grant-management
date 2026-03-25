@@ -91,6 +91,16 @@
                     </div>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->enq_full_name): ?>
+                <div style="margin-top:20px;">
+                    <button type="button" class="btn btn-sm" style="background:#214942;color:#fff;" data-toggle="modal" data-target="#enqModal">
+                        <i class="ti-clipboard mr-1"></i> <?php echo e(_lang('View Application')); ?>
+
+                    </button>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             
@@ -258,6 +268,60 @@
                         <tfoot id="summary-table-foot" style="font-weight:600;background:#f0f0f0;"></tfoot>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="enqModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="font-family:Poppins,sans-serif;font-size:13px;">
+            <div class="modal-header" style="background:#214942;color:#fff;">
+                <h5 class="modal-title" style="font-size:14px;font-weight:400;">
+                    <i class="ti-clipboard mr-1"></i> <?php echo e(_lang('Loan Application')); ?> — <?php echo e($loan->enq_full_name); ?>
+
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-0">
+                <table class="table table-sm table-bordered mb-0">
+                    <tbody>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 1 — APPLICANT BASICS</td></tr>
+                        <tr><td style="width:35%;background:#f8f9fa;" class="text-muted">Full Name</td><td><?php echo e($loan->enq_full_name ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Mobile</td><td><?php echo e($loan->enq_mobile ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Email</td><td><?php echo e($loan->enq_email ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Business Name</td><td><?php echo e($loan->enq_business_name ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">GST Registered</td><td><?php echo e($loan->enq_gst_registered ? 'Yes' : 'No'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Years Operating</td><td><?php echo e($loan->enq_years_operating ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">ABN / ACN</td><td><?php echo e($loan->enq_abn_acn ?? '—'); ?></td></tr>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 2 — LOAN SNAPSHOT</td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Loan Product</td><td><?php echo e($loan->loan_product->name ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Applied Amount</td><td><?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Loan Purpose</td><td><?php echo e($loan->enq_loan_purpose ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Time in Business</td><td><?php echo e($loan->enq_time_in_business ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Monthly Revenue</td><td><?php echo e($loan->enq_monthly_revenue ?? '—'); ?></td></tr>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 3 — RISK INDICATORS</td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">ATO Debt</td><td><?php echo e($loan->enq_ato_debt ? 'Yes' : 'No'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Defaults</td><td><?php echo e($loan->enq_defaults ? 'Yes' : 'No'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Existing Loans</td><td><?php echo e($loan->enq_existing_loans ? 'Yes' : 'No'); ?></td></tr>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 4 — SECURITY</td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Security Type</td><td><?php echo e(ucfirst($loan->enq_security_type ?? '—')); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Asset Type</td><td><?php echo e($loan->enq_asset_type ?? '—'); ?></td></tr>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 5 — PROGRESS</td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Funds Needed By</td><td><?php echo e($loan->enq_funds_needed_by ?? '—'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Best Contact Time</td><td><?php echo e($loan->enq_best_contact_time ?? '—'); ?></td></tr>
+                        
+                        <tr><td colspan="2" style="background:#214942;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;padding:6px 12px;">SECTION 6 — CONSENT</td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Consent Given</td><td><?php echo e($loan->enq_consent ? 'Yes' : 'No'); ?></td></tr>
+                        <tr><td style="background:#f8f9fa;" class="text-muted">Submitted</td><td><?php echo e(\Carbon\Carbon::parse($loan->getRawOriginal('created_at'))->format('d M Y H:i')); ?></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
