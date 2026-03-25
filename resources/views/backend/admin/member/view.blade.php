@@ -5,12 +5,16 @@
 	<div class="col-md-4 col-lg-3">
 		<ul class="nav flex-column nav-tabs settings-tab" role="tablist">
 			 <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#member_details"><i class="ti-user"></i>&nbsp;{{ _lang('Member Details') }}</a></li>
-			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#account_overview"><i class="ti-credit-card"></i>&nbsp;{{ _lang('Account Overview') }}</a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#transaction-history"><i class="ti-view-list-alt"></i>{{ _lang('Transactions') }}</a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#member_loans"><i class="ti-agenda"></i>&nbsp;{{ _lang('Loans') }}</a></li>
 			 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#kyc_documents"><i class="ti-files"></i>&nbsp;{{ _lang('KYC Documents') }}</a></li>
+           {{--
+
+             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#account_overview"><i class="ti-credit-card"></i>&nbsp;{{ _lang('Account Overview') }}</a></li>
+			
              <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#email"><i class="ti-email"></i>&nbsp;{{ _lang('Send Email') }}</a></li>
              <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#sms"><i class="ti-comment-alt"></i>&nbsp;{{ _lang('Send SMS') }}</a></li>
+           --}}
              <li class="nav-item"><a class="nav-link" href="{{ route('members.edit', $member->id) }}"><i class="ti-pencil-alt"></i>&nbsp;{{ _lang('Edit Member Details') }}</a></li>
 		</ul>
 	</div>
@@ -27,8 +31,11 @@
 						<table class="table table-bordered">
 							<tr>
 								<td colspan="2" class="profile_picture text-center">
-									<img src="{{ profile_picture($member->photo) }}" class="thumb-image-md">
-								</td>
+                                        <img src="{{ ($member->photo && $member->photo !== 'default.png') 
+                                            ? profile_picture($member->photo) 
+                                            : asset('public/backend/images/avatar.png') }}" 
+                                            class="thumb-image-md">
+                                    </td>
 							</tr>
 							<tr><td>{{ _lang('First Name') }}</td><td>{{ $member->first_name }}</td></tr>
 							<tr><td>{{ _lang('Last Name') }}</td><td>{{ $member->last_name }}</td></tr>

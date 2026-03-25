@@ -203,6 +203,30 @@
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Start Date')); ?></span>
+                        <span class="ld-value">
+                            <?php echo e($loan->getRawOriginal('release_date') ? \Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('d M Y') : '—'); ?>
+
+                        </span>
+                    </div>
+
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('End Date')); ?></span>
+                        <span class="ld-value">
+                            <?php
+                                $lastRepayment = $repayments->last();
+                            ?>
+                            <?php echo e($lastRepayment ? \Carbon\Carbon::parse($lastRepayment->getRawOriginal('repayment_date'))->format('d M Y') : '—'); ?>
+
+                        </span>
+                    </div>
+
+                    <div class="ld-detail-row">
+                        <span class="ld-label"><?php echo e(_lang('Loan Purpose')); ?></span>
+                        <span class="ld-value"><?php echo e($loan->enq_loan_purpose ?: '—'); ?></span>
+                    </div>
+
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->description): ?>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Description')); ?></span>
@@ -461,7 +485,7 @@
                 <div class="ld-detail-row">
                     <span class="ld-label"><?php echo e($doc->name); ?></span>
                     <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
-                        <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;"><?php echo e(_lang('On')); ?></span>
+               
                         <a href="<?php echo e(asset('public/uploads/media/'.$doc->document)); ?>" target="_blank"><?php echo e(_lang('View')); ?></a>
                     </span>
                 </div>

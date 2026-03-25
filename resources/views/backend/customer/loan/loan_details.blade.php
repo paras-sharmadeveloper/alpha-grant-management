@@ -232,6 +232,28 @@
                     </div>
                     @endif
 
+                    <div class="ld-detail-row">
+                        <span class="ld-label">{{ _lang('Start Date') }}</span>
+                        <span class="ld-value">
+                            {{ $loan->getRawOriginal('release_date') ? \Carbon\Carbon::parse($loan->getRawOriginal('release_date'))->format('d M Y') : '—' }}
+                        </span>
+                    </div>
+
+                    <div class="ld-detail-row">
+                        <span class="ld-label">{{ _lang('End Date') }}</span>
+                        <span class="ld-value">
+                            @php
+                                $lastRepayment = $repayments->last();
+                            @endphp
+                            {{ $lastRepayment ? \Carbon\Carbon::parse($lastRepayment->getRawOriginal('repayment_date'))->format('d M Y') : '—' }}
+                        </span>
+                    </div>
+
+                    <div class="ld-detail-row">
+                        <span class="ld-label">{{ _lang('Loan Purpose') }}</span>
+                        <span class="ld-value">{{ $loan->enq_loan_purpose ?: '—' }}</span>
+                    </div>
+
                     @if($loan->description)
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Description') }}</span>
@@ -485,7 +507,7 @@
                 <div class="ld-detail-row">
                     <span class="ld-label">{{ $doc->name }}</span>
                     <span class="ld-value" style="display:flex;align-items:center;gap:12px;">
-                        <span style="background:#27ae60;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">{{ _lang('On') }}</span>
+               
                         <a href="{{ asset('public/uploads/media/'.$doc->document) }}" target="_blank">{{ _lang('View') }}</a>
                     </span>
                 </div>

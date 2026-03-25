@@ -84,8 +84,9 @@
                             <td style="font-size:11px;color:#888;"><?php echo e($v->vendor_data); ?></td>
                             <td style="font-size:11px;"><?php echo e($v->created_at->format('d M Y H:i')); ?></td>
                             <td>
-                                <button class="btn btn-xs btn-outline-secondary" data-toggle="modal" data-target="#hmodal_<?php echo e($v->id); ?>">
-                                    <i class="fas fa-eye"></i>
+                                
+                                <button class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#hfmodal_<?php echo e($v->id); ?>" title="View Details">
+                                    <i class="fas fa-table"></i> View
                                 </button>
                             </td>
                         </tr>
@@ -111,6 +112,27 @@
             </div>
             <div class="modal-body">
                 <pre style="font-size:11px;background:#f8f9fa;padding:12px;border-radius:4px;max-height:400px;overflow:auto;"><?php echo e(json_encode($v->response_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<?php
+    $rd      = $v->response_data ?? [];
+    $typeKey = $v->type;
+    $nested  = $rd[$typeKey] ?? [];
+    $warnings = $nested['warnings'] ?? [];
+?>
+<div class="modal fade" id="hfmodal_<?php echo e($v->id); ?>" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="font-family:Poppins,sans-serif;font-size:13px;">
+            <div class="modal-header" style="background:#214942;color:#fff;">
+                <h6 class="modal-title"><?php echo e(str_replace('_',' ',ucfirst($v->type))); ?> — Details #<?php echo e($v->id); ?></h6>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body p-0">
+                <?php echo $__env->make('backend.admin.member._kyc_detail_table', ['rd'=>$rd,'typeKey'=>$typeKey,'nested'=>$nested,'warnings'=>$warnings,'v'=>$v], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
         </div>
     </div>

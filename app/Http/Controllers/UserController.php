@@ -51,8 +51,10 @@ class UserController extends Controller {
 
         return Datatables::eloquent($users)
             ->editColumn('name', function ($user) {
+                $avatar = asset('public/backend/images/avatar.png');
+                $photo  = $user->profile_picture ? profile_picture($user->profile_picture) : $avatar;
                 return '<div class="d-flex align-items-center">'
-                . '<img src="' . profile_picture($user->profile_picture) . '" class="thumb-sm img-thumbnail rounded-circle mr-3">'
+                . '<img src="' . $photo . '" class="thumb-sm img-thumbnail rounded-circle mr-3" onerror="this.onerror=null;this.src=\'' . $avatar . '\'">'
                 . '<div><span class="d-block text-height-0"><b>' . $user->name . '</b></span><span class="d-block">' . $user->email . '</span></div>'
                     . '</div>';
             })

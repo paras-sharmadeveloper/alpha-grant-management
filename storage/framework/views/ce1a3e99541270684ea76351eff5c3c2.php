@@ -63,7 +63,7 @@
 					<div class="d-flex">
 						<div class="flex-grow-1">
 							<h5><?php echo e(_lang('Total Loan Amount')); ?></h5>
-							<h4 class="pt-1 mb-0"><b><?php echo e(decimalPlace($total_loan_amount)); ?></b></h4>
+							<h4 class="pt-1 mb-0"><b><?php echo e(round($total_loan_amount)); ?></b></h4>
 						</div>
 						<div class="ml-2 text-center">
 							<i class="fas fa-hand-holding-usd bg-danger text-white"></i>

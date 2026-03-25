@@ -83,8 +83,13 @@
                             <td style="font-size:11px;color:#888;">{{ $v->vendor_data }}</td>
                             <td style="font-size:11px;">{{ $v->created_at->format('d M Y H:i') }}</td>
                             <td>
-                                <button class="btn btn-xs btn-outline-secondary" data-toggle="modal" data-target="#hmodal_{{ $v->id }}">
+                                {{-- JSON raw (commented out)
+                                <button class="btn btn-xs btn-outline-secondary" data-toggle="modal" data-target="#hmodal_{{ $v->id }}" title="Raw JSON">
                                     <i class="fas fa-eye"></i>
+                                </button>
+                                --}}
+                                <button class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#hfmodal_{{ $v->id }}" title="View Details">
+                                    <i class="fas fa-table"></i> View
                                 </button>
                             </td>
                         </tr>
@@ -110,6 +115,27 @@
             </div>
             <div class="modal-body">
                 <pre style="font-size:11px;background:#f8f9fa;padding:12px;border-radius:4px;max-height:400px;overflow:auto;">{{ json_encode($v->response_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Formatted view modal --}}
+@php
+    $rd      = $v->response_data ?? [];
+    $typeKey = $v->type;
+    $nested  = $rd[$typeKey] ?? [];
+    $warnings = $nested['warnings'] ?? [];
+@endphp
+<div class="modal fade" id="hfmodal_{{ $v->id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="font-family:Poppins,sans-serif;font-size:13px;">
+            <div class="modal-header" style="background:#214942;color:#fff;">
+                <h6 class="modal-title">{{ str_replace('_',' ',ucfirst($v->type)) }} — Details #{{ $v->id }}</h6>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body p-0">
+                @include('backend.admin.member._kyc_detail_table', ['rd'=>$rd,'typeKey'=>$typeKey,'nested'=>$nested,'warnings'=>$warnings,'v'=>$v])
             </div>
         </div>
     </div>
