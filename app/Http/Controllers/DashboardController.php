@@ -74,10 +74,27 @@ class DashboardController extends Controller {
                 ->groupBy('currency_id')
                 ->get();
 
-            $data['total_customer'] = Member::count();
-            $data['active_loans']   = Loan::where('status', 1)->count();
-            $data['pending_loans']  = Loan::where('status', 0)->count();
+            $data['total_customer']    = Member::count();
+            $data['active_loans']      = Loan::where('status', 1)->count();
+            $data['pending_loans']     = Loan::where('status', 0)->count();
             $data['total_loan_amount'] = Loan::whereIn('status', [1, 2])->sum('applied_amount');
+
+            // New stat cards
+            $data['total_loan_book']   = Loan::where('status', 1)->sum('applied_amount');
+            $data['total_outstanding'] = Loan::where('status', 1)->selectRaw('SUM(applied_amount - total_paid) as v')->value('v') ?? 0;
+            $data['due_this_month']    = \App\Models\LoanRepayment::whereRaw('MONTH(repayment_date) = MONTH(CURDATE())')
+                ->whereRaw('YEAR(repayment_date) = YEAR(CURDATE())')
+                ->where('status', 0)->sum('principal_amount');
+            $data['total_borrowers']   = Loan::where('status', 1)->distinct('borrower_id')->count('borrower_id');
+
+            // Active loan list with next payment + last payment
+            $data['loan_list'] = Loan::where('status', 1)
+                ->with(['borrower', 'currency', 'loan_product',
+                    'next_payment',
+                    'payments' => fn($q) => $q->orderBy('paid_at', 'desc')->limit(1),
+                ])
+                ->orderBy('id', 'desc')
+                ->get();
 
             return view("backend.admin.dashboard-$user_type", $data);
         }

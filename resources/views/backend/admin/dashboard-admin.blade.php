@@ -1,244 +1,196 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .db-stat { background:#fff; border-radius:8px; padding:20px 24px; font-family:"Poppins",sans-serif; margin-bottom:20px; box-shadow:0 1px 4px rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between; }
+    .db-stat-left { display:flex; flex-direction:column; }
+    .db-stat-label { font-size:13px; font-weight:400; color:#555; margin-bottom:6px; }
+    .db-stat-value { font-size:22px; font-weight:600; color:#222; }
+    .db-stat-icon { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; flex-shrink:0; }
+    .loan-tbl th { background:#214942; color:#fff; font-size:12px; font-weight:500; white-space:nowrap; padding:10px 12px; }
+    .loan-tbl td { font-size:12px; vertical-align:middle; white-space:nowrap; padding:9px 12px; }
+    .b-overdue { background:#e74c3c; color:#fff; padding:2px 8px; border-radius:10px; font-size:11px; }
+    .b-current { background:#27ae60; color:#fff; padding:2px 8px; border-radius:10px; font-size:11px; }
+</style>
+
+{{-- ── 4 Stat Cards ── --}}
 <div class="row">
-	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('members.index') }}">
-			<div class="card mb-4 dashboard-card">
-				<div class="card-body">
-					<div class="d-flex">
-						<div class="flex-grow-1">
-							<h5>{{ _lang('Total Members') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ $total_customer }}</b></h4>
-						</div>
-						<div class="ml-2 text-center">
-							<i class="fas fa-users bg-success text-white"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-
-	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('loans.filter', 'active') }}">
-			<div class="card mb-4 dashboard-card">
-				<div class="card-body">
-					<div class="d-flex">
-						<div class="flex-grow-1">
-							<h5>{{ _lang('Active Loans') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ $active_loans }}</b></h4>
-						</div>
-						<div class="ml-2 text-center">
-							<i class="fas fa-file-invoice-dollar bg-info text-white"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-
-	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('loans.filter', 'pending') }}">
-			<div class="card mb-4 dashboard-card">
-				<div class="card-body">
-					<div class="d-flex">
-						<div class="flex-grow-1">
-							<h5>{{ _lang('Pending Loans') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ $pending_loans }}</b></h4>
-						</div>
-						<div class="ml-2 text-center">
-							<i class="fas fa-hourglass-half bg-warning text-white"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-
-	<div class="col-xl-3 col-md-6">
-		<a href="{{ route('loans.index') }}">
-			<div class="card mb-4 dashboard-card">
-				<div class="card-body">
-					<div class="d-flex">
-						<div class="flex-grow-1">
-							<h5>{{ _lang('Total Loan Amount') }}</h5>
-							<h4 class="pt-1 mb-0"><b>{{ round($total_loan_amount) }}</b></h4>
-						</div>
-						<div class="ml-2 text-center">
-							<i class="fas fa-hand-holding-usd bg-danger text-white"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12 mb-4">
-		<div class="card mb-4">
-			<div class="card-header">
-				{{ _lang('Due Loan Payments') }}
-			</div>
-			<div class="card-body px-0 pt-0">
-				<div class="table-responsive">
-					<table class="table table-bordered">
-						<thead>
-							<tr>
-								<th class="text-nowrap pl-4">{{ _lang('Loan ID') }}</th>
-								<th class="text-nowrap">{{ _lang('Member No') }}</th>
-								<th class="text-nowrap">{{ _lang('Member') }}</th>
-								<th class="text-nowrap">{{ _lang('Last Payment Date') }}</th>
-								<th class="text-nowrap">{{ _lang('Due Repayments') }}</th>
-								<th class="text-nowrap text-right pr-4">{{ _lang('Total Due') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if(count($due_repayments) == 0)
-								<tr>
-									<td colspan="6"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
-								</tr>
-							@endif
-
-							@foreach($due_repayments as $repayment)
-							<tr>
-								<td class="pl-4">{{ $repayment->loan->loan_id }}</td>
-								<td>{{ $repayment->loan->borrower->member_no }}</td>
-								<td>{{ $repayment->loan->borrower->name }}</td>
-								<td class="text-nowrap">{{ $repayment->repayment_date }}</td>
-								<td class="text-nowrap">{{ $repayment->total_due_repayment }}</td>
-								<td class="text-nowrap text-right pr-4">{{ decimalPlace($repayment->total_due, currency($repayment->loan->currency->name)) }}</td>
-							</tr>
-							@endforeach
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="db-stat">
+            <div class="db-stat-left">
+                <span class="db-stat-label">Total Loan Book</span>
+                <span class="db-stat-value">{{ number_format(round($total_loan_book)) }}</span>
+            </div>
+            <div class="db-stat-icon" style="background:#214942;">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="db-stat">
+            <div class="db-stat-left">
+                <span class="db-stat-label">Total Outstanding</span>
+                <span class="db-stat-value">{{ number_format(round($total_outstanding)) }}</span>
+            </div>
+            <div class="db-stat-icon" style="background:#1a6b5a;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="db-stat">
+            <div class="db-stat-left">
+                <span class="db-stat-label">Due This Month</span>
+                <span class="db-stat-value">{{ number_format(round($due_this_month)) }}</span>
+            </div>
+            <div class="db-stat-icon" style="background:#44a74a;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="db-stat">
+            <div class="db-stat-left">
+                <span class="db-stat-label">Borrowers</span>
+                <span class="db-stat-value">{{ $total_borrowers }}</span>
+            </div>
+            <div class="db-stat-icon" style="background:#2c7873;">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="db-stat">
+            <div class="db-stat-left">
+                <span class="db-stat-label">Total Loans</span>
+                <span class="db-stat-value">{{ $active_loans + $pending_loans }}</span>
+            </div>
+            <div class="db-stat-icon" style="background:#e67e22;">
+                <i class="fas fa-list-alt"></i>
+            </div>
+        </div>
+    </div>
 </div>
 
-{{--
+{{-- ── Active Loan List ── --}}
 <div class="row">
-	<div class="col-lg-12">
-		<div class="card mb-4">
-			<div class="card-header">
-				{{ _lang('Recent Transactions') }}
-			</div>
-			<div class="card-body px-0 pt-0">
-				<div class="table-responsive">
-					<table class="table table-bordered">
-					<thead>
-					    <tr>
-						    <th class="pl-4">{{ _lang('Date') }}</th>
-							<th>{{ _lang('Member') }}</th>
-							<th class="text-nowrap">{{ _lang('Account Number') }}</th>
-							<th>{{ _lang('Amount') }}</th>
-							<th class="text-nowrap">{{ _lang('Debit/Credit') }}</th>
-							<th>{{ _lang('Type') }}</th>
-							<th>{{ _lang('Status') }}</th>
-							<th class="text-center">{{ _lang('Action') }}</th>
-					    </tr>
-					</thead>
-					<tbody>
-					@if(count($recent_transactions) == 0)
-						<tr>
-							<td colspan="8"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
-						</tr>
-					@endif
-					@foreach($recent_transactions as $transaction)
-						@php
-						$symbol = $transaction->dr_cr == 'dr' ? '-' : '+';
-						$class  = $transaction->dr_cr == 'dr' ? 'text-danger' : 'text-success';
-						@endphp
-						<tr>
-							<td class="text-nowrap pl-4">{{ $transaction->trans_date }}</td>
-							<td>{{ $transaction->member->name }}</td>
-							<td>{{ $transaction->account->account_number }}</td>
-							<td><span class="text-nowrap {{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
-							<td>{{ strtoupper($transaction->dr_cr) }}</td>
-							<td>{{ ucwords(str_replace('_',' ',$transaction->type)) }}</td>
-							<td>{!! xss_clean(transaction_status($transaction->status)) !!}</td>
-							<td class="text-center"><a href="{{ route('transactions.show', $transaction->id) }}" target="_blank" class="btn btn-outline-primary btn-xs"><i class="ti-arrow-right"></i>&nbsp;{{ _lang('View') }}</a></td>
-						</tr>
-					@endforeach
-					</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12 mb-4">
-		<div class="card mb-4">
-			<div class="card-header">
-				{{ _lang('Active Loan Balances') }}
-			</div>
-			<div class="card-body px-0 pt-0">
-				<div class="table-responsive">
-					<table class="table table-bordered">
-						<thead>
-							<tr>
-								<th class="text-nowrap pl-4">{{ _lang('Currency') }}</th>
-								<th class="text-nowrap">{{ _lang('Applied Amount') }}</th>
-								<th class="text-nowrap">{{ _lang('Paid Amount') }}</th>
-								<th class="text-nowrap">{{ _lang('Due Amount') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if(count($loan_balances) == 0)
-								<tr>
-									<td colspan="4"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
-								</tr>
-							@endif
-							@foreach($loan_balances as $loan_balance)
-							<tr>
-								<td class="pl-4">{{ $loan_balance->currency->name }}</td>
-								<td>{{ decimalPlace($loan_balance->total_amount, currency($loan_balance->currency->name)) }}</td>
-								<td>{{ decimalPlace($loan_balance->total_paid, currency($loan_balance->currency->name)) }}</td>
-								<td>{{ decimalPlace($loan_balance->total_amount - $loan_balance->total_paid, currency($loan_balance->currency->name)) }}</td>
-							</tr>
-							@endforeach
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex align-items-center" style="font-family:Poppins,sans-serif;font-size:14px;">
+                Active Loans
+                <a href="{{ route('loans.filter', 'active') }}" class="btn btn-xs ml-auto"
+                   style="background:#214942;color:#fff;font-family:Poppins,sans-serif;font-size:12px;">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered loan-tbl mb-0">
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Borrower</th>
+                                <th>Status</th>
+                                <th>Next Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Monthly Repayment</th>
+                                <th>Amount Due Now</th>
+                                <th>Total Outstanding</th>
+                                <th>Last Payment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($loan_list as $loan)
+                            @php
+                                $np          = $loan->next_payment;
+                                $nextDue     = $np ? $np->getRawOriginal('repayment_date') : null;
+                                $overdueDays = 0;
+                                if ($nextDue && $nextDue < date('Y-m-d') && $np->status == 0) {
+                                    $overdueDays = (int) \Carbon\Carbon::parse($nextDue)->diffInDays(now());
+                                }
+                                $monthly     = $np ? $np->amount_to_pay : 0;
+                                $dueNow      = ($np && $np->status == 0) ? $np->amount_to_pay : 0;
+                                $outstanding = $loan->applied_amount - $loan->total_paid;
+                                $lastPay     = $loan->payments->first();
+                                $lastPayDate = $lastPay
+                                    ? \Carbon\Carbon::parse($lastPay->getRawOriginal('paid_at'))->format('d M Y')
+                                    : '—';
+                                $curr        = $loan->currency->name ?? 'AUD';
+                            @endphp
+                            <tr>
+                                <td>
+                                    <a href="{{ route('loans.show', $loan->id) }}" style="color:#214942;font-weight:500;">
+                                        {{ $loan->loan_id }}
+                                    </a>
+                                </td>
+                                <td>{{ $loan->borrower->first_name }} {{ $loan->borrower->last_name }}</td>
+                                <td>
+                                    @if($overdueDays > 0)
+                                        <span class="b-overdue">Overdue</span>
+                                    @else
+                                        <span class="b-current">Current</span>
+                                    @endif
+                                </td>
+                                <td>{{ $nextDue ? \Carbon\Carbon::parse($nextDue)->format('d M Y') : '—' }}</td>
+                                <td>{{ $overdueDays > 0 ? $overdueDays.' days' : '—' }}</td>
+                                <td>{{ decimalPlace($monthly, currency($curr)) }}</td>
+                                <td>{{ $dueNow > 0 ? decimalPlace($dueNow, currency($curr)) : '—' }}</td>
+                                <td>{{ decimalPlace($outstanding, currency($curr)) }}</td>
+                                <td>{{ $lastPayDate }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-3"
+                                    style="font-family:Poppins,sans-serif;font-size:13px;">No active loans.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+{{-- ── Due Loan Payments (existing) ── --}}
 <div class="row">
-	<div class="col-lg-4 col-md-5 mb-4">
-		<div class="card h-100">
-			<div class="card-header d-flex align-items-center">
-				<span>{{ _lang('Expense Overview').' - '.date('M Y') }}</span>
-			</div>
-			<div class="card-body">
-				<canvas id="expenseOverview"></canvas>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-8 col-md-7 mb-4">
-		<div class="card h-100">
-			<div class="card-header d-flex align-items-center">
-				<span>{{ _lang('Deposit & Withdraw Analytics').' - '.date('Y')  }}</span>
-				<select class="filter-select ml-auto py-0 auto-select" data-selected="{{ base_currency_id() }}">
-					@foreach(\App\Models\Currency::where('status',1)->get() as $currency)
-					<option value="{{ $currency->id }}" data-symbol="{{ currency_symbol($currency->name) }}">{{ $currency->name }}</option>
-					@endforeach
-				</select>
-			</div>
-			<div class="card-body">
-				<canvas id="transactionAnalysis"></canvas>
-			</div>
-		</div>
-	</div>
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header" style="font-family:Poppins,sans-serif;font-size:14px;">
+                {{ _lang('Due Loan Payments') }}
+            </div>
+            <div class="card-body px-0 pt-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered loan-tbl">
+                        <thead>
+                            <tr>
+                                <th class="pl-4">{{ _lang('Loan ID') }}</th>
+                                <th>{{ _lang('Member No') }}</th>
+                                <th>{{ _lang('Member') }}</th>
+                                <th>{{ _lang('Last Payment Date') }}</th>
+                                <th>{{ _lang('Due Repayments') }}</th>
+                                <th class="text-right pr-4">{{ _lang('Total Due') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(count($due_repayments) == 0)
+                                <tr><td colspan="6" class="text-center text-muted">{{ _lang('No Data Available') }}</td></tr>
+                            @endif
+                            @foreach($due_repayments as $repayment)
+                            <tr>
+                                <td class="pl-4">{{ $repayment->loan->loan_id }}</td>
+                                <td>{{ $repayment->loan->borrower->member_no }}</td>
+                                <td>{{ $repayment->loan->borrower->name }}</td>
+                                <td>{{ $repayment->repayment_date }}</td>
+                                <td>{{ $repayment->total_due_repayment }}</td>
+                                <td class="text-right pr-4">{{ decimalPlace($repayment->total_due, currency($repayment->loan->currency->name)) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
---}}
-
-
-
 
 @endsection
 
