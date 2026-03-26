@@ -12,20 +12,25 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<table id="members_table" class="table table-bordered">
-					<thead>
-					    <tr>
-							<th class="text-center">{{ _lang('Photo') }}</th>
-							<th>{{ _lang('Member No') }}</th>
-						    <th>{{ _lang('First Name') }}</th>
-							<th>{{ _lang('Last Name') }}</th>
-							<th>{{ _lang('Email') }}</th>
-							<th>{{ _lang('Branch') }}</th>
-							<th class="text-center">{{ _lang('Action') }}</th>
-					    </tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+				<div class="table-responsive">
+					<table id="members_table" class="table table-bordered">
+						<thead>
+						    <tr>
+								<th>{{ _lang('Member No') }}</th>
+							    <th>{{ _lang('Full Name') }}</th>
+								<th>{{ _lang('Mobile') }}</th>
+								<th>{{ _lang('Branch') }}</th>
+								<th class="text-center">{{ _lang('Active Loans') }}</th>
+								<th class="text-right">{{ _lang('Outstanding Balance') }}</th>
+								<th class="text-right">{{ _lang('Overdue Amount') }}</th>
+								<th>{{ _lang('Next Due Date') }}</th>
+								<th class="text-center">{{ _lang('Risk') }}</th>
+								<th class="text-center">{{ _lang('Action') }}</th>
+						    </tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -41,13 +46,16 @@
 		serverSide: true,
 		ajax: _tenant_url + '/members/get_table_data',
 		"columns" : [
-			{ data : 'photo', name : 'photo' },
-			{ data : 'member_no', name : 'member_no' },
-			{ data : 'first_name', name : 'first_name' },
-			{ data : 'last_name', name : 'last_name' },
-			{ data : 'email', name : 'email' },
-			{ data : 'branch.name', name : 'branch.name' },
-			{ data : "action", name : "action" },
+			{ data : 'member_no',           name : 'member_no' },
+			{ data : 'full_name',           name : 'first_name', orderable: false },
+			{ data : 'mobile',              name : 'mobile' },
+			{ data : 'branch.name',         name : 'branch.name', orderable: false },
+			{ data : 'active_loans',        name : 'active_loans', orderable: false, className: 'text-center' },
+			{ data : 'outstanding_balance', name : 'outstanding_balance', orderable: false, className: 'text-right' },
+			{ data : 'overdue_amount',      name : 'overdue_amount', orderable: false, className: 'text-right' },
+			{ data : 'next_due_date',       name : 'next_due_date', orderable: false },
+			{ data : 'risk',                name : 'risk', orderable: false, className: 'text-center' },
+			{ data : 'action',              name : 'action', orderable: false, className: 'text-center' },
 		],
 		responsive: true,
 		"bStateSave": true,
@@ -74,16 +82,6 @@
 		},
 		drawCallback: function () {
 			$(".dataTables_paginate > .pagination").addClass("pagination-bordered");
-			// Hide broken member photos
-			$('#members_table').find('img.member-photo').each(function () {
-				$(this).on('error', function () {
-					$(this).hide();
-				});
-				// trigger for already-broken images
-				if (this.complete && this.naturalWidth === 0) {
-					$(this).hide();
-				}
-			});
 		}
 	});
 })(jQuery);

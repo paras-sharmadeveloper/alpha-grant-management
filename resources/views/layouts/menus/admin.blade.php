@@ -39,6 +39,8 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 	<a href="javascript: void(0);" class="{{ $loansActive ? 'active' : '' }}"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Loans') }} {!! xss_clean($pending_loans) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
 	<ul class="nav-second-level" aria-expanded="{{ $loansActive ? 'true' : 'false' }}" style="{{ $loansActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('loans.index') }}">{{ _lang('All Loans') }}</a></li>
+	
+		{{--
 		<li class="nav-item">
 			<a class="nav-link" href="{{ route('loans.filter', 'pending') }}">
 				{{ _lang('Pending Loans') }}
@@ -46,7 +48,7 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 			</a>
 		</li>
 		<li class="nav-item"><a class="nav-link" href="{{ route('loans.filter', 'active') }}">{{ _lang('Active Loans') }}</a></li>
-		{{-- <li class="nav-item"><a class="nav-link" href="{{ route('loans.admin_calculator') }}">{{ _lang('Loan Calculator') }}</a></li> --}}
+		<li class="nav-item"><a class="nav-link" href="{{ route('loans.admin_calculator') }}">{{ _lang('Loan Calculator') }}</a></li> --}}
 		<li class="nav-item"><a class="nav-link" href="{{ route('loan_products.index') }}">{{ _lang('Loan Products') }}</a></li>
 		<li><a class="nav-link" href="{{ route('loan_payments.index') }}">{{ _lang('Loan Repayments') }}</a></li>
 

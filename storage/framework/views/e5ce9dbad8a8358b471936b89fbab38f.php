@@ -34,15 +34,7 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 	<a href="javascript: void(0);" class="<?php echo e($loansActive ? 'active' : ''); ?>"><i class="fas fa-hand-holding-usd"></i><span><?php echo e(_lang('Loans')); ?> <?php echo xss_clean($pending_loans); ?></span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
 	<ul class="nav-second-level" aria-expanded="<?php echo e($loansActive ? 'true' : 'false'); ?>" style="<?php echo e($loansActive ? 'display:block;' : ''); ?>">
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('loans.index')); ?>"><?php echo e(_lang('All Loans')); ?></a></li>
-		<li class="nav-item">
-			<a class="nav-link" href="<?php echo e(route('loans.filter', 'pending')); ?>">
-				<?php echo e(_lang('Pending Loans')); ?>
-
-				<?php echo xss_clean($pending_loans); ?>
-
-			</a>
-		</li>
-		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('loans.filter', 'active')); ?>"><?php echo e(_lang('Active Loans')); ?></a></li>
+	
 		
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('loan_products.index')); ?>"><?php echo e(_lang('Loan Products')); ?></a></li>
 		<li><a class="nav-link" href="<?php echo e(route('loan_payments.index')); ?>"><?php echo e(_lang('Loan Repayments')); ?></a></li>

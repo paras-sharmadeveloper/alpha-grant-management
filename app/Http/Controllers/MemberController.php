@@ -62,12 +62,16 @@ class MemberController extends Controller
     public function get_table_data()
     {
         $members = Member::select('members.*')
-            ->with('branch')
+            ->with(['branch', 'loans' => function ($q) {
+                $q->withoutGlobalScopes()->with(['repayments' => function ($r) {
+                    $r->withoutGlobalScopes()->where('status', 0)->orderBy('repayment_date', 'asc');
+                }]);
+            }])
             ->orderBy("members.id", "desc");
 
         return Datatables::eloquent($members)
             ->editColumn('branch.name', function ($member) {
-                return $member->branch->name;
+                return $member->branch->name ?? '-';
             })
             ->editColumn('photo', function ($member) {
                 $photo = ($member->photo && $member->photo !== 'default.png')
@@ -76,6 +80,53 @@ class MemberController extends Controller
                 return '<div class="profile_picture text-center">'
                     . '<img src="' . $photo . '" class="thumb-sm img-thumbnail member-photo">'
                     . '</div>';
+            })
+            ->addColumn('full_name', function ($member) {
+                return $member->first_name . ' ' . $member->last_name;
+            })
+            ->addColumn('active_loans', function ($member) {
+                $count = $member->loans->where('status', 1)->count();
+                return $count > 0 ? '<span class="badge badge-success">' . $count . '</span>' : '<span class="badge badge-secondary">0</span>';
+            })
+            ->addColumn('outstanding_balance', function ($member) {
+                $activeLoans = $member->loans->where('status', 1);
+                $outstanding = $activeLoans->sum(fn($l) => ($l->applied_amount ?? 0) - ($l->total_paid ?? 0));
+                return decimalPlace($outstanding, currency_symbol());
+            })
+            ->addColumn('overdue_amount', function ($member) {
+                $overdue = $member->loans->where('status', 1)->sum('late_payment_penalties');
+                $class   = $overdue > 0 ? 'text-danger' : '';
+                return '<span class="' . $class . '">' . decimalPlace($overdue, currency_symbol()) . '</span>';
+            })
+            ->addColumn('next_due_date', function ($member) {
+                $nextRepayment = null;
+                foreach ($member->loans->where('status', 1) as $loan) {
+                    $first = $loan->repayments->first();
+                    if ($first) {
+                        if (!$nextRepayment || $first->getRawOriginal('repayment_date') < $nextRepayment['date']) {
+                            $nextRepayment = ['date' => $first->getRawOriginal('repayment_date'), 'formatted' => $first->repayment_date];
+                        }
+                    }
+                }
+                if (!$nextRepayment) return '-';
+                $isOverdue = $nextRepayment['date'] < now()->format('Y-m-d');
+                return $isOverdue
+                    ? '<span class="text-danger">' . $nextRepayment['formatted'] . '</span>'
+                    : $nextRepayment['formatted'];
+            })
+            ->addColumn('risk', function ($member) {
+                // $activeLoans = $member->loans->where('status', 1);
+                // $overdue     = $activeLoans->sum('late_payment_penalties');
+                // $outstanding = $activeLoans->sum(fn($l) => ($l->applied_amount ?? 0) - ($l->total_paid ?? 0));
+
+                // if ($overdue > 0) {
+                //     return '<span class="badge badge-danger">High</span>';
+                // } elseif ($outstanding > 0) {
+                //     return '<span class="badge badge-warning">Medium</span>';
+                // } elseif ($activeLoans->count() > 0) {
+                //     return '<span class="badge badge-success">Low</span>';
+                // }
+                // return '<span class="badge badge-secondary">None</span>';
             })
             ->addColumn('action', function ($member) {
                 return '<div class="dropdown text-center">'
@@ -98,7 +149,7 @@ class MemberController extends Controller
             ->setRowId(function ($member) {
                 return "row_" . $member->id;
             })
-            ->rawColumns(['photo', 'action'])
+            ->rawColumns(['photo', 'action', 'active_loans', 'overdue_amount', 'next_due_date', 'risk'])
             ->make(true);
     }
 
