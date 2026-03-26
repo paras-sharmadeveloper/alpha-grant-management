@@ -436,6 +436,17 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::get('loan_payments/get_table_data', [LoanPaymentController::class, 'get_table_data']);
                 Route::resource('loan_payments', LoanPaymentController::class);
 
+                // Loan Book
+                Route::get('loan_book', [LoanController::class, 'loan_book'])->name('loans.loan_book');
+
+                // Documents (global member documents list)
+                Route::get('documents', [MemberDocumentController::class, 'all_documents'])->name('documents.index');
+
+                // Coming Soon pages
+                Route::get('audit_log', fn() => view('backend.admin.coming_soon', ['title' => 'Audit Log']))->name('audit_log.index');
+                Route::get('securities', fn() => view('backend.admin.coming_soon', ['title' => 'Securities']))->name('securities.index');
+                Route::get('collections', fn() => view('backend.admin.coming_soon', ['title' => 'Collections']))->name('collections.index');
+
                 //Bank Accounts
                 Route::resource('bank_accounts', BankAccountController::class)->middleware("demo:PUT|PATCH|DELETE");
 

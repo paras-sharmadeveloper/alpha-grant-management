@@ -27,6 +27,12 @@ class MemberDocumentController extends Controller {
         return view('backend.admin.member_documents.list', compact('memberdocuments', 'id', 'assets'));
     }
 
+    public function all_documents() {
+        $assets          = ['datatable'];
+        $memberdocuments = MemberDocument::with('member')->orderBy('id', 'desc')->get();
+        return view('backend.admin.member_documents.all', compact('memberdocuments', 'assets'));
+    }
+
     /**
      * Show the form for creating a new resource.
      *

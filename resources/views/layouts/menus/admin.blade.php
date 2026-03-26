@@ -7,7 +7,7 @@ $pending_loans = request_count('pending_loans', true);
 $upcomming_repayments = request_count('upcomming_repayments', true);
 
 $membersActive  = request()->routeIs('members.*') || request()->routeIs('kyc.*');
-$loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*');
+$loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*') || request()->routeIs('documents.*') || request()->routeIs('audit_log.*') || request()->routeIs('securities.*') || request()->routeIs('collections.*');
 $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profile.*') || request()->routeIs('users.*') || request()->routeIs('roles.*');
 @endphp
 
@@ -39,20 +39,13 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 	<a href="javascript: void(0);" class="{{ $loansActive ? 'active' : '' }}"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Loans') }} {!! xss_clean($pending_loans) !!}</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
 	<ul class="nav-second-level" aria-expanded="{{ $loansActive ? 'true' : 'false' }}" style="{{ $loansActive ? 'display:block;' : '' }}">
 		<li class="nav-item"><a class="nav-link" href="{{ route('loans.index') }}">{{ _lang('All Loans') }}</a></li>
-	
-		{{--
-		<li class="nav-item">
-			<a class="nav-link" href="{{ route('loans.filter', 'pending') }}">
-				{{ _lang('Pending Loans') }}
-				{!! xss_clean($pending_loans) !!}
-			</a>
-		</li>
-		<li class="nav-item"><a class="nav-link" href="{{ route('loans.filter', 'active') }}">{{ _lang('Active Loans') }}</a></li>
-		<li class="nav-item"><a class="nav-link" href="{{ route('loans.admin_calculator') }}">{{ _lang('Loan Calculator') }}</a></li> --}}
+		<li class="nav-item"><a class="nav-link" href="{{ route('loans.loan_book') }}">{{ _lang('Loan Book') }}</a></li>
+		<li class="nav-item"><a class="nav-link" href="{{ route('loan_payments.index') }}">{{ _lang('Loan Repayments') }}</a></li>
 		<li class="nav-item"><a class="nav-link" href="{{ route('loan_products.index') }}">{{ _lang('Loan Products') }}</a></li>
-		<li><a class="nav-link" href="{{ route('loan_payments.index') }}">{{ _lang('Loan Repayments') }}</a></li>
-
-		{{-- <li class="nav-item"><a class="nav-link" href="{{ route('custom_fields.index', ['loans']) }}">{{ _lang('Custom Fields') }}</a></li> --}}
+		<li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ _lang('Documents') }}</a></li>
+		<li class="nav-item"><a class="nav-link" href="{{ route('audit_log.index') }}">{{ _lang('Audit Log') }} <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
+		<li class="nav-item"><a class="nav-link" href="{{ route('securities.index') }}">{{ _lang('Securities') }} <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
+		<li class="nav-item"><a class="nav-link" href="{{ route('collections.index') }}">{{ _lang('Collections') }} <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
 	</ul>
 </li>
 

@@ -48,6 +48,21 @@ class LoanController extends Controller {
         return view('backend.admin.loan.list', compact('status', 'assets'));
     }
 
+    public function loan_book() {
+        $assets = ['datatable'];
+        $loans  = Loan::withoutGlobalScopes()
+            ->with(['borrower', 'currency', 'loan_product', 'next_payment'])
+            ->where('status', 1)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $total_portfolio   = $loans->sum('applied_amount');
+        $total_outstanding = $loans->sum(fn($l) => ($l->applied_amount ?? 0) - ($l->total_paid ?? 0));
+        $total_arrears     = $loans->sum('late_payment_penalties');
+
+        return view('backend.admin.loan.loan_book', compact('loans', 'assets', 'total_portfolio', 'total_outstanding', 'total_arrears'));
+    }
+
     public function get_table_data(Request $request) {
         $loans = Loan::select('loans.*')
             ->with('borrower')
