@@ -271,6 +271,7 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::get('membership', [MembershipController::class, 'index'])->name('membership.index');
 
                 //Branch Controller
+                Route::get('branches/generate_code', [BranchController::class, 'generateCode'])->name('branches.generate_code');
                 Route::resource('branches', BranchController::class)->middleware("demo:PUT|PATCH|DELETE");
 
                 //Savings Products

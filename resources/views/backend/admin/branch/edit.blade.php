@@ -12,21 +12,47 @@
 					@csrf
 					<input name="_method" type="hidden" value="PATCH">
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Name') }}</label>
-								<input type="text" class="form-control" name="name" value="{{ $branch->name }}" required>
+								<label class="control-label">{{ _lang('Branch Name') }} <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" name="name" id="branch_name" value="{{ $branch->name }}" required>
 							</div>
 						</div>
 
-						<div class="col-md-12">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('Branch Code') }}</label>
+								<input type="text" class="form-control bg-light" name="branch_code" id="branch_code" value="{{ $branch->branch_code }}" readonly>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('State') }}</label>
+								<input type="text" class="form-control" name="state" value="{{ $branch->state }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('Branch Manager') }}</label>
+								<select class="form-control" name="branch_manager_id">
+									<option value="">{{ _lang('Select Manager') }}</option>
+									@foreach($managers as $manager)
+										<option value="{{ $manager->id }}" {{ $branch->branch_manager_id == $manager->id ? 'selected' : '' }}>{{ $manager->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Contact Email') }}</label>
 								<input type="text" class="form-control" name="contact_email" value="{{ $branch->contact_email }}">
 							</div>
 						</div>
 
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Contact Phone') }}</label>
 								<input type="text" class="form-control" name="contact_phone" value="{{ $branch->contact_phone }}">
@@ -47,10 +73,9 @@
 							</div>
 						</div>
 
-
 						<div class="col-md-12">
 							<div class="form-group">
-								<button type="submit" class="btn btn-primary "><i class="ti-check-box"></i>&nbsp;{{ _lang('Update') }}</button>
+								<button type="submit" class="btn btn-primary"><i class="ti-check-box"></i>&nbsp;{{ _lang('Update') }}</button>
 							</div>
 						</div>
 					</div>
@@ -59,7 +84,17 @@
 		</div>
 	</div>
 </div>
-
 @endsection
 
-
+@section('js')
+<script>
+var originalName = '{{ $branch->name }}';
+$('#branch_name').on('input', function() {
+    var name = $(this).val().trim();
+    if (name === originalName || name.length === 0) return;
+    $.get('{{ route('branches.generate_code') }}', { name: name }, function(res) {
+        $('#branch_code').val(res.code);
+    });
+});
+</script>
+@endsection

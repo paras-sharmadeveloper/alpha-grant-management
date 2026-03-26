@@ -7,24 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Branch extends Model {
     use MultiTenant;
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
+
     protected $table = 'branches';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['name'];
+    protected $guarded = [];  // allow all columns
 
-    public function __construct(array $attributes = []) {
-        parent::__construct($attributes);
-        $this->attributes['name'] = get_tenant_option('default_branch_name', 'Main Branch');
+    public function manager() {
+        return $this->belongsTo(User::class, 'branch_manager_id')->withDefault();
     }
-    
 
+    public function members() {
+        return $this->hasMany(Member::class, 'branch_id');
+    }
+
+    public function activeLoans() {
+        return $this->hasManyThrough(Loan::class, Member::class, 'branch_id', 'borrower_id')
+            ->where('loans.status', 'Active');
+    }
 }

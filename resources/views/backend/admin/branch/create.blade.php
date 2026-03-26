@@ -11,21 +11,47 @@
 			    <form method="post" class="validate" autocomplete="off" action="{{ route('branches.store') }}" enctype="multipart/form-data">
 					@csrf
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Name') }}</label>
-								<input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
+								<label class="control-label">{{ _lang('Branch Name') }} <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" name="name" id="branch_name" value="{{ old('name') }}" required>
 							</div>
 						</div>
 
-						<div class="col-md-12">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('Branch Code') }}</label>
+								<input type="text" class="form-control bg-light" name="branch_code" id="branch_code" value="{{ old('branch_code') }}" readonly placeholder="{{ _lang('Auto-generated') }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('State') }}</label>
+								<input type="text" class="form-control" name="state" value="{{ old('state') }}">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label">{{ _lang('Branch Manager') }}</label>
+								<select class="form-control" name="branch_manager_id">
+									<option value="">{{ _lang('Select Manager') }}</option>
+									@foreach($managers as $manager)
+										<option value="{{ $manager->id }}" {{ old('branch_manager_id') == $manager->id ? 'selected' : '' }}>{{ $manager->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Contact Email') }}</label>
 								<input type="text" class="form-control" name="contact_email" value="{{ old('contact_email') }}">
 							</div>
 						</div>
 
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Contact Phone') }}</label>
 								<input type="text" class="form-control" name="contact_phone" value="{{ old('contact_phone') }}">
@@ -46,10 +72,9 @@
 							</div>
 						</div>
 
-
 						<div class="col-md-12">
 							<div class="form-group">
-								<button type="submit" class="btn btn-primary "><i class="ti-check-box"></i>&nbsp;{{ _lang('Save') }}</button>
+								<button type="submit" class="btn btn-primary"><i class="ti-check-box"></i>&nbsp;{{ _lang('Save') }}</button>
 							</div>
 						</div>
 					</div>
@@ -60,4 +85,14 @@
 </div>
 @endsection
 
-
+@section('js')
+<script>
+$('#branch_name').on('input', function() {
+    var name = $(this).val().trim();
+    if (name.length === 0) { $('#branch_code').val(''); return; }
+    $.get('{{ route('branches.generate_code') }}', { name: name }, function(res) {
+        $('#branch_code').val(res.code);
+    });
+});
+</script>
+@endsection
