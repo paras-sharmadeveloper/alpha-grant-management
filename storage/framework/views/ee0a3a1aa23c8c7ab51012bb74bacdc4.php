@@ -53,7 +53,7 @@
         align-items: center;
         margin-bottom: 25px;
     }
-    .ld-summary-item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .ld-summary-item { flex: 1; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
     .ld-divider { width: 1px; height: 50px; background: #fff; margin-right: 30px; }
     .ld-label { font-size: 14px; color: rgba(255,255,255,0.75); font-family: "Poppins", sans-serif; font-weight: 400; letter-spacing: 0; text-transform: capitalize; }
     .ld-value { font-size: 14px; font-weight: 400; color: #fff; font-family: "Poppins", sans-serif; letter-spacing: 0; text-transform: capitalize; }
@@ -212,10 +212,6 @@
                         <span class="ld-label"><?php echo e(_lang('Due Amount')); ?></span>
                         <span class="ld-value" style="color:#e74c3c;"><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></span>
                     </div>
-                    <div class="ld-detail-row">
-                        <span class="ld-label"><?php echo e(_lang('Late Payment Penalties')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->late_payment_penalties); ?>%</span>
-                    </div>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status == 1): ?>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Approved Date')); ?></span>
@@ -224,10 +220,6 @@
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Approved By')); ?></span>
                         <span class="ld-value"><?php echo e($loan->approved_by->name); ?></span>
-                    </div>
-                    <div class="ld-detail-row">
-                        <span class="ld-label"><?php echo e(_lang('Disburse Method')); ?></span>
-                        <span class="ld-value"><?php echo e($loan->disburse_method == 'cash' ? ucwords($loan->disburse_method) : _lang('Transfer to Account')); ?></span>
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(! $customFields->isEmpty()): ?>

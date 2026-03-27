@@ -138,8 +138,11 @@
 
 			<div id="member_loans" class="tab-pane">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex align-items-center">
                         <span class="header-title">{{ _lang('Loans') }}</span>
+                        <button class="btn btn-primary btn-xs ml-auto" id="btn_member_pay">
+                            <i class="ti-credit-card"></i>&nbsp;{{ _lang('Pay') }}
+                        </button>
                     </div>
 
                     <div class="card-body">
@@ -310,6 +313,92 @@
 		</div>
 	</div>
 </div>
+
+{{-- Member Pay Modal --}}
+<div class="modal fade" id="memberPayModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _lang('Make Payment') }} — {{ $member->first_name }} {{ $member->last_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="mp_step_search">
+                    <div class="form-group">
+                        <label>{{ _lang('Search Loan') }}</label>
+                        <input type="text" id="member_pay_search" class="form-control" placeholder="{{ _lang('Loan ID or member name...') }}" autocomplete="off">
+                    </div>
+                    <div id="member_pay_results" class="mt-2"></div>
+                </div>
+                <div id="mp_step_form" style="display:none;">
+                    <div class="alert alert-info py-2" id="mp_loan_info"></div>
+                    <form id="mp_form">
+                        @csrf
+                        <input type="hidden" name="loan_id" id="mp_loan_id">
+                        <input type="hidden" name="due_amount_of" id="mp_due_amount_of">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ _lang('Payment Date') }}</label>
+                                    <input type="text" class="form-control datepicker" name="paid_at" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{ _lang('Principal') }}</label>
+                                    <input type="number" step="0.01" class="form-control" name="principal_amount" id="mp_principal" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{ _lang('Interest') }}</label>
+                                    <input type="number" step="0.01" class="form-control" name="interest" id="mp_interest" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{ _lang('Late Penalties') }}</label>
+                                    <input type="number" step="0.01" class="form-control" name="late_penalties" id="mp_penalties" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ _lang('Total') }}</label>
+                                    <input type="number" step="0.01" class="form-control" id="mp_total" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="d-flex flex-wrap mb-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-1 mp-method-btn active" data-method="cash"><i class="fas fa-money-bill-wave"></i> {{ _lang('Cash') }}</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-1 mp-method-btn" data-method="bank_transfer"><i class="fas fa-university"></i> {{ _lang('Bank Transfer') }}</button>
+                                    <a href="#" id="stripe_mp_link" class="btn btn-outline-danger btn-sm mr-2 mb-1"><i class="fab fa-stripe-s"></i> {{ _lang('Stripe') }}</a>
+                                </div>
+                                <input type="hidden" name="payment_method" id="mp_method" value="cash">
+                            </div>
+                            <div class="col-md-12" id="mp_bank_section" style="display:none;">
+                                <div class="form-group">
+                                    <label>{{ _lang('Transaction / Reference Number') }}</label>
+                                    <input type="text" class="form-control" name="utr_number" placeholder="{{ _lang('Bank reference number') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ _lang('Remarks') }}</label>
+                                    <textarea class="form-control" name="remarks" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary btn-sm" id="mp_back"><i class="ti-arrow-left"></i> {{ _lang('Back') }}</button>
+                            <button type="submit" class="btn btn-primary btn-sm" id="mp_submit"><i class="ti-check"></i> {{ _lang('Process Payment') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js-script')
@@ -324,7 +413,7 @@
 		"columns" : [
 			{ data : 'trans_date', name : 'trans_date' },
 			{ data : 'member.first_name', name : 'member.first_name' },
-			{ data : 'account.account_number', name : 'account.account_number' },
+			{ data : 'account_number', name : 'account_number', orderable: false },
 			{ data : 'amount', name : 'amount' },
 			{ data : 'dr_cr', name : 'dr_cr' },
 			{ data : 'type', name : 'type' },
@@ -372,6 +461,104 @@
 
     $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
         $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+    });
+
+    // ── Member Pay Button ─────────────────────────────────────────────────────
+    var memberNo   = '{{ $member->member_no }}';
+    var stripeBase = '{{ url(request()->route("tenant") . "/pay/stripe") }}';
+
+    $('#btn_member_pay').on('click', function () {
+        $('#memberPayModal').modal('show');
+        // Auto-search by member number
+        $('#member_pay_search').val(memberNo).trigger('input');
+    });
+
+    var memberPayTimer;
+    $('#member_pay_search').on('input', function () {
+        clearTimeout(memberPayTimer);
+        var q = $(this).val().trim();
+        if (!q) { $('#member_pay_results').html(''); return; }
+        memberPayTimer = setTimeout(function () {
+            $.get('{{ route("pay.search") }}', { q: q }, function (data) {
+                if (!data.length) {
+                    $('#member_pay_results').html('<p class="text-muted small">{{ _lang("No active loans found") }}</p>');
+                    return;
+                }
+                var html = '<table class="table table-sm table-hover"><thead><tr>'
+                    + '<th>{{ _lang("Loan ID") }}</th><th>{{ _lang("Outstanding") }}</th><th>{{ _lang("Next Due") }}</th><th></th>'
+                    + '</tr></thead><tbody>';
+                $.each(data, function (i, loan) {
+                    html += '<tr>'
+                        + '<td>' + loan.loan_id + '</td>'
+                        + '<td>' + loan.currency + ' ' + parseFloat(loan.outstanding).toFixed(2) + '</td>'
+                        + '<td>' + (loan.next_due_date || '-') + '</td>'
+                        + '<td><button class="btn btn-primary btn-xs btn-mp-select" data-loan=\'' + JSON.stringify(loan) + '\'>{{ _lang("Pay") }}</button></td>'
+                        + '</tr>';
+                });
+                html += '</tbody></table>';
+                $('#member_pay_results').html(html);
+            });
+        }, 300);
+    });
+
+    $(document).on('click', '.btn-mp-select', function () {
+        var loan = $(this).data('loan');
+        $('#mp_loan_id').val(loan.id);
+        $('#mp_due_amount_of').val(loan.next_repayment_id);
+        $('#mp_principal').val(parseFloat(loan.next_principal).toFixed(2));
+        $('#mp_interest').val(parseFloat(loan.next_interest).toFixed(2));
+        $('#mp_penalties').val(0);
+        mpRecalc();
+        $('#stripe_mp_link').attr('href', stripeBase + '/' + loan.id + '?late=0');
+        $('#mp_loan_info').html('<strong>' + loan.loan_id + '</strong> &mdash; {{ _lang("Outstanding") }}: ' + loan.currency + ' ' + parseFloat(loan.outstanding).toFixed(2));
+        $('#mp_step_search').hide();
+        $('#mp_step_form').show();
+    });
+
+    $('#mp_back').on('click', function () { $('#mp_step_form').hide(); $('#mp_step_search').show(); });
+
+    $(document).on('click', '.mp-method-btn', function () {
+        $('.mp-method-btn').removeClass('active');
+        $(this).addClass('active');
+        $('#mp_method').val($(this).data('method'));
+        $('#mp_bank_section').toggle($(this).data('method') === 'bank_transfer');
+    });
+
+    function mpRecalc() {
+        var p = parseFloat($('#mp_principal').val()) || 0;
+        var i = parseFloat($('#mp_interest').val()) || 0;
+        var pen = parseFloat($('#mp_penalties').val()) || 0;
+        $('#mp_total').val((p + i + pen).toFixed(2));
+        var loanId = $('#mp_loan_id').val();
+        if (loanId) $('#stripe_mp_link').attr('href', stripeBase + '/' + loanId + '?late=' + pen);
+    }
+    $('#mp_principal, #mp_interest, #mp_penalties').on('input', mpRecalc);
+
+    $('#mp_form').on('submit', function (e) {
+        e.preventDefault();
+        var btn = $('#mp_submit').prop('disabled', true).text('{{ _lang("Processing...") }}');
+        $.ajax({
+            url: '{{ route("pay.process") }}',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function (res) {
+                if (res.result === 'success') {
+                    $('#memberPayModal').modal('hide');
+                    toastr.success(res.message);
+                    location.reload();
+                } else {
+                    toastr.error(Array.isArray(res.message) ? res.message.join('<br>') : res.message);
+                }
+            },
+            error: function () { toastr.error('{{ _lang("An error occurred") }}'); },
+            complete: function () { btn.prop('disabled', false).text('{{ _lang("Process Payment") }}'); }
+        });
+    });
+
+    $('#memberPayModal').on('hidden.bs.modal', function () {
+        $('#mp_step_form').hide();
+        $('#mp_step_search').show();
+        $('#member_pay_results').html('');
     });
 
 })(jQuery);

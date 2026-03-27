@@ -337,6 +337,9 @@ class MemberController extends Controller
             ->editColumn('member.first_name', function ($transactions) {
                 return $transactions->member->first_name . ' ' . $transactions->member->last_name;
             })
+            ->addColumn('account_number', function ($transaction) {
+                return $transaction->account->account_number ?? '-';
+            })
             ->editColumn('dr_cr', function ($transactions) {
                 return strtoupper($transactions->dr_cr);
             })

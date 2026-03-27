@@ -61,7 +61,7 @@
         align-items: center;
         margin-bottom: 25px;
     }
-    .ld-summary-item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .ld-summary-item { flex: 1; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
     .ld-divider { width: 1px; height: 50px; background: #fff; margin-right: 30px; }
     .ld-label { font-size: 14px; color: rgba(255,255,255,0.75); font-family: "Poppins", sans-serif; font-weight: 400; letter-spacing: 0; text-transform: capitalize; }
     .ld-value { font-size: 14px; font-weight: 400; color: #fff; font-family: "Poppins", sans-serif; letter-spacing: 0; text-transform: capitalize; }
@@ -216,10 +216,6 @@
                         <span class="ld-label">{{ _lang('Due Amount') }}</span>
                         <span class="ld-value" style="color:#e74c3c;">{{ decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name)) }}</span>
                     </div>
-                    <div class="ld-detail-row">
-                        <span class="ld-label">{{ _lang('Late Payment Penalties') }}</span>
-                        <span class="ld-value">{{ $loan->late_payment_penalties }}%</span>
-                    </div>
                     @if($loan->status == 1)
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Approved Date') }}</span>
@@ -228,10 +224,6 @@
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Approved By') }}</span>
                         <span class="ld-value">{{ $loan->approved_by->name }}</span>
-                    </div>
-                    <div class="ld-detail-row">
-                        <span class="ld-label">{{ _lang('Disburse Method') }}</span>
-                        <span class="ld-value">{{ $loan->disburse_method == 'cash' ? ucwords($loan->disburse_method) : _lang('Transfer to Account') }}</span>
                     </div>
                     @endif
                     @if(! $customFields->isEmpty())
