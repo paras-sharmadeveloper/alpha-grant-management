@@ -150,6 +150,61 @@
     </div>
 </div>
 
+{{-- ── Recent Transactions ── --}}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header" style="font-family:Poppins,sans-serif;font-size:14px;">
+                {{ _lang('Recent Transactions') }}
+            </div>
+            <div class="card-body px-0 pt-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered loan-tbl">
+                        <thead>
+                            <tr>
+                                <th class="pl-4">{{ _lang('Loan No') }}</th>
+                                <th>{{ _lang('Date') }}</th>
+                                <th>{{ _lang('Member') }}</th>
+                                <th>{{ _lang('Type') }}</th>
+                                <th>{{ _lang('Dr/Cr') }}</th>
+                                <th class="text-right pr-4">{{ _lang('Amount') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recent_transactions as $tx)
+                            <tr>
+                                <td class="pl-4">
+                                    @if($tx->loan_id && $tx->loan->id)
+                                        <a href="{{ route('loans.show', $tx->loan_id) }}" style="color:#214942;font-weight:500;">{{ $tx->loan->loan_id }}</a>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td>{{ $tx->trans_date }}</td>
+                                <td>{{ $tx->member->first_name ?? '' }} {{ $tx->member->last_name ?? '' }}</td>
+                                <td>{{ str_replace('_', ' ', $tx->type) }}</td>
+                                <td>
+                                    @if($tx->dr_cr == 'dr')
+                                        <span class="badge badge-danger">DR</span>
+                                    @else
+                                        <span class="badge badge-success">CR</span>
+                                    @endif
+                                </td>
+                                <td class="text-right pr-4 {{ $tx->dr_cr == 'dr' ? 'text-danger' : 'text-success' }}">
+                                    {{ $tx->dr_cr == 'dr' ? '-' : '+' }}{{ decimalPlace($tx->amount, currency_symbol()) }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="6" class="text-center text-muted">{{ _lang('No Data Available') }}</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- ── Due Loan Payments (existing) ── --}}
 <div class="row">
     <div class="col-md-12 mb-4">

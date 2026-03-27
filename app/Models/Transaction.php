@@ -15,6 +15,10 @@ class Transaction extends Model {
 
     use MultiTenant, Member;
 
+    public function loan() {
+        return $this->belongsTo('App\Models\Loan', 'loan_id')->withDefault();
+    }
+
     public function member() {
         return $this->belongsTo('App\Models\Member', 'member_id')->withDefault();
     }

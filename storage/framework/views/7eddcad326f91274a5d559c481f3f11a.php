@@ -93,8 +93,9 @@
 					<table class="table table-bordered text-center">
 						<thead>
 							<tr>
-								<th class="pl-4"><?php echo e(_lang('Date')); ?></th>
-								<th ><?php echo e(_lang('Amount')); ?></th>
+								<th class="pl-4"><?php echo e(_lang('Loan No')); ?></th>
+								<th><?php echo e(_lang('Date')); ?></th>
+								<th><?php echo e(_lang('Amount')); ?></th>
 								<th><?php echo e(_lang('Type')); ?></th>
 								<th><?php echo e(_lang('Status')); ?></th>
 								<th class="text-center"><?php echo e(_lang('Details')); ?></th>
@@ -103,7 +104,7 @@
 						<tbody>
 							<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($recent_transactions) == 0): ?>
 								<tr>
-									<td colspan="7"><p class="text-center"><?php echo e(_lang('No Data Available')); ?></p></td>
+									<td colspan="6"><p class="text-center"><?php echo e(_lang('No Data Available')); ?></p></td>
 								</tr>
 							<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 							<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $recent_transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
@@ -112,8 +113,16 @@
 							$class  = $transaction->dr_cr == 'dr' ? 'text-danger' : 'text-success';
 							?>
 							<tr>
-								<td class="pl-4"><?php echo e($transaction->trans_date); ?></td>
-								<td ><span class="<?php echo e($class); ?>"><?php echo e($symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name))); ?></span></td>
+								<td class="pl-4">
+									<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($transaction->loan_id && $transaction->loan->id): ?>
+										<?php echo e($transaction->loan->loan_id); ?>
+
+									<?php else: ?>
+										<span class="text-muted">—</span>
+									<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+								</td>
+								<td><?php echo e($transaction->trans_date); ?></td>
+								<td><span class="<?php echo e($class); ?>"><?php echo e($symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name))); ?></span></td>
 								<td><?php echo e(ucwords(str_replace('_',' ',$transaction->type))); ?></td>
 								<td><?php echo xss_clean(transaction_status($transaction->status)); ?></td>
 								<td class="text-center"><a href="<?php echo e(route('trasnactions.details', $transaction->id)); ?>" target="_blank" class="btn btn-outline-primary btn-xs"><?php echo e(_lang('View')); ?></a></td>

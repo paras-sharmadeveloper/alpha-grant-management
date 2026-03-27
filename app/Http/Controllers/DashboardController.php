@@ -46,6 +46,7 @@ class DashboardController extends Controller {
                         }
 
                         $data['recent_transactions'] = $transQuery
+                            ->with('loan')
                             ->orderBy('trans_date', 'desc')
                             ->limit(10)
                             ->get();
@@ -57,7 +58,8 @@ class DashboardController extends Controller {
 
                         return view("backend.customer.dashboard-$user_type", $data);
             } else {
-            $data['recent_transactions'] = Transaction::limit('10')
+            $data['recent_transactions'] = Transaction::with('loan')
+                ->limit('10')
                 ->orderBy('trans_date', 'desc')
                 ->get();
 

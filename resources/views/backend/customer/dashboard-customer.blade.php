@@ -153,8 +153,9 @@
 					<table class="table table-bordered text-center">
 						<thead>
 							<tr>
-								<th class="pl-4">{{ _lang('Date') }}</th>
-								<th >{{ _lang('Amount') }}</th>
+								<th class="pl-4">{{ _lang('Loan No') }}</th>
+								<th>{{ _lang('Date') }}</th>
+								<th>{{ _lang('Amount') }}</th>
 								<th>{{ _lang('Type') }}</th>
 								<th>{{ _lang('Status') }}</th>
 								<th class="text-center">{{ _lang('Details') }}</th>
@@ -163,7 +164,7 @@
 						<tbody>
 							@if(count($recent_transactions) == 0)
 								<tr>
-									<td colspan="7"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
+									<td colspan="6"><p class="text-center">{{ _lang('No Data Available') }}</p></td>
 								</tr>
 							@endif
 							@foreach($recent_transactions as $transaction)
@@ -172,8 +173,15 @@
 							$class  = $transaction->dr_cr == 'dr' ? 'text-danger' : 'text-success';
 							@endphp
 							<tr>
-								<td class="pl-4">{{ $transaction->trans_date }}</td>
-								<td ><span class="{{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
+								<td class="pl-4">
+									@if($transaction->loan_id && $transaction->loan->id)
+										{{ $transaction->loan->loan_id }}
+									@else
+										<span class="text-muted">—</span>
+									@endif
+								</td>
+								<td>{{ $transaction->trans_date }}</td>
+								<td><span class="{{ $class }}">{{ $symbol.' '.decimalPlace($transaction->amount, currency($transaction->account->savings_type->currency->name)) }}</span></td>
 								<td>{{ ucwords(str_replace('_',' ',$transaction->type)) }}</td>
 								<td>{!! xss_clean(transaction_status($transaction->status)) !!}</td>
 								<td class="text-center"><a href="{{ route('trasnactions.details', $transaction->id) }}" target="_blank" class="btn btn-outline-primary btn-xs">{{ _lang('View') }}</a></td>
