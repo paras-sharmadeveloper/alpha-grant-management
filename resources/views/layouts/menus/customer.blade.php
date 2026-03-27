@@ -17,6 +17,10 @@
 <li>
 	<a href="{{ route('loans.pending_loans') }}"><i class="fas fa-hourglass-half"></i><span>{{ _lang('Pending Loans') }}</span></a>
 </li>
+
+<li>
+	<a href="{{ route('customer.pay.index') }}"><i class="fas fa-credit-card"></i><span>{{ _lang('Pay') }}</span></a>
+</li>
 {{--
 <li>
 	<a href="{{ route('loans.loan_products') }}"><i class="fas fa-hand-holding-usd"></i><span>{{ _lang('Apply New Loan') }}</span></a>

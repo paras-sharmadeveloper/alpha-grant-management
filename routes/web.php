@@ -504,6 +504,10 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 Route::get('loans/my_loans', [App\Http\Controllers\Customer\LoanController::class, 'index'])->name('loans.my_loans');
                 Route::get('loans/pending_loans', [App\Http\Controllers\Customer\LoanController::class, 'pending_loans'])->name('loans.pending_loans');
 
+                // Customer Pay page
+                Route::get('pay', [App\Http\Controllers\Customer\LoanController::class, 'pay_index'])->name('customer.pay.index');
+                Route::get('pay/search', [App\Http\Controllers\Customer\LoanController::class, 'pay_search'])->name('customer.pay.search');
+
                 //Deposit Money
                 Route::match(['get', 'post'], 'deposit/manual_deposit/{id}', [App\Http\Controllers\Customer\DepositController::class, 'manual_deposit'])->name('deposit.manual_deposit');
                 Route::get('deposit/offline_methods', [App\Http\Controllers\Customer\DepositController::class, 'manual_methods'])->name('deposit.manual_methods');

@@ -12,6 +12,10 @@
 	<a href="<?php echo e(route('loans.pending_loans')); ?>"><i class="fas fa-hourglass-half"></i><span><?php echo e(_lang('Pending Loans')); ?></span></a>
 </li>
 
+<li>
+	<a href="<?php echo e(route('customer.pay.index')); ?>"><i class="fas fa-credit-card"></i><span><?php echo e(_lang('Pay')); ?></span></a>
+</li>
+
 
 
 

@@ -301,7 +301,7 @@ class LoanController extends Controller {
             $loan->borrower_id            = auth()->user()->member->id;
             $loan->currency_id            = $request->input('currency_id');
             $loan->first_payment_date     = $request->input('first_payment_date') ?? now()->addMonth()->format('Y-m-d');
-            $loan->release_date           = $this->calculateReleaseDate($loanProduct, $loan->first_payment_date)['release_date'] ?? null;
+            $loan->release_date           = now()->format('Y-m-d'); // Start date = today (application date)
             $loan->applied_amount         = $request->input('applied_amount');
             $loan->late_payment_penalties = 0;
             $loan->attachment             = $attachment;
@@ -695,6 +695,37 @@ class LoanController extends Controller {
         return back()->with('error', _lang('Payment failed. Please try again.'));
     }
 
+
+    public function pay_index() {
+        $loans = Loan::where('borrower_id', auth()->user()->member->id)
+            ->where('status', 1)
+            ->with(['currency', 'next_payment', 'loan_product'])
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('backend.customer.loan.pay', compact('loans'));
+    }
+
+    public function pay_search(Request $request) {
+        $q     = $request->input('q', '');
+        $loans = Loan::where('borrower_id', auth()->user()->member->id)
+            ->where('status', 1)
+            ->where('loan_id', 'like', "%$q%")
+            ->with(['currency', 'next_payment'])
+            ->get()
+            ->map(function ($loan) {
+                $next = $loan->next_payment;
+                return [
+                    'id'             => $loan->id,
+                    'loan_id'        => $loan->loan_id,
+                    'outstanding'    => ($loan->applied_amount ?? 0) - ($loan->total_paid ?? 0),
+                    'currency'       => $loan->currency->name ?? '',
+                    'next_due_date'  => $next ? $next->repayment_date : null,
+                    'next_amount'    => $next ? ($next->principal_amount + $next->interest) : 0,
+                    'stripe_url'     => route('loans.stripe_payment', $loan->id),
+                ];
+            });
+        return response()->json($loans);
+    }
 
     // Function to calculate the release date
     private function calculateReleaseDate($loanData, $currentDate = null) {

@@ -216,8 +216,23 @@
                         <span class="ld-value">
                             <?php
                                 $lastRepayment = $repayments->last();
+                                if ($lastRepayment) {
+                                    $endDate = \Carbon\Carbon::parse($lastRepayment->getRawOriginal('repayment_date'))->format('d M Y');
+                                } elseif ($loan->getRawOriginal('first_payment_date')) {
+                                    // Pending loan — calculate end date from first_payment_date + (term-1) periods
+                                    $term = $loan->term ?? $loan->loan_product->term;
+                                    $tp   = $loan->loan_product->term_period ?? '+1 month';
+                                    preg_match('/(\d+)\s*(day|month|year)/i', $tp, $m);
+                                    $unit = isset($m[2]) ? strtolower($m[2]) : 'month';
+                                    $mult = isset($m[1]) ? (int)$m[1] : 1;
+                                    $totalPeriods = ($term - 1) * $mult;
+                                    $endDate = \Carbon\Carbon::parse($loan->getRawOriginal('first_payment_date'))
+                                        ->add($totalPeriods, $unit . 's')->format('d M Y');
+                                } else {
+                                    $endDate = '—';
+                                }
                             ?>
-                            <?php echo e($lastRepayment ? \Carbon\Carbon::parse($lastRepayment->getRawOriginal('repayment_date'))->format('d M Y') : '—'); ?>
+                            <?php echo e($endDate); ?>
 
                         </span>
                     </div>
