@@ -8,6 +8,7 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 
 $membersActive  = request()->routeIs('members.*') || request()->routeIs('kyc.*');
 $loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*') || request()->routeIs('documents.*') || request()->routeIs('audit_log.*') || request()->routeIs('securities.*') || request()->routeIs('collections.*');
+$payActive      = request()->routeIs('pay.*');
 $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profile.*') || request()->routeIs('users.*') || request()->routeIs('roles.*');
 ?>
 
@@ -42,6 +43,10 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('securities.index')); ?>"><?php echo e(_lang('Securities')); ?> <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
 		<li class="nav-item"><a class="nav-link" href="<?php echo e(route('collections.index')); ?>"><?php echo e(_lang('Collections')); ?> <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
 	</ul>
+</li>
+
+<li class="<?php echo e($payActive ? 'active' : ''); ?>">
+	<a href="<?php echo e(route('pay.index')); ?>" class="<?php echo e($payActive ? 'active' : ''); ?>"><i class="fas fa-credit-card"></i><span><?php echo e(_lang('Pay')); ?></span></a>
 </li>
 
 

@@ -8,6 +8,7 @@ $upcomming_repayments = request_count('upcomming_repayments', true);
 
 $membersActive  = request()->routeIs('members.*') || request()->routeIs('kyc.*');
 $loansActive    = request()->routeIs('loans.*') || request()->routeIs('loan_products.*') || request()->routeIs('loan_payments.*') || request()->routeIs('documents.*') || request()->routeIs('audit_log.*') || request()->routeIs('securities.*') || request()->routeIs('collections.*');
+$payActive      = request()->routeIs('pay.*');
 $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profile.*') || request()->routeIs('users.*') || request()->routeIs('roles.*');
 @endphp
 
@@ -47,6 +48,10 @@ $settingsActive = request()->routeIs('settings.*') || request()->routeIs('profil
 		<li class="nav-item"><a class="nav-link" href="{{ route('securities.index') }}">{{ _lang('Securities') }} <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
 		<li class="nav-item"><a class="nav-link" href="{{ route('collections.index') }}">{{ _lang('Collections') }} <span class="badge badge-secondary badge-sm ml-1">Soon</span></a></li>
 	</ul>
+</li>
+
+<li class="{{ $payActive ? 'active' : '' }}">
+	<a href="{{ route('pay.index') }}" class="{{ $payActive ? 'active' : '' }}"><i class="fas fa-credit-card"></i><span>{{ _lang('Pay') }}</span></a>
 </li>
 
 {{-- <li><a href="{{ route('loans.upcoming_loan_repayments') }}"><i class="fas fa-calendar-alt"></i><span>{{ _lang('Upcomming Payments') }} {!! xss_clean($upcomming_repayments) !!}</span></a></li> 

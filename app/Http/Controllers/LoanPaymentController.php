@@ -286,6 +286,214 @@ class LoanPaymentController extends Controller {
         echo json_encode(['repayments' => $repayments, 'accounts' => $accounts]);
     }
 
+    // ── Admin Pay Hub ─────────────────────────────────────────────────────────
+
+    public function pay_index() {
+        $assets       = ['datatable'];
+        $bankAccounts = \App\Models\BankAccount::all();
+        $stripeKey    = config('services.stripe.key');
+        return view('backend.admin.pay.index', compact('assets', 'bankAccounts', 'stripeKey'));
+    }
+
+    public function pay_search(Request $request) {
+        $q = $request->input('q', '');
+        if (strlen($q) < 1) {
+            return response()->json([]);
+        }
+        $loans = Loan::with(['borrower', 'currency', 'next_payment'])
+            ->where('status', 1)
+            ->where(function ($query) use ($q) {
+                $query->where('loan_id', 'like', "%$q%")
+                    ->orWhereHas('borrower', function ($bq) use ($q) {
+                        $bq->where('member_no', 'like', "%$q%")
+                            ->orWhere('first_name', 'like', "%$q%")
+                            ->orWhere('last_name', 'like', "%$q%");
+                    });
+            })
+            ->limit(20)
+            ->get()
+            ->map(function ($loan) {
+                $next = $loan->next_payment;
+                return [
+                    'id'               => $loan->id,
+                    'loan_id'          => $loan->loan_id,
+                    'borrower_name'    => $loan->borrower->first_name . ' ' . $loan->borrower->last_name,
+                    'member_no'        => $loan->borrower->member_no,
+                    'applied_amount'   => $loan->applied_amount,
+                    'outstanding'      => ($loan->applied_amount ?? 0) - ($loan->total_paid ?? 0),
+                    'currency'         => $loan->currency->name ?? '',
+                    'next_due_date'    => $next ? $next->repayment_date : null,
+                    'next_principal'   => $next ? $next->principal_amount : 0,
+                    'next_interest'    => $next ? $next->interest : 0,
+                    'next_penalty'     => $next ? $next->penalty : 0,
+                    'next_repayment_id'=> $next ? $next->id : null,
+                ];
+            });
+
+        return response()->json($loans);
+    }
+
+    public function pay_process(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'loan_id'          => 'required|exists:loans,id',
+            'paid_at'          => 'required',
+            'principal_amount' => 'required|numeric|min:0.01',
+            'interest'         => 'required|numeric|min:0',
+            'late_penalties'   => 'nullable|numeric|min:0',
+            'due_amount_of'    => 'required',
+            'payment_method'   => 'required|in:cash,bank_transfer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['result' => 'error', 'message' => $validator->errors()->all()]);
+        }
+
+        DB::beginTransaction();
+
+        $loan      = Loan::find($request->loan_id);
+        $repayment = LoanRepayment::where('loan_id', $loan->id)->where('status', 0)->orderBy('id', 'asc')->first();
+
+        if (!$repayment || $repayment->id != $request->due_amount_of) {
+            return response()->json(['result' => 'error', 'message' => _lang('Invalid repayment schedule.')]);
+        }
+
+        $existing_amount = $repayment->principal_amount;
+        $late_penalties  = $request->late_penalties ?? 0;
+        $total           = $request->principal_amount + $request->interest + $late_penalties;
+
+        $loanpayment                   = new LoanPayment();
+        $loanpayment->loan_id          = $loan->id;
+        $loanpayment->paid_at          = $request->paid_at;
+        $loanpayment->late_penalties   = $late_penalties;
+        $loanpayment->interest         = $request->interest;
+        $loanpayment->repayment_amount = $request->principal_amount + $request->interest;
+        $loanpayment->total_amount     = $total;
+        $loanpayment->remarks          = $request->remarks . ' | Method: ' . strtoupper($request->payment_method)
+            . ($request->payment_method === 'bank_transfer'
+                ? ($request->utr_number ? ' | Ref: ' . $request->utr_number : '')
+                : '');
+        $loanpayment->repayment_id     = $repayment->id;
+        $loanpayment->member_id        = $loan->borrower_id;
+        $loanpayment->save();
+
+        // Record who paid
+        $paidBy = auth()->id();
+
+        // Update loan balance
+        $loan->total_paid = ($loan->total_paid ?? 0) + $request->principal_amount;
+        if ($loan->total_paid >= $loan->applied_amount) {
+            $loan->status = 2;
+        }
+        $loan->save();
+
+        // Update repayment status
+        $repayment->principal_amount = $request->principal_amount;
+        $repayment->amount_to_pay    = $request->principal_amount + $request->interest;
+        $repayment->balance          = $loan->applied_amount - $loan->total_paid;
+        $repayment->status           = 1;
+        $repayment->save();
+
+        if ($loan->total_paid >= $loan->applied_amount) {
+            LoanRepayment::where('loan_id', $loan->id)->where('status', 0)->delete();
+        } else {
+            if ($request->principal_amount != $existing_amount) {
+                $upComming = LoanRepayment::where('loan_id', $loan->id)->where('status', 0)->orderBy('id', 'asc')->get();
+                if ($upComming->isNotEmpty()) {
+                    $calculator = new \App\Utilities\LoanCalculator(
+                        $loan->applied_amount - $loan->total_paid,
+                        $upComming[0]->getRawOriginal('repayment_date'),
+                        $loan->loan_product->interest_rate,
+                        $upComming->count(),
+                        $loan->loan_product->term_period,
+                        $loan->late_payment_penalties,
+                        $loan->applied_amount
+                    );
+                    $interest_type = $loan->loan_product->interest_type;
+                    $newRepayments = $interest_type === 'flat_rate' ? $calculator->get_flat_rate()
+                        : ($interest_type === 'mortgage' ? $calculator->get_mortgage()
+                        : ($interest_type === 'one_time' ? $calculator->get_one_time()
+                        : ($interest_type === 'reducing_amount' ? $calculator->get_reducing_amount()
+                        : $calculator->get_fixed_rate())));
+                    foreach ($newRepayments as $i => $nr) {
+                        if (isset($upComming[$i])) {
+                            $upComming[$i]->fill(['amount_to_pay' => $nr['amount_to_pay'], 'penalty' => $nr['penalty'], 'principal_amount' => $nr['principal_amount'], 'interest' => $nr['interest'], 'balance' => $nr['balance']])->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        DB::commit();
+
+        try {
+            $loanpayment->member->notify(new \App\Notifications\LoanPaymentReceived($loanpayment));
+        } catch (\Exception $e) {}
+
+        return response()->json(['result' => 'success', 'message' => _lang('Payment processed successfully'), 'payment_id' => $loanpayment->id]);
+    }
+
+    public function pay_stripe($tenant, $loan_id) {
+        $loan            = Loan::findOrFail($loan_id);
+        $today           = \Carbon\Carbon::today();
+        $repDate         = \Carbon\Carbon::parse($loan->next_payment->getRawOriginal('repayment_date'));
+        $overdueDays     = $today->gt($repDate) ? $repDate->diffInDays($today) : 0;
+        // Use ?late= from modal if provided, otherwise auto-calculate
+        $late_penalties  = request()->has('late')
+            ? max((float) request('late'), 0)
+            : max($overdueDays * $loan->next_payment->penalty, 0);
+        $totalAmount     = $loan->next_payment->principal_amount + $loan->next_payment->interest + $late_penalties;
+        $publishable_key = config('services.stripe.key');
+        return view('backend.admin.pay.stripe', compact('loan', 'totalAmount', 'late_penalties', 'publishable_key'));
+    }
+
+    public function pay_stripe_callback(Request $request, $tenant, $loan_id) {
+        $loan      = Loan::findOrFail($loan_id);
+        $repayment = $loan->next_payment;
+
+        // Use the late_penalties passed from the form (set on the stripe page)
+        $penalty = max((float) $request->input('late_penalties', 0), 0);
+        $amount  = $repayment->principal_amount + $repayment->interest + $penalty;
+
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        try {
+            \Stripe\Charge::create([
+                'amount'      => round($amount * 100),
+                'currency'    => strtolower($loan->currency->name),
+                'source'      => $request->stripeToken,
+                'description' => 'Loan Repayment - ' . $loan->loan_id,
+            ]);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        // Record payment
+        DB::beginTransaction();
+        $loanpayment                   = new LoanPayment();
+        $loanpayment->loan_id          = $loan->id;
+        $loanpayment->paid_at          = date('Y-m-d');
+        $loanpayment->late_penalties   = $penalty;
+        $loanpayment->interest         = $repayment->interest;
+        $loanpayment->repayment_amount = $repayment->principal_amount + $repayment->interest;
+        $loanpayment->total_amount     = $amount;
+        $loanpayment->remarks          = 'Stripe Payment';
+        $loanpayment->repayment_id     = $repayment->id;
+        $loanpayment->member_id        = $loan->borrower_id;
+        $loanpayment->save();
+
+        $loan->total_paid = ($loan->total_paid ?? 0) + $repayment->principal_amount;
+        if ($loan->total_paid >= $loan->applied_amount) { $loan->status = 2; }
+        $loan->save();
+        $repayment->balance = $loan->applied_amount - $loan->total_paid;
+        $repayment->status  = 1;
+        $repayment->save();
+        if ($loan->total_paid >= $loan->applied_amount) {
+            LoanRepayment::where('loan_id', $loan->id)->where('status', 0)->delete();
+        }
+        DB::commit();
+
+        return redirect()->route('pay.index')->with('success', _lang('Stripe payment processed successfully'));
+    }
+
     /**
      * Remove the specified resource from storage.
      *

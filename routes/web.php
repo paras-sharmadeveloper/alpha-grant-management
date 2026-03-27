@@ -439,6 +439,13 @@ Route::group(['middleware' => ['install']], function () use ($ev) {
                 // Loan Book
                 Route::get('loan_book', [LoanController::class, 'loan_book'])->name('loans.loan_book');
 
+                // Admin Pay - search loans + process payment
+                Route::get('pay', [LoanPaymentController::class, 'pay_index'])->name('pay.index');
+                Route::get('pay/search', [LoanPaymentController::class, 'pay_search'])->name('pay.search');
+                Route::post('pay/process', [LoanPaymentController::class, 'pay_process'])->name('pay.process');
+                Route::get('pay/stripe/{loan_id}', [LoanPaymentController::class, 'pay_stripe'])->name('pay.stripe');
+                Route::post('pay/stripe_callback/{loan_id}', [LoanPaymentController::class, 'pay_stripe_callback'])->name('pay.stripe_callback');
+
                 // Documents (global member documents list)
                 Route::get('documents', [MemberDocumentController::class, 'all_documents'])->name('documents.index');
 
