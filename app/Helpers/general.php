@@ -805,13 +805,13 @@ if (! function_exists('get_language')) {
 if (! function_exists('get_timezone')) {
     function get_timezone() {
         if (isset(request()->tenant->id)) {
-            $timezone = get_tenant_option('timezone', 'Asia/Dhaka');
+            $timezone = get_tenant_option('timezone', 'Asia/Kolkata');
             return $timezone;
         }
         $timezone = Cache::get('timezone');
 
         if ($timezone == '') {
-            $timezone = get_option('timezone', 'Asia/Dhaka');
+            $timezone = get_option('timezone', 'Asia/Kolkata');
             \Cache::put('timezone', $timezone);
         }
 

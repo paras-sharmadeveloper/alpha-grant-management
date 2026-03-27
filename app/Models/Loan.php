@@ -102,14 +102,14 @@ class Loan extends Model
     public function getFirstPaymentDateAttribute($value)
     {
         $date_format = get_date_format();
-        return \Carbon\Carbon::parse($value)->format("$date_format");
+        return \Carbon\Carbon::createFromFormat('Y-m-d', $value)->format("$date_format");
     }
 
     public function getReleaseDateAttribute($value)
     {
         if ($value != null) {
             $date_format = get_date_format();
-            return \Carbon\Carbon::parse($value)->format("$date_format");
+            return \Carbon\Carbon::createFromFormat('Y-m-d', $value)->format("$date_format");
         }
     }
 
@@ -117,7 +117,7 @@ class Loan extends Model
     {
         if ($value != null) {
             $date_format = get_date_format();
-            return \Carbon\Carbon::parse($value)->format("$date_format");
+            return \Carbon\Carbon::createFromFormat('Y-m-d', $value)->format("$date_format");
         }
     }
 

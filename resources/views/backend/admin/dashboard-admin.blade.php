@@ -19,7 +19,7 @@
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Loan Book</span>
-                <span class="db-stat-value">{{ number_format(round($total_loan_book)) }}</span>
+                <span class="db-stat-value">{{ currency_symbol() }}{{ number_format(round($total_loan_book)) }}</span>
             </div>
             <div class="db-stat-icon" style="background:#214942;">
                 <i class="fas fa-hand-holding-usd"></i>
@@ -30,7 +30,7 @@
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Outstanding</span>
-                <span class="db-stat-value">{{ number_format(round($total_outstanding)) }}</span>
+                <span class="db-stat-value">{{ currency_symbol() }}{{ number_format(round($total_outstanding)) }}</span>
             </div>
             <div class="db-stat-icon" style="background:#1a6b5a;">
                 <i class="fas fa-file-invoice-dollar"></i>
@@ -41,7 +41,7 @@
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Due This Month</span>
-                <span class="db-stat-value">{{ number_format(round($due_this_month)) }}</span>
+                <span class="db-stat-value">{{ currency_symbol() }}{{ number_format(round($due_this_month)) }}</span>
             </div>
             <div class="db-stat-icon" style="background:#44a74a;">
                 <i class="fas fa-calendar-alt"></i>
@@ -72,84 +72,6 @@
     </div>
 </div>
 
-{{-- ── Active Loan List ── --}}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex align-items-center" style="font-family:Poppins,sans-serif;font-size:14px;">
-                Active Loans
-                <a href="{{ route('loans.filter', 'active') }}" class="btn btn-xs ml-auto"
-                   style="background:#214942;color:#fff;font-family:Poppins,sans-serif;font-size:12px;">View All</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered loan-tbl mb-0">
-                        <thead>
-                            <tr>
-                                <th>Loan ID</th>
-                                <th>Borrower</th>
-                                <th>Status</th>
-                                <th>Next Due Date</th>
-                                <th>Days Overdue</th>
-                                <th>Monthly Repayment</th>
-                                <th>Amount Due Now</th>
-                                <th>Total Outstanding</th>
-                                <th>Last Payment Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($loan_list as $loan)
-                            @php
-                                $np          = $loan->next_payment;
-                                $nextDue     = $np ? $np->getRawOriginal('repayment_date') : null;
-                                $overdueDays = 0;
-                                if ($nextDue && $nextDue < date('Y-m-d') && $np->status == 0) {
-                                    $overdueDays = (int) \Carbon\Carbon::parse($nextDue)->diffInDays(now());
-                                }
-                                $monthly     = $np ? $np->amount_to_pay : 0;
-                                $dueNow      = ($np && $np->status == 0) ? $np->amount_to_pay : 0;
-                                $outstanding = $loan->applied_amount - $loan->total_paid;
-                                $lastPay     = $loan->payments->first();
-                                $lastPayDate = $lastPay
-                                    ? \Carbon\Carbon::parse($lastPay->getRawOriginal('paid_at'))->format('d M Y')
-                                    : '—';
-                                $curr        = $loan->currency->name ?? 'AUD';
-                            @endphp
-                            <tr>
-                                <td>
-                                    <a href="{{ route('loans.show', $loan->id) }}" style="color:#214942;font-weight:500;">
-                                        {{ $loan->loan_id }}
-                                    </a>
-                                </td>
-                                <td>{{ $loan->borrower->first_name }} {{ $loan->borrower->last_name }}</td>
-                                <td>
-                                    @if($overdueDays > 0)
-                                        <span class="b-overdue">Overdue</span>
-                                    @else
-                                        <span class="b-current">Current</span>
-                                    @endif
-                                </td>
-                                <td>{{ $nextDue ? \Carbon\Carbon::parse($nextDue)->format('d M Y') : '—' }}</td>
-                                <td>{{ $overdueDays > 0 ? $overdueDays.' days' : '—' }}</td>
-                                <td>{{ decimalPlace($monthly, currency($curr)) }}</td>
-                                <td>{{ $dueNow > 0 ? decimalPlace($dueNow, currency($curr)) : '—' }}</td>
-                                <td>{{ decimalPlace($outstanding, currency($curr)) }}</td>
-                                <td>{{ $lastPayDate }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="9" class="text-center text-muted py-3"
-                                    style="font-family:Poppins,sans-serif;font-size:13px;">No active loans.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 {{-- ── Recent Transactions ── --}}
 <div class="row">
     <div class="col-md-12 mb-4">
@@ -159,7 +81,7 @@
             </div>
             <div class="card-body px-0 pt-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered loan-tbl">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th class="pl-4">{{ _lang('Loan No') }}</th>
@@ -205,7 +127,7 @@
     </div>
 </div>
 
-{{-- ── Due Loan Payments (existing) ── --}}
+{{-- ── Due Loan Payments ── --}}
 <div class="row">
     <div class="col-md-12 mb-4">
         <div class="card">
@@ -214,7 +136,7 @@
             </div>
             <div class="card-body px-0 pt-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered loan-tbl">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th class="pl-4">{{ _lang('Loan ID') }}</th>

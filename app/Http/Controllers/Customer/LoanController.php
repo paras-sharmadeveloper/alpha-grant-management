@@ -301,7 +301,7 @@ class LoanController extends Controller {
             $loan->borrower_id            = auth()->user()->member->id;
             $loan->currency_id            = $request->input('currency_id');
             $loan->first_payment_date     = $request->input('first_payment_date') ?? now()->addMonth()->format('Y-m-d');
-            $loan->release_date           = now()->format('Y-m-d'); // Start date = today (application date)
+            $loan->release_date           = date('Y-m-d'); // Start date = today (application date)
             $loan->applied_amount         = $request->input('applied_amount');
             $loan->late_payment_penalties = 0;
             $loan->attachment             = $attachment;

@@ -98,6 +98,19 @@ class DashboardController extends Controller {
                 ->orderBy('id', 'desc')
                 ->get();
 
+            // Branch stats table
+            $branches = \App\Models\Branch::with('manager')->get();
+            foreach ($branches as $branch) {
+                $loans = Loan::withoutGlobalScopes()
+                    ->whereHas('borrower', fn($q) => $q->withoutGlobalScopes()->where('branch_id', $branch->id))
+                    ->where('status', 1)->get();
+                $branch->active_loans_count    = $loans->count();
+                $branch->total_portfolio_value = $loans->sum('applied_amount');
+                $branch->outstanding_balance   = $loans->sum(fn($l) => ($l->applied_amount ?? 0) - ($l->total_paid ?? 0));
+                $branch->arrears               = $loans->sum('late_payment_penalties');
+            }
+            $data['branches'] = $branches;
+
             return view("backend.admin.dashboard-$user_type", $data);
         }
     }
