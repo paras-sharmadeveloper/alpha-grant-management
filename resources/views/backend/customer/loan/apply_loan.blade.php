@@ -42,6 +42,18 @@
                       action="{{ route('loans.apply_loan') }}" enctype="multipart/form-data">
                     @csrf
 
+                    {{-- Server-side validation errors --}}
+                    @if($errors->any())
+                    <div id="server-errors" class="alert alert-danger" style="font-family:Poppins,sans-serif;font-size:13px;">
+                        <strong>Please fix the following:</strong>
+                        <ul class="mb-0 mt-1">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
                     {{-- ===== STEP 1: Applicant Basics ===== --}}
                     <div class="enquiry-step" id="step-1">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
@@ -64,12 +76,6 @@
                                 <div class="form-group">
                                     <label class="control-label">Email <span class="required"> *</span></label>
                                     <input type="email" class="form-control" name="enq_email" value="{{ old('enq_email', $member->email ?? '') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label class="control-label">Business Name</label>
-                                    <input type="text" class="form-control" name="enq_business_name" value="{{ old('enq_business_name', $member->business_name ?? '') }}">
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -126,19 +132,14 @@
                                 <div class="form-group">
                                     <label class="control-label">{{ _lang('Applied Amount') }} <span class="required"> *</span></label>
                                     <input type="text" class="form-control float-field" name="applied_amount" id="applied-amount-input" value="{{ old('applied_amount') }}" required>
+                                    <small class="text-muted" id="amount-hint"></small>
                                 </div>
                             </div>
                             <div class="col-lg-6" id="term-field" style="display:none;">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Term') }} <span id="term-period-label" class="text-muted" style="font-size:12px;"></span></label>
+                                    <label class="control-label">{{ _lang('Term') }} <span id="term-period-label" class="text-muted" style="font-size:12px;"></span> <span id="term-years-label" class="text-muted" style="font-size:12px;"></span></label>
                                     <input type="number" class="form-control" name="term" id="term-input" value="{{ old('term') }}" min="1" max="999">
                                     <small class="text-muted" id="term-hint"></small>
-                                </div>
-                            </div>
-                            <div class="col-lg-6" id="interest-rate-field" style="display:none;">
-                                <div class="form-group">
-                                    <label class="control-label">{{ _lang('Interest Rate') }}</label>
-                                    <input type="text" class="form-control" id="interest-rate-display" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -271,12 +272,6 @@
                                 <div class="form-group">
                                     <label class="control-label">{{ _lang('Description') }}</label>
                                     <textarea class="form-control" name="description">{{ old('description') }}</textarea>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label class="control-label">{{ _lang('Remarks') }}</label>
-                                    <textarea class="form-control" name="remarks">{{ old('remarks') }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -513,6 +508,34 @@ $(document).ready(function () {
 
     showStep(1);
 
+    // ---- Jump to step with server-side errors on page load ----
+    @if($errors->any())
+    (function() {
+        // Map field names to their step numbers
+        var fieldStepMap = {
+            'enq_full_name': 1, 'enq_mobile': 1, 'enq_email': 1, 'enq_gst_registered': 1,
+            'enq_years_operating': 1, 'enq_abn_acn': 1,
+            'loan_product_id': 2, 'applied_amount': 2, 'term': 2, 'enq_loan_purpose': 2,
+            'enq_time_in_business': 2, 'enq_monthly_revenue': 2,
+            'enq_ato_debt': 3, 'enq_defaults': 3, 'enq_existing_loans': 3,
+            'enq_security_type': 4, 'enq_asset_type': 4,
+            'enq_funds_needed_by': 5, 'enq_best_contact_time': 5,
+            'enq_consent': 6
+        };
+        var errorFields = @json($errors->keys());
+        var targetStep = 1;
+        for (var i = 0; i < errorFields.length; i++) {
+            var step = fieldStepMap[errorFields[i]];
+            if (step) { targetStep = step; break; }
+        }
+        showStep(targetStep);
+        // Highlight errored fields
+        errorFields.forEach(function(name) {
+            $('[name="' + name + '"]').addClass('is-invalid');
+        });
+    })();
+    @endif
+
     // ---- Validate current step fields ----
     function validateStep(n) {
         var valid = true;
@@ -538,6 +561,25 @@ $(document).ready(function () {
             showError('Please fill in all required fields before continuing.');
             return;
         }
+
+        // Extra check on Step 2: validate applied amount against product min/max
+        if (currentStep === 2 && currentDetails) {
+            var amount = parseFloat($('#applied-amount-input').val().replace(/,/g, '')) || 0;
+            var minAmt = parseFloat(currentDetails.minimum_amount) || 0;
+            var maxAmt = parseFloat(currentDetails.maximum_amount) || Infinity;
+            if (amount < minAmt) {
+                $('#applied-amount-input').addClass('is-invalid');
+                showError('The applied amount must be at least ' + minAmt.toLocaleString('en-AU', {minimumFractionDigits:2}) + '.');
+                return;
+            }
+            if (amount > maxAmt) {
+                $('#applied-amount-input').addClass('is-invalid');
+                showError('The applied amount must not exceed ' + maxAmt.toLocaleString('en-AU', {minimumFractionDigits:2}) + '.');
+                return;
+            }
+            $('#applied-amount-input').removeClass('is-invalid');
+        }
+
         if (currentStep < totalSteps) showStep(currentStep + 1);
     });
 
@@ -561,13 +603,11 @@ $(document).ready(function () {
     var $termInput       = $('#term-input');
     var $termHint        = $('#term-hint');
     var $termPeriodLabel = $('#term-period-label');
-    var $interestField   = $('#interest-rate-field');
-    var $interestDisplay = $('#interest-rate-display');
 
     function updateTermField() {
         var selected = $productSelect.find('option:selected');
         if (!selected.val()) {
-            $termField.hide(); $interestField.hide();
+            $termField.hide();
             $termInput.removeAttr('required'); currentDetails = null; return;
         }
         try {
@@ -576,16 +616,25 @@ $(document).ready(function () {
             var minTerm  = parseInt(details.min_term) || 1;
             var maxTerm  = parseInt(details.term) || 1;
             var tp = (details.term_period || '').replace(/^\+/, '').replace(/\d+\s*/, '').trim();
-            $termPeriodLabel.text('(' + tp + 's)');
+            // Build label: e.g. "(months / years)"
+            var yearsLabel = '';
+            if (tp === 'month') {
+                yearsLabel = ' <span class="text-muted" style="font-size:11px;">(' + Math.floor(minTerm/12) + '–' + Math.ceil(maxTerm/12) + ' years)</span>';
+            }
+            $('#term-period-label').text('(' + tp + 's)');
+            $('#term-years-label').html(yearsLabel);
             $termInput.attr('min', minTerm).attr('max', maxTerm);
             var cur = parseInt($termInput.val());
             if (!cur || cur < minTerm) $termInput.val(minTerm);
             else if (cur > maxTerm) $termInput.val(maxTerm);
-            $termHint.text('Min: ' + minTerm + ' — Max: ' + maxTerm);
+            $termHint.text('Min: ' + minTerm + ' — Max: ' + maxTerm + (tp === 'month' ? ' months (' + (minTerm/12).toFixed(1) + '–' + (maxTerm/12).toFixed(1) + ' years)' : ''));
             $termField.show(); $termInput.attr('required', 'required');
-            $interestDisplay.val(details.interest_rate + '% (' + details.interest_type.replace(/_/g,' ') + ')');
-            $interestField.show();
-        } catch(e) { $termField.hide(); $interestField.hide(); }
+
+            // Show amount range hint
+            var minAmt = parseFloat(details.minimum_amount) || 0;
+            var maxAmt = parseFloat(details.maximum_amount) || 0;
+            $('#amount-hint').text('Min: $' + minAmt.toLocaleString() + ' — Max: $' + maxAmt.toLocaleString());
+        } catch(e) { $termField.hide(); }
     }
 
     $productSelect.on('change', updateTermField);
@@ -668,8 +717,11 @@ $(document).ready(function () {
     }
 
     function showError(msg) {
-        $('#summary-error').text(msg).show();
-        setTimeout(function () { $('#summary-error').fadeOut(); }, 4000);
+        // Remove any existing inline error
+        $('.step-inline-error').remove();
+        var $err = $('<div class="alert alert-danger step-inline-error mt-2" style="font-family:Poppins,sans-serif;font-size:13px;">' + msg + '</div>');
+        $('#step-' + currentStep).prepend($err);
+        setTimeout(function () { $err.fadeOut(400, function(){ $(this).remove(); }); }, 4000);
     }
 
     $('#btn-loan-summary').on('click', function () {
