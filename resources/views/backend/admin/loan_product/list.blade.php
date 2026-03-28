@@ -15,8 +15,7 @@
 							<th>{{ _lang('Name') }}</th>
 							<th>{{ _lang('Interest Rate') }}</th>
 							<th>{{ _lang('Interest Type') }}</th>
-							<th>{{ _lang('Max Term') }}</th>
-							<th>{{ _lang('Term Period') }}</th>
+							<th>{{ _lang('Term (Years)') }}</th>
 							<th class="text-center">{{ _lang('Action') }}</th>
 						</tr>
 					</thead>
@@ -26,44 +25,7 @@
 							<td class='name'>{{ $loanproduct->name }}</td>
 							<td class='interest_rate'>{{ $loanproduct->interest_rate.' %' }}</td>
 							<td class='interest_type'>{{ ucwords(str_replace("_"," ", $loanproduct->interest_type)) }}</td>
-							<td class='term'>{{ $loanproduct->term }}</td>
-							<td class='term_period'>
-							@if($loanproduct->term_period === '+1 day')
-								{{ _lang('Day') }}
-							@elseif($loanproduct->term_period === '+3 day')
-								{{ _lang('Every 3 days') }}
-							@elseif($loanproduct->term_period === '+5 day')
-								{{ _lang('Every 5 days') }}
-							@elseif($loanproduct->term_period === '+7 day')
-								{{ _lang('Week') }}
-							@elseif($loanproduct->term_period === '+10 day')
-								{{ _lang('Every 10 days') }}
-							@elseif($loanproduct->term_period === '+15 day')
-								{{ _lang('Every 15 days') }}
-							@elseif($loanproduct->term_period === '+21 day')
-								{{ _lang('Every 21 days') }}
-							@elseif($loanproduct->term_period === '+1 month')
-								{{ _lang('Month') }}
-							@elseif($loanproduct->term_period === '+2 month')
-								{{ _lang('Every 2 months') }}
-							@elseif($loanproduct->term_period === '+3 month')
-								{{ _lang('Quarterly (Every 3 months)') }}
-							@elseif($loanproduct->term_period === '+4 month')
-								{{ _lang('Every 4 months') }}
-							@elseif($loanproduct->term_period === '+6 month')
-								{{ _lang('Biannually (Every 6 months)') }}
-							@elseif($loanproduct->term_period === '+9 month')
-								{{ _lang('Every 9 months') }}
-							@elseif($loanproduct->term_period === '+1 year')
-								{{ _lang('Year') }}
-							@elseif($loanproduct->term_period === '+2 year')
-								{{ _lang('Every 2 years') }}
-							@elseif($loanproduct->term_period === '+3 year')
-								{{ _lang('Every 3 years') }}
-							@elseif($loanproduct->term_period === '+5 year')
-								{{ _lang('Every 5 years') }}
-							@endif
-							</td>
+							<td class='term'>{{ round($loanproduct->term / 12, 1) }} {{ $loanproduct->term == 12 ? 'Year' : 'Years' }}</td>
 							<td class="text-center">
 								<div class="dropdown">
 									<button class="btn btn-primary btn-xs dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

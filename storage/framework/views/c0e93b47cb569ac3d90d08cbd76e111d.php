@@ -15,8 +15,7 @@
 							<th><?php echo e(_lang('Name')); ?></th>
 							<th><?php echo e(_lang('Interest Rate')); ?></th>
 							<th><?php echo e(_lang('Interest Type')); ?></th>
-							<th><?php echo e(_lang('Max Term')); ?></th>
-							<th><?php echo e(_lang('Term Period')); ?></th>
+							<th><?php echo e(_lang('Term (Years)')); ?></th>
 							<th class="text-center"><?php echo e(_lang('Action')); ?></th>
 						</tr>
 					</thead>
@@ -26,61 +25,7 @@
 							<td class='name'><?php echo e($loanproduct->name); ?></td>
 							<td class='interest_rate'><?php echo e($loanproduct->interest_rate.' %'); ?></td>
 							<td class='interest_type'><?php echo e(ucwords(str_replace("_"," ", $loanproduct->interest_type))); ?></td>
-							<td class='term'><?php echo e($loanproduct->term); ?></td>
-							<td class='term_period'>
-							<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loanproduct->term_period === '+1 day'): ?>
-								<?php echo e(_lang('Day')); ?>
-
-							<?php elseif($loanproduct->term_period === '+3 day'): ?>
-								<?php echo e(_lang('Every 3 days')); ?>
-
-							<?php elseif($loanproduct->term_period === '+5 day'): ?>
-								<?php echo e(_lang('Every 5 days')); ?>
-
-							<?php elseif($loanproduct->term_period === '+7 day'): ?>
-								<?php echo e(_lang('Week')); ?>
-
-							<?php elseif($loanproduct->term_period === '+10 day'): ?>
-								<?php echo e(_lang('Every 10 days')); ?>
-
-							<?php elseif($loanproduct->term_period === '+15 day'): ?>
-								<?php echo e(_lang('Every 15 days')); ?>
-
-							<?php elseif($loanproduct->term_period === '+21 day'): ?>
-								<?php echo e(_lang('Every 21 days')); ?>
-
-							<?php elseif($loanproduct->term_period === '+1 month'): ?>
-								<?php echo e(_lang('Month')); ?>
-
-							<?php elseif($loanproduct->term_period === '+2 month'): ?>
-								<?php echo e(_lang('Every 2 months')); ?>
-
-							<?php elseif($loanproduct->term_period === '+3 month'): ?>
-								<?php echo e(_lang('Quarterly (Every 3 months)')); ?>
-
-							<?php elseif($loanproduct->term_period === '+4 month'): ?>
-								<?php echo e(_lang('Every 4 months')); ?>
-
-							<?php elseif($loanproduct->term_period === '+6 month'): ?>
-								<?php echo e(_lang('Biannually (Every 6 months)')); ?>
-
-							<?php elseif($loanproduct->term_period === '+9 month'): ?>
-								<?php echo e(_lang('Every 9 months')); ?>
-
-							<?php elseif($loanproduct->term_period === '+1 year'): ?>
-								<?php echo e(_lang('Year')); ?>
-
-							<?php elseif($loanproduct->term_period === '+2 year'): ?>
-								<?php echo e(_lang('Every 2 years')); ?>
-
-							<?php elseif($loanproduct->term_period === '+3 year'): ?>
-								<?php echo e(_lang('Every 3 years')); ?>
-
-							<?php elseif($loanproduct->term_period === '+5 year'): ?>
-								<?php echo e(_lang('Every 5 years')); ?>
-
-							<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-							</td>
+							<td class='term'><?php echo e(round($loanproduct->term / 12, 1)); ?> <?php echo e($loanproduct->term == 12 ? 'Year' : 'Years'); ?></td>
 							<td class="text-center">
 								<div class="dropdown">
 									<button class="btn btn-primary btn-xs dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

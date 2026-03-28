@@ -69,41 +69,15 @@
 
 						<div class="col-md-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Min Term') }}</label>
-								<input type="number" class="form-control" name="min_term" value="{{ $loanproduct->min_term ?? 1 }}" required>
+								<label class="control-label">{{ _lang('Min Term (Years)') }}</label>
+								<input type="number" class="form-control" name="min_term" value="{{ round(($loanproduct->min_term ?? 12) / 12) }}" min="1" required>
 							</div>
 						</div>
 
 						<div class="col-md-6">
 							<div class="form-group">
-								<label class="control-label">{{ _lang('Max Term') }}</label>
-								<input type="number" class="form-control" name="term" value="{{ $loanproduct->term }}" required>
-							</div>
-						</div>
-
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">{{ _lang('Term Period') }}</label>
-								<select class="form-control select2 auto-select" data-selected="{{ $loanproduct->term_period }}" name="term_period" id="term_period" required>
-									<option value="">{{ _lang('Select One') }}</option>
-									<option value="+1 day">{{ _lang('Daily') }}</option>
-									<option value="+3 day">{{ _lang('Every 3 days') }}</option>
-									<option value="+5 day">{{ _lang('Every 5 days') }}</option>
-									<option value="+7 day">{{ _lang('Weekly') }}</option>
-									<option value="+10 day">{{ _lang('Every 10 days') }}</option>
-									<option value="+15 day">{{ _lang('Every 15 days') }}</option>
-									<option value="+21 day">{{ _lang('Every 21 days') }}</option>
-									<option value="+1 month">{{ _lang('Monthly') }}</option>
-									<option value="+2 month">{{ _lang('Every 2 months') }}</option>
-									<option value="+3 month">{{ _lang('Quarterly (Every 3 months)') }}</option>
-									<option value="+4 month">{{ _lang('Every 4 months') }}</option>
-									<option value="+6 month">{{ _lang('Biannually (Every 6 months)') }}</option>
-									<option value="+9 month">{{ _lang('Every 9 months') }}</option>
-									<option value="+1 year">{{ _lang('Yearly') }}</option>
-									<option value="+2 year">{{ _lang('Every 2 years') }}</option>
-									<option value="+3 year">{{ _lang('Every 3 years') }}</option>
-									<option value="+5 year">{{ _lang('Every 5 years') }}</option>
-								</select>
+								<label class="control-label">{{ _lang('Max Term (Years)') }}</label>
+								<input type="number" class="form-control" name="term" value="{{ round($loanproduct->term / 12) }}" min="1" required>
 							</div>
 						</div>
 
@@ -151,16 +125,6 @@
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Loan Processing Fee') }}</label>
 								<input type="text" class="form-control float-field" name="loan_processing_fee" value="{{ $loanproduct->loan_processing_fee }}" required>
-							</div>
-						</div>
-
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">{{ _lang('Loan Processing Fee Type') }}</label>
-								<select class="form-control auto-select" data-selected="{{ $loanproduct->loan_processing_fee_type }}" name="loan_processing_fee_type" required>
-									<option value="0">{{ _lang('Fixed') }}</option>
-									<option value="1">{{ _lang('Percentage') }}</option>
-								</select>
 							</div>
 						</div>
 

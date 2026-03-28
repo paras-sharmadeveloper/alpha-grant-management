@@ -33,12 +33,10 @@ class LoanProductController extends Controller {
             'interest_type'             => 'required',
             'term'                      => 'required|integer',
             'min_term'                  => 'required|integer',
-            'term_period'               => 'required',
             'status'                    => 'required',
             'loan_application_fee'      => 'required',
             'loan_application_fee_type' => 'required',
             'loan_processing_fee'       => 'required',
-            'loan_processing_fee_type'  => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -58,15 +56,15 @@ class LoanProductController extends Controller {
         $loanproduct->description               = $request->input('description');
         $loanproduct->interest_rate             = $request->input('interest_rate');
         $loanproduct->interest_type             = $request->input('interest_type');
-        $loanproduct->term                      = $request->input('term');
-        $loanproduct->min_term                  = $request->input('min_term', 1);
-        $loanproduct->term_period               = $request->input('term_period');
+        $loanproduct->term                      = $request->input('term') * 12;
+        $loanproduct->min_term                  = $request->input('min_term', 1) * 12;
+        $loanproduct->term_period               = '+1 month';
         $loanproduct->late_payment_penalties    = $request->input('late_payment_penalties');
         $loanproduct->status                    = $request->input('status');
         $loanproduct->loan_application_fee      = $request->loan_application_fee;
         $loanproduct->loan_application_fee_type = $request->loan_application_fee_type;
         $loanproduct->loan_processing_fee       = $request->loan_processing_fee;
-        $loanproduct->loan_processing_fee_type  = $request->loan_processing_fee_type;
+        $loanproduct->loan_processing_fee_type  = 0;
         $loanproduct->save();
 
         $loanproduct->interest_type = ucwords(str_replace("_", " ", $loanproduct->interest_type));
@@ -105,12 +103,10 @@ class LoanProductController extends Controller {
             'interest_type'             => 'required',
             'term'                      => 'required|integer',
             'min_term'                  => 'required|integer',
-            'term_period'               => 'required',
             'status'                    => 'required',
             'loan_application_fee'      => 'required',
             'loan_application_fee_type' => 'required',
             'loan_processing_fee'       => 'required',
-            'loan_processing_fee_type'  => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -130,15 +126,15 @@ class LoanProductController extends Controller {
         $loanproduct->description               = $request->input('description');
         $loanproduct->interest_rate             = $request->input('interest_rate');
         $loanproduct->interest_type             = $request->input('interest_type');
-        $loanproduct->term                      = $request->input('term');
-        $loanproduct->min_term                  = $request->input('min_term', 1);
-        $loanproduct->term_period               = $request->input('term_period');
+        $loanproduct->term                      = $request->input('term') * 12;
+        $loanproduct->min_term                  = $request->input('min_term', 1) * 12;
+        $loanproduct->term_period               = '+1 month';
         $loanproduct->late_payment_penalties    = $request->input('late_payment_penalties');
         $loanproduct->status                    = $request->input('status');
         $loanproduct->loan_application_fee      = $request->loan_application_fee;
         $loanproduct->loan_application_fee_type = $request->loan_application_fee_type;
         $loanproduct->loan_processing_fee       = $request->loan_processing_fee;
-        $loanproduct->loan_processing_fee_type  = $request->loan_processing_fee_type;
+        $loanproduct->loan_processing_fee_type  = 0;
         $loanproduct->save();
 
         $loanproduct->interest_type = ucwords(str_replace("_", " ", $loanproduct->interest_type));
