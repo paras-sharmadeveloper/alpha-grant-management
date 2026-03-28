@@ -239,7 +239,7 @@ class LoanController extends Controller {
         $loan->branch_id              = auth()->user()->branch_id;
         $loan->custom_fields          = json_encode($customFieldsData);
         $loan->debit_account_id       = $request->debit_account_id;
-        $loan->term                   = $request->input('term');
+        $loan->term                   = $request->input('term') ? (int)$request->input('term') * 12 : null;
         $loan->enq_full_name          = $request->input('enq_full_name');
         $loan->enq_mobile             = $request->input('enq_mobile');
         $loan->enq_email              = $request->input('enq_email');
@@ -479,7 +479,7 @@ class LoanController extends Controller {
             $loan->applied_amount = $request->input('override_amount');
         }
         if ($request->filled('override_term')) {
-            $loan->term = $request->input('override_term');
+            $loan->term = $request->input('override_term') * 12; // input is years, store as months
         }
 
         // Save the effective interest rate on the loan record

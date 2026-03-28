@@ -1,4 +1,4 @@
-
+﻿
 
 <?php $__env->startSection('content'); ?>
 <?php $member = auth()->user()->member; ?>
@@ -39,7 +39,7 @@
                     </div>
                 </div>
 
-                <form method="post" id="enquiry-form" class="validate" autocomplete="off"
+                <form method="post" id="enquiry-form" autocomplete="off" novalidate
                       action="<?php echo e(route('loans.apply_loan')); ?>" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
 
@@ -138,7 +138,7 @@
                             </div>
                             <div class="col-lg-6" id="term-field" style="display:none;">
                                 <div class="form-group">
-                                    <label class="control-label"><?php echo e(_lang('Term')); ?> <span id="term-period-label" class="text-muted" style="font-size:12px;"></span> <span id="term-years-label" class="text-muted" style="font-size:12px;"></span></label>
+                                    <label class="control-label"><?php echo e(_lang('Term')); ?> <span id="term-range-label" class="text-muted" style="font-size:12px;"></span></label>
                                     <input type="number" class="form-control" name="term" id="term-input" value="<?php echo e(old('term')); ?>" min="1" max="999">
                                     <small class="text-muted" id="term-hint"></small>
                                 </div>
@@ -610,37 +610,26 @@ $(document).ready(function () {
 
     function updateTermField() {
         var selected = $productSelect.find('option:selected');
-        if (!selected.val()) {
-            $termField.hide();
-            $termInput.removeAttr('required'); currentDetails = null; return;
-        }
+        if (!selected.val()) { $termField.hide(); $termInput.removeAttr('required'); currentDetails = null; return; }
         try {
-            var details  = JSON.parse(selected.attr('data-details'));
+            var details = JSON.parse(selected.attr('data-details'));
             currentDetails = details;
-            var minTerm  = parseInt(details.min_term) || 1;
-            var maxTerm  = parseInt(details.term) || 1;
-            var tp = (details.term_period || '').replace(/^\+/, '').replace(/\d+\s*/, '').trim();
-            // Build label: e.g. "(months / years)"
-            var yearsLabel = '';
-            if (tp === 'month') {
-                yearsLabel = ' <span class="text-muted" style="font-size:11px;">(' + Math.floor(minTerm/12) + '–' + Math.ceil(maxTerm/12) + ' years)</span>';
-            }
-            $('#term-period-label').text('(' + tp + 's)');
-            $('#term-years-label').html(yearsLabel);
-            $termInput.attr('min', minTerm).attr('max', maxTerm);
+            var minMonths = parseInt(details.min_term) || 12;
+            var maxMonths = parseInt(details.term) || 12;
+            var minYears = Math.round(minMonths / 12);
+            var maxYears = Math.round(maxMonths / 12);
+            $('#term-range-label').text('(' + minYears + '–' + maxYears + ' years)');
+            $termInput.attr('min', minYears).attr('max', maxYears);
             var cur = parseInt($termInput.val());
-            if (!cur || cur < minTerm) $termInput.val(minTerm);
-            else if (cur > maxTerm) $termInput.val(maxTerm);
-            $termHint.text('Min: ' + minTerm + ' — Max: ' + maxTerm + (tp === 'month' ? ' months (' + (minTerm/12).toFixed(1) + '–' + (maxTerm/12).toFixed(1) + ' years)' : ''));
+            if (!cur || cur < minYears) $termInput.val(minYears);
+            else if (cur > maxYears) $termInput.val(maxYears);
+            $termHint.text('Min: ' + minYears + ' year' + (minYears > 1 ? 's' : '') + ' — Max: ' + maxYears + ' year' + (maxYears > 1 ? 's' : ''));
             $termField.show(); $termInput.attr('required', 'required');
-
-            // Show amount range hint
             var minAmt = parseFloat(details.minimum_amount) || 0;
             var maxAmt = parseFloat(details.maximum_amount) || 0;
             $('#amount-hint').text('Min: $' + minAmt.toLocaleString() + ' — Max: $' + maxAmt.toLocaleString());
         } catch(e) { $termField.hide(); }
     }
-
     $productSelect.on('change', updateTermField);
     if ($productSelect.val()) updateTermField();
 
@@ -659,7 +648,8 @@ $(document).ready(function () {
 
     function fmt(n) { return parseFloat(n).toFixed(2); }
 
-    function calcSchedule(details, amount, term) {
+    function calcSchedule(details, amount, termYears) {
+        var term = termYears * 12; // convert years to months for monthly installments
         var rate = parseFloat(details.interest_rate) / 100;
         var termPeriod = details.term_period || '+1 month';
         var itype = details.interest_type;
@@ -743,7 +733,8 @@ $(document).ready(function () {
             rows += '<tr><td>' + (i+1) + '</td><td>' + row.date + '</td><td>' + fmt(row.principal) + '</td><td>' + fmt(row.interest) + '</td><td>' + fmt(row.amount_to_pay) + '</td><td>' + fmt(row.balance) + '</td></tr>';
         });
         var tp = (currentDetails.term_period || '').replace(/^\+/, '').replace(/\d+\s*/, '').trim();
-        $('#summary-info').html('<strong>Product:</strong> ' + currentDetails.name + ' &nbsp;|&nbsp; <strong>Amount:</strong> AUD ' + fmt(amount) + ' &nbsp;|&nbsp; <strong>Term:</strong> ' + term + ' ' + tp + '(s)' + ' &nbsp;|&nbsp; <strong>Rate:</strong> ' + currentDetails.interest_rate + '%');
+        var termMonths = term * 12;
+        $('#summary-info').html('<strong>Product:</strong> ' + currentDetails.name + ' &nbsp;|&nbsp; <strong>Amount:</strong> AUD ' + fmt(amount) + ' &nbsp;|&nbsp; <strong>Term:</strong> ' + term + ' Year' + (term > 1 ? 's' : '') + ' (' + termMonths + ' monthly installments) &nbsp;|&nbsp; <strong>Rate:</strong> ' + currentDetails.interest_rate + '% p.a.');
         $('#summary-table-body').html(rows);
         $('#summary-table-foot').html('<tr><td colspan="2"><strong>Total</strong></td><td><strong>' + fmt(totalPrincipal) + '</strong></td><td><strong>' + fmt(totalInterest) + '</strong></td><td><strong>' + fmt(totalPayable) + '</strong></td><td></td></tr>');
         $('#loanSummaryModal').modal('show');

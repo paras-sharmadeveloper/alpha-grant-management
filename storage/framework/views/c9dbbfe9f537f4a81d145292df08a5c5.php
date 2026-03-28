@@ -185,10 +185,8 @@
 
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Loan Term')); ?></span>
-                        <span class="ld-value">
-                            <?php echo e($loan->term ?? $loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?>
-
-                        </span>
+                        <?php $termMonths = $loan->term ?? $loan->loan_product->term; $termYears = (int) round($termMonths / 12); ?>
+                        <span class="ld-value"><?php echo e($termYears); ?> <?php echo e($termYears == 1 ? 'Year' : 'Years'); ?></span>
                     </div>
 
                     <div class="ld-detail-row">
@@ -410,17 +408,11 @@
 
             
             <div id="ld_statements" class="ld-tab-content">
-
-                <?php
-                    // $repayments passed from controller (global scopes bypassed)
-                ?>
-
-                
                 <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:24px;">
                     <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
                         <div style="display:flex;flex-direction:column;gap:4px;">
                             <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;"><?php echo e(_lang('From')); ?></label>
-                            <input type="date" id="stmt-from" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
+                            <input type="date" id="stmt-from" onchange="onFromChange()" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
                         </div>
                         <div style="display:flex;flex-direction:column;gap:4px;">
                             <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;"><?php echo e(_lang('To')); ?></label>
@@ -429,7 +421,6 @@
                         <button onclick="filterStatements()" style="background:#214942;color:#fff;border:none;padding:9px 20px;border-radius:4px;font-family:Poppins,sans-serif;font-size:14px;cursor:pointer;text-transform:capitalize;"><?php echo e(_lang('Filter')); ?></button>
                         <button onclick="resetStatements()" style="background:#f0f0f0;color:#214942;border:none;padding:9px 20px;border-radius:4px;font-family:Poppins,sans-serif;font-size:14px;cursor:pointer;text-transform:capitalize;"><?php echo e(_lang('Reset')); ?></button>
                     </div>
-                    
                     <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
                         <a href="<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>" target="_blank"
                            style="background:#214942;color:#fff;padding:9px 20px;border-radius:4px;font-size:14px;font-weight:400;text-decoration:none;font-family:Poppins,sans-serif;text-transform:capitalize;">
@@ -441,7 +432,6 @@
                             ⬇ <?php echo e(_lang('Download Schedule')); ?>
 
                         </a>
-                        
                         <a id="stmt-filtered-btn" href="#" target="_blank"
                            style="display:none;background:#f39c12;color:#fff;padding:9px 20px;border-radius:4px;font-size:14px;font-weight:400;text-decoration:none;font-family:Poppins,sans-serif;text-transform:capitalize;">
                             ⬇ <?php echo e(_lang('Download Filtered Records')); ?>
@@ -451,33 +441,96 @@
                 </div>
 
                 
+                <div id="stmt-results" style="display:none;">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" style="font-family:Poppins,sans-serif;font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th><?php echo e(_lang('Date')); ?></th>
+                                    <th><?php echo e(_lang('Principal')); ?></th>
+                                    <th><?php echo e(_lang('Interest')); ?></th>
+                                    <th><?php echo e(_lang('Amount to Pay')); ?></th>
+                                    <th><?php echo e(_lang('Balance')); ?></th>
+                                    <th><?php echo e(_lang('Status')); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody id="stmt-tbody"></tbody>
+                        </table>
+                    </div>
+                    <p id="stmt-no-records" style="display:none;text-align:center;color:#888;font-family:Poppins,sans-serif;font-size:13px;padding:20px 0;"><?php echo e(_lang('No records found for selected date range.')); ?></p>
+                </div>
 
                 <script>
                     const printBase = "<?php echo e(route('loans.customer_print_schedule', $loan->id)); ?>";
+                    <?php
+                        $stmtDataCustomer = $repayments->map(function($r) {
+                            return [
+                                'date'          => $r->getRawOriginal('repayment_date'),
+                                'principal'     => $r->principal_amount,
+                                'interest'      => $r->interest,
+                                'amount_to_pay' => $r->amount_to_pay,
+                                'balance'       => $r->balance,
+                                'status'        => $r->status,
+                            ];
+                        });
+                    ?>
+                    const stmtRepayments = <?php echo json_encode($stmtDataCustomer); ?>;
+
+                    function onFromChange() {
+                        const from = document.getElementById('stmt-from').value;
+                        const toEl = document.getElementById('stmt-to');
+                        if (from) { toEl.min = from; if (toEl.value && toEl.value < from) toEl.value = from; }
+                    }
 
                     function filterStatements() {
                         const from = document.getElementById('stmt-from').value;
                         const to   = document.getElementById('stmt-to').value;
-                        const isFiltered = from || to;
+                        if (!from && !to) { alert('Please select at least a From date.'); return; }
 
-                        const filteredBtn = document.getElementById('stmt-filtered-btn');
-                        if (isFiltered) {
-                            let url = printBase;
-                            const params = [];
-                            if (from) params.push('from=' + from);
-                            if (to)   params.push('to=' + to);
-                            params.push('download=1');
-                            url += '?' + params.join('&');
-                            filteredBtn.href = url;
-                            filteredBtn.style.display = '';
+                        const filtered = stmtRepayments.filter(r => {
+                            if (from && r.date < from) return false;
+                            if (to   && r.date > to)   return false;
+                            return true;
+                        });
+
+                        const tbody = document.getElementById('stmt-tbody');
+                        tbody.innerHTML = '';
+                        if (filtered.length === 0) {
+                            document.getElementById('stmt-no-records').style.display = '';
                         } else {
-                            filteredBtn.style.display = 'none';
+                            document.getElementById('stmt-no-records').style.display = 'none';
+                            filtered.forEach((r, i) => {
+                                const status = r.status == 1
+                                    ? '<span class="badge badge-success">Paid</span>'
+                                    : '<span class="badge badge-warning">Pending</span>';
+                                tbody.innerHTML += `<tr>
+                                    <td>${i+1}</td>
+                                    <td>${r.date}</td>
+                                    <td>${parseFloat(r.principal).toFixed(2)}</td>
+                                    <td>${parseFloat(r.interest).toFixed(2)}</td>
+                                    <td>${parseFloat(r.amount_to_pay).toFixed(2)}</td>
+                                    <td>${parseFloat(r.balance).toFixed(2)}</td>
+                                    <td>${status}</td>
+                                </tr>`;
+                            });
                         }
+                        document.getElementById('stmt-results').style.display = '';
+
+                        const btn = document.getElementById('stmt-filtered-btn');
+                        const params = [];
+                        if (from) params.push('from=' + from);
+                        if (to)   params.push('to=' + to);
+                        params.push('download=1');
+                        btn.href = printBase + '?' + params.join('&');
+                        btn.style.display = '';
                     }
 
                     function resetStatements() {
                         document.getElementById('stmt-from').value = '';
                         document.getElementById('stmt-to').value   = '';
+                        document.getElementById('stmt-to').removeAttribute('min');
+                        document.getElementById('stmt-results').style.display = 'none';
                         document.getElementById('stmt-filtered-btn').style.display = 'none';
                     }
                 </script>

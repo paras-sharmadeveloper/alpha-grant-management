@@ -64,7 +64,7 @@
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('Applied Amount') }}</span><span class="kyc-value">{{ decimalPlace($loan->applied_amount, currency($loan->currency->name)) }}</span></div>
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('Interest Rate') }}</span><span class="kyc-value">{{ $loan->interest_rate ?? $loan->loan_product->interest_rate }}%</span></div>
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('Interest Type') }}</span><span class="kyc-value">{{ ucwords(str_replace('_',' ', $loan->loan_product->interest_type)) }}</span></div>
-                <div class="kyc-row"><span class="kyc-label">{{ _lang('Loan Term') }}</span><span class="kyc-value">{{ $loan->term ?? $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}(s)</span></div>
+                <div class="kyc-row"><span class="kyc-label">{{ _lang('Loan Term') }}</span><span class="kyc-value">@php $tm = $loan->term ?? $loan->loan_product->term; $ty = (int)round($tm/12); @endphp {{ $ty }} {{ $ty == 1 ? 'Year' : 'Years' }}</span></div>
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('First Payment Date') }}</span><span class="kyc-value">{{ $loan->first_payment_date }}</span></div>
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('Release Date') }}</span><span class="kyc-value">{{ $loan->release_date ?? '—' }}</span></div>
                 <div class="kyc-row"><span class="kyc-label">{{ _lang('Late Payment Penalties') }}</span><span class="kyc-value">{{ $loan->late_payment_penalties }}%</span></div>
@@ -144,12 +144,19 @@
                 <div class="kyc-row">
                     <span class="kyc-label">
                         {{ _lang('Term') }}<br>
-                        <small style="color:#aaa;font-size:12px;">{{ _lang('original') }}: {{ $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}(s) &nbsp;|&nbsp; min: {{ $loan->loan_product->min_term ?? 1 }}</small>
+                        @php
+                            $loanTermMonths = $loan->term ?? $loan->loan_product->term;
+                            $loanTermYears  = (int) round($loanTermMonths / 12);
+                            $minMonths      = $loan->loan_product->min_term ?? 12;
+                            $minYears       = (int) round($minMonths / 12);
+                            $maxYears       = (int) round($loan->loan_product->term / 12);
+                        @endphp
+                        <small style="color:#aaa;font-size:12px;">{{ _lang('applied') }}: {{ $loanTermYears }} {{ $loanTermYears == 1 ? 'year' : 'years' }} &nbsp;|&nbsp; min: {{ $minYears }} — max: {{ $maxYears }} years</small>
                     </span>
                     <input type="number" name="override_term" id="inp-term" class="kyc-input"
-                        placeholder="{{ $loan->loan_product->term }}"
-                        min="{{ $loan->loan_product->min_term ?? 1 }}"
-                        max="{{ $loan->loan_product->term }}"
+                        placeholder="{{ $loanTermYears }}"
+                        min="{{ $minYears }}"
+                        max="{{ $maxYears }}"
                         value="{{ old('override_term') }}">
                 </div>
                 <div class="kyc-row">
@@ -362,8 +369,8 @@ document.addEventListener('DOMContentLoaded', function() { addDocRow(); });
 // Loan summary calculator
 var loanDefaults = {
     amount:       {{ $loan->applied_amount }},
-    term:         {{ $loan->loan_product->term }},
-    minTerm:      {{ $loan->loan_product->min_term ?? 1 }},
+    term:         {{ $loan->term ?? $loan->loan_product->term }},
+    minTerm:      {{ $loan->loan_product->min_term ?? 12 }},
     rate:         {{ $loan->loan_product->interest_rate }},
     itype:        '{{ $loan->loan_product->interest_type }}',
     termPeriod:   '{{ $loan->loan_product->term_period }}',

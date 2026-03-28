@@ -228,11 +228,14 @@ class LoanController extends Controller {
             $min_amount = $loanProduct->minimum_amount;
             $max_amount = $loanProduct->maximum_amount;
 
+            $minTermYears = (int) round(($loanProduct->min_term ?? 12) / 12);
+            $maxTermYears = (int) round($loanProduct->term / 12);
+
             $validationRules = [
                 'loan_product_id'      => 'required',
                 'currency_id'          => 'required',
                 'applied_amount'       => "required|numeric|min:$min_amount|max:$max_amount",
-                'term'                 => 'required|integer|min:' . ($loanProduct->min_term ?? 1) . '|max:' . $loanProduct->term,
+                'term'                 => "required|integer|min:$minTermYears|max:$maxTermYears",
                 'attachment'           => 'nullable|mimes:jpeg,png,jpg,doc,pdf,docx,zip|max:8192',
                 // Enquiry fields
                 'enq_full_name'        => 'required|string|max:191',
@@ -310,10 +313,10 @@ class LoanController extends Controller {
             $loan->created_user_id        = auth()->id();
             $loan->custom_fields          = json_encode($customFieldsData);
             $loan->debit_account_id       = $request->debit_account_id;
-            $loan->term                   = $request->input('term');
+            $loan->term                   = $request->input('term') ? (int)$request->input('term') * 12 : null;
 
             // Use selected term (or fall back to product's max term)
-            $selectedTerm = $request->input('term') ?? $loan->loan_product->term;
+            $selectedTerm = $loan->term ?? $loan->loan_product->term;
 
             // Create Loan Repayments
             $calculator = new Calculator(

@@ -206,7 +206,8 @@
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Loan Term') }}</span>
-                        <span class="ld-value">{{ $loan->term ?? $loan->loan_product->term }} {{ preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period) }}</span>
+                        @php $termMonths = $loan->term ?? $loan->loan_product->term; $termYears = round($termMonths / 12, 1); @endphp
+                        <span class="ld-value">{{ $termYears }} {{ $termYears == 1 ? 'Year' : 'Years' }}</span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label">{{ _lang('Total Principal Paid') }}</span>
@@ -329,7 +330,7 @@
                     <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
                         <div style="display:flex;flex-direction:column;gap:4px;">
                             <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;">{{ _lang('From') }}</label>
-                            <input type="date" id="stmt-from" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
+                            <input type="date" id="stmt-from" onchange="onFromChange()" style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:14px;color:#214942;">
                         </div>
                         <div style="display:flex;flex-direction:column;gap:4px;">
                             <label style="font-family:Poppins,sans-serif;font-size:14px;color:#214942;text-transform:capitalize;">{{ _lang('To') }}</label>
@@ -353,19 +354,100 @@
                         </a>
                     </div>
                 </div>
+
+                {{-- Filtered results table --}}
+                <div id="stmt-results" style="display:none;">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" style="font-family:Poppins,sans-serif;font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>{{ _lang('Date') }}</th>
+                                    <th>{{ _lang('Principal') }}</th>
+                                    <th>{{ _lang('Interest') }}</th>
+                                    <th>{{ _lang('Amount to Pay') }}</th>
+                                    <th>{{ _lang('Balance') }}</th>
+                                    <th>{{ _lang('Status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stmt-tbody"></tbody>
+                        </table>
+                    </div>
+                    <p id="stmt-no-records" style="display:none;text-align:center;color:#888;font-family:Poppins,sans-serif;font-size:13px;padding:20px 0;">{{ _lang('No records found for selected date range.') }}</p>
+                </div>
+
                 <script>
                     const adminPrintBase = "{{ route('loans.print_schedule', $loan->id) }}";
-                    function filterStatements() {
-                        const from=document.getElementById('stmt-from').value, to=document.getElementById('stmt-to').value;
-                        const btn=document.getElementById('stmt-filtered-btn');
-                        if(from||to){
-                            const p=[]; if(from)p.push('from='+from); if(to)p.push('to='+to); p.push('download=1');
-                            btn.href=adminPrintBase+'?'+p.join('&'); btn.style.display='';
-                        } else { btn.style.display='none'; }
+                    @php
+                        $stmtData = $repayments->map(function($r) {
+                            return [
+                                'date'          => $r->getRawOriginal('repayment_date'),
+                                'principal'     => $r->principal_amount,
+                                'interest'      => $r->interest,
+                                'amount_to_pay' => $r->amount_to_pay,
+                                'balance'       => $r->balance,
+                                'status'        => $r->status,
+                            ];
+                        });
+                    @endphp
+                    const adminRepayments = {!! json_encode($stmtData) !!};
+
+                    function onFromChange() {
+                        const from = document.getElementById('stmt-from').value;
+                        const toEl = document.getElementById('stmt-to');
+                        if (from) { toEl.min = from; if (toEl.value && toEl.value < from) toEl.value = from; }
                     }
+
+                    function filterStatements() {
+                        const from = document.getElementById('stmt-from').value;
+                        const to   = document.getElementById('stmt-to').value;
+                        if (!from && !to) { alert('Please select at least a From date.'); return; }
+
+                        const filtered = adminRepayments.filter(r => {
+                            if (from && r.date < from) return false;
+                            if (to   && r.date > to)   return false;
+                            return true;
+                        });
+
+                        const tbody = document.getElementById('stmt-tbody');
+                        tbody.innerHTML = '';
+                        if (filtered.length === 0) {
+                            document.getElementById('stmt-no-records').style.display = '';
+                        } else {
+                            document.getElementById('stmt-no-records').style.display = 'none';
+                            filtered.forEach((r, i) => {
+                                const status = r.status == 1
+                                    ? '<span class="badge badge-success">Paid</span>'
+                                    : '<span class="badge badge-warning">Pending</span>';
+                                tbody.innerHTML += `<tr>
+                                    <td>${i+1}</td>
+                                    <td>${r.date}</td>
+                                    <td>${parseFloat(r.principal).toFixed(2)}</td>
+                                    <td>${parseFloat(r.interest).toFixed(2)}</td>
+                                    <td>${parseFloat(r.amount_to_pay).toFixed(2)}</td>
+                                    <td>${parseFloat(r.balance).toFixed(2)}</td>
+                                    <td>${status}</td>
+                                </tr>`;
+                            });
+                        }
+                        document.getElementById('stmt-results').style.display = '';
+
+                        // Update download link
+                        const btn = document.getElementById('stmt-filtered-btn');
+                        const params = [];
+                        if (from) params.push('from=' + from);
+                        if (to)   params.push('to=' + to);
+                        params.push('download=1');
+                        btn.href = adminPrintBase + '?' + params.join('&');
+                        btn.style.display = '';
+                    }
+
                     function resetStatements() {
-                        document.getElementById('stmt-from').value=''; document.getElementById('stmt-to').value='';
-                        document.getElementById('stmt-filtered-btn').style.display='none';
+                        document.getElementById('stmt-from').value = '';
+                        document.getElementById('stmt-to').value   = '';
+                        document.getElementById('stmt-to').removeAttribute('min');
+                        document.getElementById('stmt-results').style.display = 'none';
+                        document.getElementById('stmt-filtered-btn').style.display = 'none';
                     }
                 </script>
                 @endif

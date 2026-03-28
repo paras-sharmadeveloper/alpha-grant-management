@@ -62,7 +62,7 @@
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Applied Amount')); ?></span><span class="kyc-value"><?php echo e(decimalPlace($loan->applied_amount, currency($loan->currency->name))); ?></span></div>
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Interest Rate')); ?></span><span class="kyc-value"><?php echo e($loan->interest_rate ?? $loan->loan_product->interest_rate); ?>%</span></div>
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Interest Type')); ?></span><span class="kyc-value"><?php echo e(ucwords(str_replace('_',' ', $loan->loan_product->interest_type))); ?></span></div>
-                <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Loan Term')); ?></span><span class="kyc-value"><?php echo e($loan->term ?? $loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?>(s)</span></div>
+                <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Loan Term')); ?></span><span class="kyc-value"><?php $tm = $loan->term ?? $loan->loan_product->term; $ty = (int)round($tm/12); ?> <?php echo e($ty); ?> <?php echo e($ty == 1 ? 'Year' : 'Years'); ?></span></div>
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('First Payment Date')); ?></span><span class="kyc-value"><?php echo e($loan->first_payment_date); ?></span></div>
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Release Date')); ?></span><span class="kyc-value"><?php echo e($loan->release_date ?? '—'); ?></span></div>
                 <div class="kyc-row"><span class="kyc-label"><?php echo e(_lang('Late Payment Penalties')); ?></span><span class="kyc-value"><?php echo e($loan->late_payment_penalties); ?>%</span></div>
@@ -145,12 +145,19 @@
                 <div class="kyc-row">
                     <span class="kyc-label">
                         <?php echo e(_lang('Term')); ?><br>
-                        <small style="color:#aaa;font-size:12px;"><?php echo e(_lang('original')); ?>: <?php echo e($loan->loan_product->term); ?> <?php echo e(preg_replace('/^\+\d+\s*/', '', $loan->loan_product->term_period)); ?>(s) &nbsp;|&nbsp; min: <?php echo e($loan->loan_product->min_term ?? 1); ?></small>
+                        <?php
+                            $loanTermMonths = $loan->term ?? $loan->loan_product->term;
+                            $loanTermYears  = (int) round($loanTermMonths / 12);
+                            $minMonths      = $loan->loan_product->min_term ?? 12;
+                            $minYears       = (int) round($minMonths / 12);
+                            $maxYears       = (int) round($loan->loan_product->term / 12);
+                        ?>
+                        <small style="color:#aaa;font-size:12px;"><?php echo e(_lang('applied')); ?>: <?php echo e($loanTermYears); ?> <?php echo e($loanTermYears == 1 ? 'year' : 'years'); ?> &nbsp;|&nbsp; min: <?php echo e($minYears); ?> — max: <?php echo e($maxYears); ?> years</small>
                     </span>
                     <input type="number" name="override_term" id="inp-term" class="kyc-input"
-                        placeholder="<?php echo e($loan->loan_product->term); ?>"
-                        min="<?php echo e($loan->loan_product->min_term ?? 1); ?>"
-                        max="<?php echo e($loan->loan_product->term); ?>"
+                        placeholder="<?php echo e($loanTermYears); ?>"
+                        min="<?php echo e($minYears); ?>"
+                        max="<?php echo e($maxYears); ?>"
                         value="<?php echo e(old('override_term')); ?>">
                 </div>
                 <div class="kyc-row">
@@ -371,8 +378,8 @@ document.addEventListener('DOMContentLoaded', function() { addDocRow(); });
 // Loan summary calculator
 var loanDefaults = {
     amount:       <?php echo e($loan->applied_amount); ?>,
-    term:         <?php echo e($loan->loan_product->term); ?>,
-    minTerm:      <?php echo e($loan->loan_product->min_term ?? 1); ?>,
+    term:         <?php echo e($loan->term ?? $loan->loan_product->term); ?>,
+    minTerm:      <?php echo e($loan->loan_product->min_term ?? 12); ?>,
     rate:         <?php echo e($loan->loan_product->interest_rate); ?>,
     itype:        '<?php echo e($loan->loan_product->interest_type); ?>',
     termPeriod:   '<?php echo e($loan->loan_product->term_period); ?>',
