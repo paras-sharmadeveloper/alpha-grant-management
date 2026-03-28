@@ -22,7 +22,7 @@
 						<div class="col-md-6">
 							<div class="form-group">
 								<label class="control-label">{{ _lang('Branch Code') }}</label>
-								<input type="text" class="form-control bg-light" name="branch_code" id="branch_code" value="{{ $branch->branch_code }}" readonly>
+								<input type="text" class="form-control" name="branch_code" id="branch_code" value="{{ $branch->branch_code }}" placeholder="{{ _lang('Enter branch code') }}">
 							</div>
 						</div>
 
@@ -88,13 +88,5 @@
 
 @section('js')
 <script>
-var originalName = '{{ $branch->name }}';
-$('#branch_name').on('input', function() {
-    var name = $(this).val().trim();
-    if (name === originalName || name.length === 0) return;
-    $.get('{{ route('branches.generate_code') }}', { name: name }, function(res) {
-        $('#branch_code').val(res.code);
-    });
-});
 </script>
 @endsection

@@ -2453,6 +2453,7 @@ select.form-control {
 table tr th {
     border-bottom: none;
     white-space: nowrap;
+    color: #fff;
 }
 
 .table tfoot th {
@@ -2483,7 +2484,7 @@ div.dataTables_wrapper div.dataTables_length select {
 
 /* datatable-primary */
 .datatable-primary thead {
-    background-color: #4336fb;
+    background-color: #214942;
     color: #fff;
 }
 
@@ -3541,7 +3542,13 @@ li.parsley-required {
 }
 
 .table thead {
-    background-color: rgb(248 250 252/1);
+    background-color: #214942;
+}
+
+.table thead th {
+    color: #fff !important;
+    font-weight: 500;
+    border-color: rgba(255,255,255,0.15) !important;
 }
 
 .table th,

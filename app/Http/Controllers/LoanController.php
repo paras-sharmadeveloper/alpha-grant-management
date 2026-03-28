@@ -102,7 +102,7 @@ class LoanController extends Controller {
             ->addColumn('action', function ($loan) {
                 return '<form action="' . route('loans.destroy', $loan['id']) . '" class="text-center" method="post">'
                 . '<a href="' . route('loans.show', $loan['id']) . '" class="btn btn-primary btn-xs"><i class="ti-eye"></i> ' . _lang('View') . '</a>&nbsp;'
-                . '<a href="' . route('loans.edit', $loan['id']) . '" class="btn btn-warning btn-xs"><i class="ti-pencil-alt"></i> ' . _lang('Edit') . '</a>&nbsp;'
+                . ($loan->status != 2 ? '<a href="' . route('loans.edit', $loan['id']) . '" class="btn btn-warning btn-xs"><i class="ti-pencil-alt"></i> ' . _lang('Edit') . '</a>&nbsp;' : '')
                 . csrf_field()
                 . '<input name="_method" type="hidden" value="DELETE">'
                 . '<button class="btn btn-danger btn-xs btn-remove" type="submit"><i class="ti-trash"></i> ' . _lang('Delete') . '</button>'
@@ -152,16 +152,25 @@ class LoanController extends Controller {
         $max_amount = $loanProduct->maximum_amount;
 
         $validationRules = [
-            'loan_id'                => 'required|unique:loans',
             'loan_product_id'        => 'required',
             'borrower_id'            => 'required',
             'currency_id'            => 'required',
-            'first_payment_date'     => 'required',
-            'release_date'           => 'required',
             'applied_amount'         => "required|numeric|min:$min_amount|max:$max_amount",
-            'late_payment_penalties' => 'required|numeric',
             'debit_account_id'       => 'nullable',
-            'attachment'             => 'nullable|mimes:jpeg,JPEG,png,PNG,jpg,doc,pdf,docx,zip|max:8192', //8MB = 8192KB
+            'attachment'             => 'nullable|mimes:jpeg,JPEG,png,PNG,jpg,doc,pdf,docx,zip|max:8192',
+            // Enquiry fields
+            'enq_full_name'          => 'required|string|max:191',
+            'enq_mobile'             => 'required|string|max:50',
+            'enq_email'              => 'required|email|max:191',
+            'enq_gst_registered'     => 'required|boolean',
+            'enq_loan_purpose'       => 'required|string|max:191',
+            'enq_monthly_revenue'    => 'required|string',
+            'enq_ato_debt'           => 'required|boolean',
+            'enq_defaults'           => 'required|boolean',
+            'enq_existing_loans'     => 'required|boolean',
+            'enq_security_type'      => 'required|string',
+            'enq_funds_needed_by'    => 'required|date',
+            'enq_consent'            => 'required|accepted',
         ];
 
         $validationMessages = [];
@@ -184,6 +193,7 @@ class LoanController extends Controller {
                 return redirect()->route('loans.create')
                     ->withErrors($validator)
                     ->withInput();
+
             }
         }
 
@@ -211,14 +221,17 @@ class LoanController extends Controller {
 
         
         $loan                         = new Loan();
-        $loan->loan_id                = $loanProduct->loan_id_prefix . $loanProduct->starting_loan_id;
+        if ($loanProduct->starting_loan_id != null) {
+            $loan->loan_id = $loanProduct->loan_id_prefix . $loanProduct->starting_loan_id;
+        }
         $loan->loan_product_id        = $request->input('loan_product_id');
         $loan->borrower_id            = $request->input('borrower_id');
         $loan->currency_id            = $request->input('currency_id');
-        $loan->first_payment_date     = $request->input('first_payment_date');
-        $loan->release_date           = $request->input('release_date');
+        $loan->first_payment_date     = $request->input('first_payment_date') ?? now()->addMonth()->format('Y-m-d');
+        $loan->release_date           = $request->input('release_date') ?? date('Y-m-d');
         $loan->applied_amount         = $request->input('applied_amount');
-        $loan->late_payment_penalties = $request->input('late_payment_penalties');
+        $loan->late_payment_penalties = 0;
+        $loan->total_paid             = 0;
         $loan->attachment             = $attachment;
         $loan->description            = $request->input('description');
         $loan->remarks                = $request->input('remarks');
@@ -226,15 +239,35 @@ class LoanController extends Controller {
         $loan->branch_id              = auth()->user()->branch_id;
         $loan->custom_fields          = json_encode($customFieldsData);
         $loan->debit_account_id       = $request->debit_account_id;
+        $loan->term                   = $request->input('term');
+        $loan->enq_full_name          = $request->input('enq_full_name');
+        $loan->enq_mobile             = $request->input('enq_mobile');
+        $loan->enq_email              = $request->input('enq_email');
+        $loan->enq_business_name      = $request->input('enq_business_name');
+        $loan->enq_gst_registered     = $request->input('enq_gst_registered');
+        $loan->enq_years_operating    = $request->input('enq_years_operating');
+        $loan->enq_abn_acn            = $request->input('enq_abn_acn');
+        $loan->enq_loan_purpose       = $request->input('enq_loan_purpose');
+        $loan->enq_time_in_business   = $request->input('enq_time_in_business');
+        $loan->enq_monthly_revenue    = $request->input('enq_monthly_revenue');
+        $loan->enq_ato_debt           = $request->input('enq_ato_debt');
+        $loan->enq_defaults           = $request->input('enq_defaults');
+        $loan->enq_existing_loans     = $request->input('enq_existing_loans');
+        $loan->enq_security_type      = $request->input('enq_security_type');
+        $loan->enq_asset_type         = $request->input('enq_asset_type');
+        $loan->enq_funds_needed_by    = $request->input('enq_funds_needed_by');
+        $loan->enq_best_contact_time  = $request->input('enq_best_contact_time');
+        $loan->enq_consent            = $request->has('enq_consent') ? 1 : 0;
 
         $loan->save();
 
         // Create Loan Repayments
+        $selectedTerm = $loan->term ?? $loan->loan_product->term;
         $calculator = new Calculator(
             $loan->applied_amount,
             $loan->first_payment_date,
             $loan->loan_product->interest_rate,
-            $loan->loan_product->term,
+            $selectedTerm,
             $loan->loan_product->term_period,
             $loan->late_payment_penalties
         );
@@ -254,7 +287,6 @@ class LoanController extends Controller {
         $loan->total_payable = $calculator->payable_amount;
         $loan->save();
 
-         
         //Check Account has enough balance for deducting fee
 
     

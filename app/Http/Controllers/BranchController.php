@@ -92,6 +92,7 @@ class BranchController extends Controller {
 
         $branch                    = new Branch();
         $branch->name              = $request->input('name');
+        $branch->branch_code       = $request->input('branch_code') ?: $this->generateBranchCode($request->input('name'));
         $branch->state             = $request->input('state');
         $branch->branch_manager_id = $request->input('branch_manager_id');
         $branch->contact_email     = $request->input('contact_email');
@@ -99,11 +100,6 @@ class BranchController extends Controller {
         $branch->address           = $request->input('address');
         $branch->descriptions      = $request->input('descriptions');
         $branch->save();
-
-        // Set branch_code via raw query to guarantee it saves regardless of model cache
-        $generatedCode = $this->generateBranchCode($request->input('name'), $branch->id);
-        DB::table('branches')->where('id', $branch->id)->update(['branch_code' => $generatedCode]);
-        $branch->branch_code = $generatedCode;
 
         if (! $request->ajax()) {
             return redirect()->route('branches.create')->with('success', _lang('Saved Successfully'));
@@ -163,6 +159,7 @@ class BranchController extends Controller {
         $branch = Branch::find($id);
 
         $branch->name              = $request->input('name');
+        $branch->branch_code       = $request->input('branch_code') ?: $branch->branch_code;
         $branch->state             = $request->input('state');
         $branch->branch_manager_id = $request->input('branch_manager_id');
         $branch->contact_email     = $request->input('contact_email');
@@ -170,16 +167,6 @@ class BranchController extends Controller {
         $branch->address           = $request->input('address');
         $branch->descriptions      = $request->input('descriptions');
         $branch->save();
-
-        // Set branch_code via raw query to guarantee it saves regardless of model cache
-        $existingCode = DB::table('branches')->where('id', $id)->value('branch_code');
-        if (empty($existingCode) || $branch->getOriginal('name') !== $request->input('name')) {
-            $newCode = $this->generateBranchCode($request->input('name'), $id);
-            DB::table('branches')->where('id', $id)->update(['branch_code' => $newCode]);
-            $branch->branch_code = $newCode;
-        } else {
-            $branch->branch_code = $existingCode;
-        }
 
         if (! $request->ajax()) {
             return redirect()->route('branches.index')->with('success', _lang('Updated Successfully'));

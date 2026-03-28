@@ -1,46 +1,47 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="row">
-    <div class="{{ $alert_col }}">
+    <div class="<?php echo e($alert_col); ?>">
         <div class="card">
             <div class="card-header">
-                <span class="panel-title">{{ _lang('Add New Loan') }}</span>
+                <span class="panel-title"><?php echo e(_lang('Add New Loan')); ?></span>
             </div>
             <div class="card-body">
 
-                {{-- Step progress bar --}}
+                
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2" style="font-family:Poppins,sans-serif;font-size:12px;color:#666;">
-                        @foreach(['Applicant Basics','Loan Snapshot','Risk Indicators','Security','Progress','Consent'] as $i => $label)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['Applicant Basics','Loan Snapshot','Risk Indicators','Security','Progress','Consent']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="text-center" style="flex:1;">
-                            <div class="step-circle mx-auto mb-1" id="step-circle-{{ $i+1 }}"
+                            <div class="step-circle mx-auto mb-1" id="step-circle-<?php echo e($i+1); ?>"
                                 style="width:28px;height:28px;border-radius:50%;background:#ddd;color:#fff;line-height:28px;font-size:12px;font-weight:600;transition:background .3s;">
-                                {{ $i+1 }}
+                                <?php echo e($i+1); ?>
+
                             </div>
-                            <div class="d-none d-md-block" style="font-size:11px;">{{ $label }}</div>
+                            <div class="d-none d-md-block" style="font-size:11px;"><?php echo e($label); ?></div>
                         </div>
-                        @if($i < 5)
-                        <div style="flex:0.5;height:2px;background:#ddd;" class="step-line" id="step-line-{{ $i+1 }}"></div>
-                        @endif
-                        @endforeach
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($i < 5): ?>
+                        <div style="flex:0.5;height:2px;background:#ddd;" class="step-line" id="step-line-<?php echo e($i+1); ?>"></div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </div>
                 </div>
 
                 <form method="post" id="enquiry-form" class="validate" autocomplete="off"
-                      action="{{ route('loans.store') }}" enctype="multipart/form-data">
-                    @csrf
+                      action="<?php echo e(route('loans.store')); ?>" enctype="multipart/form-data">
+                    <?php echo csrf_field(); ?>
 
-                    @if($errors->any())
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
                     <div class="alert alert-danger" style="font-family:Poppins,sans-serif;font-size:13px;">
                         <strong>Please fix the following:</strong>
                         <ul class="mb-0 mt-1">
-                            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?><li><?php echo e($error); ?></li><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </ul>
                     </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    {{-- STEP 1: Applicant Basics --}}
+                    
                     <div class="enquiry-step" id="step-1">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-user mr-1"></i> Section 1 — Applicant Basics
@@ -48,36 +49,37 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Borrower') }} <span class="required"> *</span></label>
-                                    <select class="form-control auto-select select2" data-selected="{{ old('borrower_id') }}" name="borrower_id" id="borrower_id" required>
-                                        <option value="">{{ _lang('Select One') }}</option>
-                                        @foreach(\App\Models\Member::all() as $member)
-                                        <option value="{{ $member->id }}"
-                                            data-name="{{ $member->first_name.' '.$member->last_name }}"
-                                            data-mobile="{{ $member->mobile }}"
-                                            data-email="{{ $member->email }}">
-                                            {{ $member->first_name.' '.$member->last_name.' ('.$member->member_no.')' }}
+                                    <label class="control-label"><?php echo e(_lang('Borrower')); ?> <span class="required"> *</span></label>
+                                    <select class="form-control auto-select select2" data-selected="<?php echo e(old('borrower_id')); ?>" name="borrower_id" id="borrower_id" required>
+                                        <option value=""><?php echo e(_lang('Select One')); ?></option>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = \App\Models\Member::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($member->id); ?>"
+                                            data-name="<?php echo e($member->first_name.' '.$member->last_name); ?>"
+                                            data-mobile="<?php echo e($member->mobile); ?>"
+                                            data-email="<?php echo e($member->email); ?>">
+                                            <?php echo e($member->first_name.' '.$member->last_name.' ('.$member->member_no.')'); ?>
+
                                         </option>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Full Name <span class="required"> *</span></label>
-                                    <input type="text" class="form-control" name="enq_full_name" value="{{ old('enq_full_name') }}" required>
+                                    <input type="text" class="form-control" name="enq_full_name" value="<?php echo e(old('enq_full_name')); ?>" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Mobile <span class="required"> *</span></label>
-                                    <input type="text" class="form-control" name="enq_mobile" value="{{ old('enq_mobile') }}" required>
+                                    <input type="text" class="form-control" name="enq_mobile" value="<?php echo e(old('enq_mobile')); ?>" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Email <span class="required"> *</span></label>
-                                    <input type="email" class="form-control" name="enq_email" value="{{ old('enq_email') }}" required>
+                                    <input type="email" class="form-control" name="enq_email" value="<?php echo e(old('enq_email')); ?>" required>
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -85,27 +87,27 @@
                                     <label class="control-label">Are you GST Registered? <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_gst_registered" required>
                                         <option value="">— Select —</option>
-                                        <option value="1" {{ old('enq_gst_registered') == '1' ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('enq_gst_registered') === '0' ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('enq_gst_registered') == '1' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('enq_gst_registered') === '0' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label class="control-label">Years Operating</label>
-                                    <input type="text" class="form-control" name="enq_years_operating" value="{{ old('enq_years_operating') }}" placeholder="e.g. 3">
+                                    <input type="text" class="form-control" name="enq_years_operating" value="<?php echo e(old('enq_years_operating')); ?>" placeholder="e.g. 3">
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label class="control-label">ABN / ACN</label>
-                                    <input type="text" class="form-control" name="enq_abn_acn" value="{{ old('enq_abn_acn') }}">
+                                    <input type="text" class="form-control" name="enq_abn_acn" value="<?php echo e(old('enq_abn_acn')); ?>">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- STEP 2: Loan Snapshot --}}
+                    
                     <div class="enquiry-step" id="step-2" style="display:none;">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-money mr-1"></i> Section 2 — Loan Snapshot
@@ -113,47 +115,47 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Loan Product') }} <span class="required"> *</span></label>
-                                    <select class="form-control auto-select select2" data-selected="{{ old('loan_product_id') }}" name="loan_product_id" id="loan_product_id" required>
-                                        <option value="">{{ _lang('Select One') }}</option>
-                                        @foreach(\App\Models\LoanProduct::active()->get() as $loanProduct)
-                                        <option value="{{ $loanProduct->id }}" data-penalties="{{ $loanProduct->late_payment_penalties }}" data-loan-id="{{ $loanProduct->loan_id_prefix.$loanProduct->starting_loan_id }}" data-details="{{ $loanProduct }}">{{ $loanProduct->name }}</option>
-                                        @endforeach
+                                    <label class="control-label"><?php echo e(_lang('Loan Product')); ?> <span class="required"> *</span></label>
+                                    <select class="form-control auto-select select2" data-selected="<?php echo e(old('loan_product_id')); ?>" name="loan_product_id" id="loan_product_id" required>
+                                        <option value=""><?php echo e(_lang('Select One')); ?></option>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = \App\Models\LoanProduct::active()->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loanProduct): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($loanProduct->id); ?>" data-penalties="<?php echo e($loanProduct->late_payment_penalties); ?>" data-loan-id="<?php echo e($loanProduct->loan_id_prefix.$loanProduct->starting_loan_id); ?>" data-details="<?php echo e($loanProduct); ?>"><?php echo e($loanProduct->name); ?></option>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Currency') }}</label>
-                                    @php $audCurrency = \App\Models\Currency::where('name', 'AUD')->where('status', 1)->first(); @endphp
+                                    <label class="control-label"><?php echo e(_lang('Currency')); ?></label>
+                                    <?php $audCurrency = \App\Models\Currency::where('name', 'AUD')->where('status', 1)->first(); ?>
                                     <input type="text" class="form-control" value="Australian Dollar (AUD)" disabled>
-                                    <input type="hidden" name="currency_id" value="{{ $audCurrency->id ?? '' }}">
+                                    <input type="hidden" name="currency_id" value="<?php echo e($audCurrency->id ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Applied Amount') }} <span class="required"> *</span></label>
-                                    <input type="text" class="form-control float-field" name="applied_amount" id="applied-amount-input" value="{{ old('applied_amount') }}" required>
+                                    <label class="control-label"><?php echo e(_lang('Applied Amount')); ?> <span class="required"> *</span></label>
+                                    <input type="text" class="form-control float-field" name="applied_amount" id="applied-amount-input" value="<?php echo e(old('applied_amount')); ?>" required>
                                     <small class="text-muted" id="amount-hint"></small>
                                 </div>
                             </div>
                             <div class="col-lg-6" id="term-field" style="display:none;">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Term') }} <span id="term-period-label" class="text-muted" style="font-size:12px;"></span> <span id="term-years-label" class="text-muted" style="font-size:12px;"></span></label>
-                                    <input type="number" class="form-control" name="term" id="term-input" value="{{ old('term') }}" min="1" max="999">
+                                    <label class="control-label"><?php echo e(_lang('Term')); ?> <span id="term-period-label" class="text-muted" style="font-size:12px;"></span> <span id="term-years-label" class="text-muted" style="font-size:12px;"></span></label>
+                                    <input type="number" class="form-control" name="term" id="term-input" value="<?php echo e(old('term')); ?>" min="1" max="999">
                                     <small class="text-muted" id="term-hint"></small>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Loan Purpose <span class="required"> *</span></label>
-                                    <input type="text" class="form-control" name="enq_loan_purpose" value="{{ old('enq_loan_purpose') }}" placeholder="e.g. Equipment purchase" required>
+                                    <input type="text" class="form-control" name="enq_loan_purpose" value="<?php echo e(old('enq_loan_purpose')); ?>" placeholder="e.g. Equipment purchase" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Time in Business</label>
-                                    <input type="text" class="form-control" name="enq_time_in_business" value="{{ old('enq_time_in_business') }}" placeholder="e.g. 2 years">
+                                    <input type="text" class="form-control" name="enq_time_in_business" value="<?php echo e(old('enq_time_in_business')); ?>" placeholder="e.g. 2 years">
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -161,27 +163,28 @@
                                     <label class="control-label">Monthly Revenue Range <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_monthly_revenue" required>
                                         <option value="">— Select —</option>
-                                        <option value="0-20k" {{ old('enq_monthly_revenue') == '0-20k' ? 'selected' : '' }}>$0 – $20k</option>
-                                        <option value="20-50k" {{ old('enq_monthly_revenue') == '20-50k' ? 'selected' : '' }}>$20k – $50k</option>
-                                        <option value="50-100k" {{ old('enq_monthly_revenue') == '50-100k' ? 'selected' : '' }}>$50k – $100k</option>
-                                        <option value="100k+" {{ old('enq_monthly_revenue') == '100k+' ? 'selected' : '' }}>$100k+</option>
+                                        <option value="0-20k" <?php echo e(old('enq_monthly_revenue') == '0-20k' ? 'selected' : ''); ?>>$0 – $20k</option>
+                                        <option value="20-50k" <?php echo e(old('enq_monthly_revenue') == '20-50k' ? 'selected' : ''); ?>>$20k – $50k</option>
+                                        <option value="50-100k" <?php echo e(old('enq_monthly_revenue') == '50-100k' ? 'selected' : ''); ?>>$50k – $100k</option>
+                                        <option value="100k+" <?php echo e(old('enq_monthly_revenue') == '100k+' ? 'selected' : ''); ?>>$100k+</option>
                                     </select>
                                 </div>
                             </div>
-                            @if(! $customFields->isEmpty())
-                                @foreach($customFields as $customField)
-                                <div class="{{ $customField->field_width }}">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(! $customFields->isEmpty()): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $customFields; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customField): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <div class="<?php echo e($customField->field_width); ?>">
                                     <div class="form-group">
-                                        <label class="control-label">{{ $customField->field_name }}</label>
-                                        {!! xss_clean(generate_input_field($customField)) !!}
+                                        <label class="control-label"><?php echo e($customField->field_name); ?></label>
+                                        <?php echo xss_clean(generate_input_field($customField)); ?>
+
                                     </div>
                                 </div>
-                                @endforeach
-                            @endif
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
-                    {{-- STEP 3: Risk Indicators --}}
+                    
                     <div class="enquiry-step" id="step-3" style="display:none;">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-alert mr-1"></i> Section 3 — Risk Indicators
@@ -192,8 +195,8 @@
                                     <label class="control-label">Any ATO Debt? <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_ato_debt" required>
                                         <option value="">— Select —</option>
-                                        <option value="1" {{ old('enq_ato_debt') == '1' ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('enq_ato_debt') === '0' ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('enq_ato_debt') == '1' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('enq_ato_debt') === '0' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                             </div>
@@ -202,8 +205,8 @@
                                     <label class="control-label">Any Defaults? <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_defaults" required>
                                         <option value="">— Select —</option>
-                                        <option value="1" {{ old('enq_defaults') == '1' ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('enq_defaults') === '0' ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('enq_defaults') == '1' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('enq_defaults') === '0' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                             </div>
@@ -212,15 +215,15 @@
                                     <label class="control-label">Any Existing Loans? <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_existing_loans" required>
                                         <option value="">— Select —</option>
-                                        <option value="1" {{ old('enq_existing_loans') == '1' ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('enq_existing_loans') === '0' ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('enq_existing_loans') == '1' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('enq_existing_loans') === '0' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- STEP 4: Security Filter --}}
+                    
                     <div class="enquiry-step" id="step-4" style="display:none;">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-shield mr-1"></i> Section 4 — Security Filter
@@ -231,21 +234,21 @@
                                     <label class="control-label">Secured or Unsecured? <span class="required"> *</span></label>
                                     <select class="form-control" name="enq_security_type" id="enq_security_type" required>
                                         <option value="">— Select —</option>
-                                        <option value="secured" {{ old('enq_security_type') == 'secured' ? 'selected' : '' }}>Secured</option>
-                                        <option value="unsecured" {{ old('enq_security_type') == 'unsecured' ? 'selected' : '' }}>Unsecured</option>
+                                        <option value="secured" <?php echo e(old('enq_security_type') == 'secured' ? 'selected' : ''); ?>>Secured</option>
+                                        <option value="unsecured" <?php echo e(old('enq_security_type') == 'unsecured' ? 'selected' : ''); ?>>Unsecured</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-6" id="asset-type-field" style="{{ old('enq_security_type') == 'secured' ? '' : 'display:none;' }}">
+                            <div class="col-lg-6" id="asset-type-field" style="<?php echo e(old('enq_security_type') == 'secured' ? '' : 'display:none;'); ?>">
                                 <div class="form-group">
                                     <label class="control-label">Asset Type</label>
-                                    <input type="text" class="form-control" name="enq_asset_type" value="{{ old('enq_asset_type') }}" placeholder="e.g. Property, Vehicle">
+                                    <input type="text" class="form-control" name="enq_asset_type" value="<?php echo e(old('enq_asset_type')); ?>" placeholder="e.g. Property, Vehicle">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- STEP 5: Progress Qualifier --}}
+                    
                     <div class="enquiry-step" id="step-5" style="display:none;">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-calendar mr-1"></i> Section 5 — Progress Qualifier
@@ -254,31 +257,31 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Funds Needed By <span class="required"> *</span></label>
-                                    <input type="text" class="form-control datepicker" name="enq_funds_needed_by" value="{{ old('enq_funds_needed_by') }}" required>
+                                    <input type="text" class="form-control datepicker" name="enq_funds_needed_by" value="<?php echo e(old('enq_funds_needed_by')); ?>" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Best Contact Time</label>
-                                    <input type="text" class="form-control" name="enq_best_contact_time" value="{{ old('enq_best_contact_time') }}" placeholder="e.g. Morning, After 3pm">
+                                    <input type="text" class="form-control" name="enq_best_contact_time" value="<?php echo e(old('enq_best_contact_time')); ?>" placeholder="e.g. Morning, After 3pm">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Attachment') }}</label>
+                                    <label class="control-label"><?php echo e(_lang('Attachment')); ?></label>
                                     <input type="file" class="file-uploader" name="attachment">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <label class="control-label">{{ _lang('Description') }}</label>
-                                    <textarea class="form-control" name="description">{{ old('description') }}</textarea>
+                                    <label class="control-label"><?php echo e(_lang('Description')); ?></label>
+                                    <textarea class="form-control" name="description"><?php echo e(old('description')); ?></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- STEP 6: Consent --}}
+                    
                     <div class="enquiry-step" id="step-6" style="display:none;">
                         <h6 style="font-family:Poppins,sans-serif;color:#214942;margin-bottom:16px;">
                             <i class="ti-check-box mr-1"></i> Section 6 — Consent
@@ -299,7 +302,7 @@
                             <div class="col-lg-12">
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="enq_consent" name="enq_consent" value="1" {{ old('enq_consent') ? 'checked' : '' }} required>
+                                        <input type="checkbox" class="custom-control-input" id="enq_consent" name="enq_consent" value="1" <?php echo e(old('enq_consent') ? 'checked' : ''); ?> required>
                                         <label class="custom-control-label" for="enq_consent" style="font-family:Poppins,sans-serif;font-size:14px;">
                                             I consent to being contacted regarding this loan enquiry.
                                         </label>
@@ -309,13 +312,14 @@
                             <div class="col-lg-12 mt-2">
                                 <div id="summary-error" class="alert alert-danger" style="display:none;font-family:Poppins,sans-serif;font-size:13px;"></div>
                                 <button type="button" class="btn btn-secondary mr-2" id="btn-loan-summary" style="display:none;">
-                                    <i class="ti-eye"></i>&nbsp;{{ _lang('View Loan Summary') }}
+                                    <i class="ti-eye"></i>&nbsp;<?php echo e(_lang('View Loan Summary')); ?>
+
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Navigation --}}
+                    
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-light" id="btn-prev" style="display:none;">
                             <i class="ti-arrow-left"></i> Previous
@@ -325,7 +329,8 @@
                                 Next <i class="ti-arrow-right"></i>
                             </button>
                             <button type="submit" class="btn btn-success" id="btn-submit" style="display:none;">
-                                <i class="ti-check-box"></i>&nbsp;{{ _lang('Submit') }}
+                                <i class="ti-check-box"></i>&nbsp;<?php echo e(_lang('Submit')); ?>
+
                             </button>
                         </div>
                     </div>
@@ -336,7 +341,7 @@
     </div>
 </div>
 
-{{-- Application Detail Modal --}}
+
 <div class="modal fade" id="appDetailModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -351,12 +356,12 @@
     </div>
 </div>
 
-{{-- Loan Summary Modal --}}
+
 <div class="modal fade" id="loanSummaryModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background:#214942;color:#fff;">
-                <h5 class="modal-title" style="font-family:Poppins,sans-serif;font-size:14px;font-weight:400;">{{ _lang('Loan Repayment Summary') }}</h5>
+                <h5 class="modal-title" style="font-family:Poppins,sans-serif;font-size:14px;font-weight:400;"><?php echo e(_lang('Loan Repayment Summary')); ?></h5>
                 <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;"><span>&times;</span></button>
             </div>
             <div class="modal-body" style="font-family:Poppins,sans-serif;font-size:14px;">
@@ -365,8 +370,8 @@
                     <table class="table table-bordered table-sm" style="font-size:13px;">
                         <thead style="background:#214942;color:#fff;">
                             <tr>
-                                <th>#</th><th>{{ _lang('Date') }}</th><th>{{ _lang('Principal') }}</th>
-                                <th>{{ _lang('Interest') }}</th><th>{{ _lang('Amount to Pay') }}</th><th>{{ _lang('Balance') }}</th>
+                                <th>#</th><th><?php echo e(_lang('Date')); ?></th><th><?php echo e(_lang('Principal')); ?></th>
+                                <th><?php echo e(_lang('Interest')); ?></th><th><?php echo e(_lang('Amount to Pay')); ?></th><th><?php echo e(_lang('Balance')); ?></th>
                             </tr>
                         </thead>
                         <tbody id="summary-table-body"></tbody>
@@ -377,9 +382,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('js-script')
+<?php $__env->startSection('js-script'); ?>
 <script>
 $(document).ready(function () {
 
@@ -417,7 +422,7 @@ $(document).ready(function () {
         $('input[name="enq_email"]').val($opt.data('email') || '');
     });
 
-    @if($errors->any())
+    <?php if($errors->any()): ?>
     (function() {
         var fieldStepMap = {
             'borrower_id': 1, 'enq_full_name': 1, 'enq_mobile': 1, 'enq_email': 1, 'enq_gst_registered': 1,
@@ -427,7 +432,7 @@ $(document).ready(function () {
             'enq_funds_needed_by': 5,
             'enq_consent': 6
         };
-        var errorFields = @json($errors->keys());
+        var errorFields = <?php echo json_encode($errors->keys(), 15, 512) ?>;
         var targetStep = 1;
         for (var i = 0; i < errorFields.length; i++) {
             var step = fieldStepMap[errorFields[i]];
@@ -436,7 +441,7 @@ $(document).ready(function () {
         showStep(targetStep);
         errorFields.forEach(function(name) { $('[name="' + name + '"]').addClass('is-invalid'); });
     })();
-    @endif
+    <?php endif; ?>
 
     function validateStep(n) {
         var valid = true;
@@ -632,4 +637,6 @@ $(document).ready(function () {
 
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\alpha-grant-management\resources\views/backend/admin/loan/create.blade.php ENDPATH**/ ?>

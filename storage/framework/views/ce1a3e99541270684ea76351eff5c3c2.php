@@ -15,7 +15,7 @@
 
 
 <div class="row">
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Loan Book</span>
@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Outstanding</span>
@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Due This Month</span>
@@ -48,7 +48,9 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+</div>
+<div class="row">
+    <div class="col-md-6">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Borrowers</span>
@@ -59,7 +61,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-6">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Loans</span>
@@ -121,49 +123,6 @@
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             <tr><td colspan="6" class="text-center text-muted"><?php echo e(_lang('No Data Available')); ?></td></tr>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header" style="font-family:Poppins,sans-serif;font-size:14px;">
-                <?php echo e(_lang('Due Loan Payments')); ?>
-
-            </div>
-            <div class="card-body px-0 pt-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="pl-4"><?php echo e(_lang('Loan ID')); ?></th>
-                                <th><?php echo e(_lang('Member No')); ?></th>
-                                <th><?php echo e(_lang('Member')); ?></th>
-                                <th><?php echo e(_lang('Last Payment Date')); ?></th>
-                                <th><?php echo e(_lang('Due Repayments')); ?></th>
-                                <th class="text-right pr-4"><?php echo e(_lang('Total Due')); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($due_repayments) == 0): ?>
-                                <tr><td colspan="6" class="text-center text-muted"><?php echo e(_lang('No Data Available')); ?></td></tr>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $due_repayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $repayment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <tr>
-                                <td class="pl-4"><?php echo e($repayment->loan->loan_id); ?></td>
-                                <td><?php echo e($repayment->loan->borrower->member_no); ?></td>
-                                <td><?php echo e($repayment->loan->borrower->name); ?></td>
-                                <td><?php echo e($repayment->repayment_date); ?></td>
-                                <td><?php echo e($repayment->total_due_repayment); ?></td>
-                                <td class="text-right pr-4"><?php echo e(decimalPlace($repayment->total_due, currency($repayment->loan->currency->name))); ?></td>
-                            </tr>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </tbody>
                     </table>
                 </div>

@@ -13,9 +13,9 @@
     .b-current { background:#27ae60; color:#fff; padding:2px 8px; border-radius:10px; font-size:11px; }
 </style>
 
-{{-- ── 4 Stat Cards ── --}}
+{{-- ── Stat Cards: 3 top + 2 bottom ── --}}
 <div class="row">
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Loan Book</span>
@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Outstanding</span>
@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-4">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Due This Month</span>
@@ -48,7 +48,9 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+</div>
+<div class="row">
+    <div class="col-md-6">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Borrowers</span>
@@ -59,7 +61,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl col-md-4 col-sm-6">
+    <div class="col-md-6">
         <div class="db-stat">
             <div class="db-stat-left">
                 <span class="db-stat-label">Total Loans</span>
@@ -119,48 +121,6 @@
                             @empty
                             <tr><td colspan="6" class="text-center text-muted">{{ _lang('No Data Available') }}</td></tr>
                             @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- ── Due Loan Payments ── --}}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header" style="font-family:Poppins,sans-serif;font-size:14px;">
-                {{ _lang('Due Loan Payments') }}
-            </div>
-            <div class="card-body px-0 pt-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="pl-4">{{ _lang('Loan ID') }}</th>
-                                <th>{{ _lang('Member No') }}</th>
-                                <th>{{ _lang('Member') }}</th>
-                                <th>{{ _lang('Last Payment Date') }}</th>
-                                <th>{{ _lang('Due Repayments') }}</th>
-                                <th class="text-right pr-4">{{ _lang('Total Due') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if(count($due_repayments) == 0)
-                                <tr><td colspan="6" class="text-center text-muted">{{ _lang('No Data Available') }}</td></tr>
-                            @endif
-                            @foreach($due_repayments as $repayment)
-                            <tr>
-                                <td class="pl-4">{{ $repayment->loan->loan_id }}</td>
-                                <td>{{ $repayment->loan->borrower->member_no }}</td>
-                                <td>{{ $repayment->loan->borrower->name }}</td>
-                                <td>{{ $repayment->repayment_date }}</td>
-                                <td>{{ $repayment->total_due_repayment }}</td>
-                                <td class="text-right pr-4">{{ decimalPlace($repayment->total_due, currency($repayment->loan->currency->name)) }}</td>
-                            </tr>
-                            @endforeach
                         </tbody>
                     </table>
                 </div>

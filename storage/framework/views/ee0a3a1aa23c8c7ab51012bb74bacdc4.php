@@ -152,7 +152,7 @@
                     <div class="ld-divider"></div>
                     <div class="ld-summary-item">
                         <span class="ld-label"><?php echo e(_lang('Pending Amount')); ?></span>
-                        <span class="ld-value"><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></span>
+                        <span class="ld-value"><?php echo e(decimalPlace($loan->applied_amount - ($loan->total_paid ?? 0), currency($loan->currency->name))); ?></span>
                     </div>
                     <div class="ld-divider"></div>
                     <div class="ld-summary-item">
@@ -206,11 +206,11 @@
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Total Principal Paid')); ?></span>
-                        <span class="ld-value" style="color:#44a74a;"><?php echo e(decimalPlace($loan->total_paid, currency($loan->currency->name))); ?></span>
+                        <span class="ld-value" style="color:#44a74a;"><?php echo e(decimalPlace($loan->total_paid ?? 0, currency($loan->currency->name))); ?></span>
                     </div>
                     <div class="ld-detail-row">
                         <span class="ld-label"><?php echo e(_lang('Due Amount')); ?></span>
-                        <span class="ld-value" style="color:#e74c3c;"><?php echo e(decimalPlace($loan->applied_amount - $loan->total_paid, currency($loan->currency->name))); ?></span>
+                        <span class="ld-value" style="color:#e74c3c;"><?php echo e(decimalPlace($loan->applied_amount - ($loan->total_paid ?? 0), currency($loan->currency->name))); ?></span>
                     </div>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status == 1): ?>
                     <div class="ld-detail-row">
@@ -254,10 +254,12 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
                 <div style="text-align:center;margin-top:20px;">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loan->status != 2): ?>
                     <a href="<?php echo e(route('loans.edit', $loan->id)); ?>" class="btn btn-warning btn-sm">
                         <i class="ti-pencil-alt mr-1"></i><?php echo e(_lang('Edit Loan')); ?>
 
                     </a>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
 

@@ -104,13 +104,13 @@
                             <div class="col-md-12">
                                 <label>{{ _lang('Payment Method') }}</label>
                                 <div class="d-flex flex-wrap mb-3" id="method_tabs">
-                                    <button type="button" class="btn btn-outline-primary mr-2 mb-2 method-btn active" data-method="cash">
+                                    <button type="button" class="btn btn-outline-success mr-2 mb-2 method-btn active" data-method="cash">
                                         <i class="fas fa-money-bill-wave"></i> {{ _lang('Cash') }}
                                     </button>
-                                    <button type="button" class="btn btn-outline-primary mr-2 mb-2 method-btn" data-method="bank_transfer">
+                                    <button type="button" class="btn btn-outline-success mr-2 mb-2 method-btn" data-method="bank_transfer">
                                         <i class="fas fa-university"></i> {{ _lang('Bank Transfer') }}
                                     </button>
-                                    <a href="#" id="stripe_pay_link" class="btn btn-outline-danger mr-2 mb-2">
+                                    <a href="#" id="stripe_pay_link" class="btn btn-outline-success mr-2 mb-2">
                                         <i class="fab fa-stripe-s"></i> {{ _lang('Stripe') }}
                                     </a>
                                 </div>
@@ -176,8 +176,8 @@
             { data: 'remarks',       name: 'remarks', orderable: false,
               render: function(d) {
                   var r = d || '';
-                  if (r.indexOf('Stripe') !== -1) return '<span class="badge badge-danger">Stripe</span>';
-                  if (r.indexOf('BANK_TRANSFER') !== -1) return '<span class="badge badge-info">Bank Transfer</span>';
+                  if (r.indexOf('Stripe') !== -1) return '<span class="badge badge-success">Stripe</span>';
+                  if (r.indexOf('BANK_TRANSFER') !== -1) return '<span class="badge badge-success">Bank Transfer</span>';
                   return '<span class="badge badge-success">Cash</span>';
               }
             },
@@ -263,8 +263,8 @@
 
     // ── Method tabs ───────────────────────────────────────────────────────────
     $(document).on('click', '.method-btn', function () {
-        $('.method-btn').removeClass('active');
-        $(this).addClass('active');
+        $('.method-btn').removeClass('active btn-success').addClass('btn-outline-success');
+        $(this).removeClass('btn-outline-success').addClass('btn-success active');
         var method = $(this).data('method');
         $('#pay_method').val(method);
         $('#bank_details_section').toggle(method === 'bank_transfer');
